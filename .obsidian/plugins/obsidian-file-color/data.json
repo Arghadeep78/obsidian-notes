@@ -1,0 +1,37 @@
+{
+  "cascadeColors": false,
+  "colorBackground": false,
+  "palette": [
+    {
+      "id": "HgMSdb_0qXdWV1h7n_oHZ",
+      "name": "coral",
+      "value": "#e06c75"
+    },
+    {
+      "id": "28XFpyjnjYT7Qsdbl64EI",
+      "name": "mint",
+      "value": "#98c379"
+    },
+    {
+      "id": "3uKCgHYN2AQvA9ZptNsMv",
+      "name": "amber",
+      "value": "#e5c07b"
+    },
+    {
+      "id": "PfCEz1DehN14czyZCZjW-",
+      "name": "sky blue",
+      "value": "#61afef"
+    },
+    {
+      "id": "AtP1WkuStl_ptEXSBdksB",
+      "name": "lavender",
+      "value": "#c678dd"
+    }
+  ],
+  "fileColors": [
+    {
+      "path": "Routine.md",
+      "color": "3uKCgHYN2AQvA9ZptNsMv"
+    }
+  ]
+}

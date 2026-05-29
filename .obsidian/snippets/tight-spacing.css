@@ -1,0 +1,26 @@
+/* Reduce spacing between paragraphs in Live Preview and Source mode */
+.cm-line {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+
+/* Reduce spacing between paragraphs in Reading mode */
+.markdown-rendered p {
+    margin-top: 0.2em !important;
+    margin-bottom: 0.2em !important;
+}
+
+/* Optional: Tighten spacing for lists and headers to match */
+.markdown-rendered li, 
+.cm-list-li {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+
+.markdown-rendered h1, .markdown-rendered h2, .markdown-rendered h3,
+.cm-header {
+    margin-top: 0.5em !important;
+    margin-bottom: 0.2em !important;
+}
