@@ -1,0 +1,212 @@
+{
+  "main": {
+    "id": "33398cc5d1f63bcb",
+    "type": "split",
+    "children": [
+      {
+        "id": "15ffc26d593f8e03",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c153b81c6a0450e3",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "a3efc1b59ea77818",
+    "type": "split",
+    "children": [
+      {
+        "id": "f289980ed60a153a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d408d5e7a6762f3e",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "f4b9d9fd7d7e762f",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "321ec7f4e6fb41bc",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "86e45d4211a91219",
+    "type": "split",
+    "children": [
+      {
+        "id": "8145dc7aa3c33d54",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "53ac71a61528bd71",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "code-notes/Dev/backend/ok.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for ok"
+            }
+          },
+          {
+            "id": "c3ded8801be1ce8a",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "code-notes/Dev/backend/ok.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from ok"
+            }
+          },
+          {
+            "id": "74a406a6d555d589",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "50ebc55cb8147204",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "21034a2def5e5998",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "code-notes/Dev/backend/ok.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of ok"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "d408d5e7a6762f3e",
+  "lastOpenFiles": [
+    "code-notes/Dev/frontend/React/ok.md",
+    "code-notes/Dev/backend/ok.md",
+    "code-notes/Dev/frontend",
+    "code-notes/Dev/backend",
+    "code-notes/Projects/Mini Redis Server/ok.md",
+    "code-notes/Dev/frontend/React",
+    "code-notes/System Design/LLD/ok.md",
+    "code-notes/System Design/HLD/ok.md",
+    "code-notes/Projects/SIIH-fieldSync/ok.md",
+    "code-notes/Projects/Intern-Webyalaya/ok.md",
+    "code-notes/Projects/Coll. Workspace/ok.md",
+    "code-notes/Projects/AI Interviewer/ok.md",
+    "code-notes/OS/ok.md",
+    "code-notes/OOPS/ok.md",
+    "code-notes/CN/ok.md",
+    "code-notes/DBMS/ok.md",
+    "code-notes/Dev/frontend/JS/ok.md",
+    "code-notes/Dev/Untitled.md",
+    "code-notes/README.md",
+    "code-notes/System Design/LLD",
+    "code-notes/System Design/HLD",
+    "code-notes/System Design",
+    "code-notes/Projects/SIIH-fieldSync",
+    "code-notes/Projects/Mini Redis Server",
+    "code-notes/Projects/Intern-Webyalaya",
+    "code-notes/Projects/Coll. Workspace",
+    "Welcome.md"
+  ]
+}
