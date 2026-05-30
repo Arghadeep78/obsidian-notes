@@ -1,26 +1,23 @@
-/* Reduce spacing between paragraphs in Live Preview and Source mode */
-.cm-line {
-    padding-top: 0px !important;
-    padding-bottom: 0px !important;
-    margin-top: 0px !important;
-    margin-bottom: 0px !important;
+/* Tighten the file explorer line spacing */
+.nav-file-title, .nav-folder-title {
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    line-height: 1.2 !important;
 }
 
-/* Reduce spacing between paragraphs in Reading mode */
-.markdown-rendered p {
-    margin-top: 0.2em !important;
-    margin-bottom: 0.2em !important;
+/* Reduce spacing between paragraphs and list items */
+.cm-s-obsidian p, .markdown-rendered p {
+    margin-block-start: 0.5em !important;
+    margin-block-end: 0.5em !important;
 }
 
-/* Optional: Tighten spacing for lists and headers to match */
-.markdown-rendered li, 
-.cm-list-li {
-    margin-top: 0px !important;
-    margin-bottom: 0px !important;
+li {
+    padding-top: 1px !important;
+    padding-bottom: 1px !important;
 }
 
-.markdown-rendered h1, .markdown-rendered h2, .markdown-rendered h3,
-.cm-header {
-    margin-top: 0.5em !important;
-    margin-bottom: 0.2em !important;
+/* Minimize header margins */
+.markdown-rendered h1, .markdown-rendered h2, .markdown-rendered h3 {
+    margin-top: 0.6em !important;
+    margin-bottom: 0.3em !important;
 }

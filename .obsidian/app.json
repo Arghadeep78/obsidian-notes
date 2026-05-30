@@ -4,6 +4,12 @@
   "promptDelete": false,
   "readableLineLength": true,
   "strictLineBreaks": true,
-  "useMarkdownLinks": true,
-  "rightToLeft": false
+  "useMarkdownLinks": false,
+  "rightToLeft": false,
+  "foldHeading": true,
+  "showLineNumber": false,
+  "showIndentGuide": true,
+  "vimMode": false,
+  "attachmentFolderPath": "./",
+  "showInlineTitle": true
 }

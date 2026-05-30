@@ -1,0 +1,46 @@
+/* ==========================================================================
+   1. COLOR FOR THE HEADER NAMES (<iostream>, <random>)
+   ========================================================================== */
+
+/* Editing View (Live Preview / Source Mode) */
+.cm-line:has(.cm-meta)::-webkit-inline-text-wrapper,
+.cm-line .cm-meta + .cm-string, 
+.cm-line .cm-meta {
+    background: linear-gradient(to right, #ff79c6 0%, #ff79c6 85px, #f7ffa2d2 85px, #f7ffa2d2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Precise Reading View alternative if the gradient acts up */
+.markdown-rendered pre[class*="language-cpp"] span.token.header-name,
+.markdown-rendered pre[class*="language-cpp"] span.token.string {
+    color: #f7ffa2d2 !important; /* Yellow for headers */
+    -webkit-text-fill-color: #f7ffa2d2 !important;
+}
+
+
+/* ==========================================================================
+   2. COLOR FOR #include DIRECTIVE ONLY
+   ========================================================================== */
+
+/* Reading View Override */
+.markdown-rendered pre[class*="language-cpp"] span.token.directive-hash,
+.markdown-rendered pre[class*="language-cpp"] span.token.directive {
+    color: #ff79c6 !important; /* Pink for #include */
+    -webkit-text-fill-color: #ff79c6 !important;
+}
+
+
+/* ==========================================================================
+   3. COLOR FOR main() (Light Cyan)
+   ========================================================================== */
+
+.cm-line .cm-def {
+    color: #fa907b !important;
+    -webkit-text-fill-color: #fa907b !important;
+}
+
+.markdown-rendered pre[class*="language-cpp"] span.token.function {
+    color: #fa907b !important;
+    -webkit-text-fill-color: #fa907b !important;
+}

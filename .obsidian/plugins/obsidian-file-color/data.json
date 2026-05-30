@@ -30,8 +30,48 @@
   ],
   "fileColors": [
     {
-      "path": "Routine.md",
+      "path": "Projects/AI Interviewer",
+      "color": "HgMSdb_0qXdWV1h7n_oHZ"
+    },
+    {
+      "path": "Projects/Coll. Workspace",
+      "color": "28XFpyjnjYT7Qsdbl64EI"
+    },
+    {
+      "path": "Projects/Intern-Webyalaya",
       "color": "3uKCgHYN2AQvA9ZptNsMv"
+    },
+    {
+      "path": "Projects/Mini Redis Server",
+      "color": "PfCEz1DehN14czyZCZjW-"
+    },
+    {
+      "path": "Projects/SIIH-fieldSync",
+      "color": "AtP1WkuStl_ptEXSBdksB"
+    },
+    {
+      "path": "System Design/HLD",
+      "color": "28XFpyjnjYT7Qsdbl64EI"
+    },
+    {
+      "path": "System Design/LLD",
+      "color": "3uKCgHYN2AQvA9ZptNsMv"
+    },
+    {
+      "path": "CS Fundamentals/CN",
+      "color": "HgMSdb_0qXdWV1h7n_oHZ"
+    },
+    {
+      "path": "CS Fundamentals/DBMS",
+      "color": "28XFpyjnjYT7Qsdbl64EI"
+    },
+    {
+      "path": "CS Fundamentals/OOPS",
+      "color": "3uKCgHYN2AQvA9ZptNsMv"
+    },
+    {
+      "path": "CS Fundamentals/OS",
+      "color": "PfCEz1DehN14czyZCZjW-"
     }
   ]
 }

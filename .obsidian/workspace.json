@@ -4,39 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "c82eb9b072ae3c45",
+        "id": "2916497b026ddc4d",
         "type": "tabs",
         "children": [
           {
-            "id": "b39926fd8b103698",
+            "id": "1f9eb86484264442",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Projects/Mini Redis Server/Theory.md",
+                "file": "CS Fundamentals/OOPS/notes/10 - Friend Functions, Friend Classes & Namespaces.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Theory"
-            }
-          },
-          {
-            "id": "68e6eb914987735e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Projects/Mini Redis Server/Overview.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Overview"
+              "title": "10 - Friend Functions, Friend Classes & Namespaces"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -48,7 +33,7 @@
       {
         "id": "f289980ed60a153a",
         "type": "tabs",
-        "dimension": 60.56818181818182,
+        "dimension": 73.18181818181819,
         "children": [
           {
             "id": "d408d5e7a6762f3e",
@@ -89,16 +74,47 @@
               "icon": "lucide-bookmark",
               "title": "Bookmarks"
             }
+          },
+          {
+            "id": "a2d59f536c37e500",
+            "type": "leaf",
+            "state": {
+              "type": "canvas",
+              "state": {
+                "file": "Untitled.canvas",
+                "viewState": {
+                  "x": 0,
+                  "y": 0,
+                  "zoom": 0
+                }
+              },
+              "icon": "lucide-layout-dashboard",
+              "title": "Untitled"
+            }
+          },
+          {
+            "id": "68e6eb914987735e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Projects/Mini Redis Server/Theory.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Theory"
+            }
           }
         ]
       },
       {
-        "id": "4b1fe2e98dcfa582",
+        "id": "49782cdfdfe71472",
         "type": "tabs",
-        "dimension": 39.43181818181819,
+        "dimension": 26.81818181818182,
         "children": [
           {
-            "id": "a2d59f536c37e500",
+            "id": "94eb5da0088dd643",
             "type": "leaf",
             "state": {
               "type": "graph",
@@ -111,7 +127,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 251
+    "width": 317
   },
   "right": {
     "id": "86e45d4211a91219",
@@ -120,7 +136,6 @@
       {
         "id": "8145dc7aa3c33d54",
         "type": "tabs",
-        "dimension": 69.8051948051948,
         "children": [
           {
             "id": "53ac71a61528bd71",
@@ -128,7 +143,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Projects/Mini Redis Server/Overview.md",
+                "file": "CS Fundamentals/OOPS/01 - Introduction, OOP & Pointers.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -138,7 +153,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Overview"
+              "title": "Backlinks for 01 - Introduction, OOP & Pointers"
             }
           },
           {
@@ -190,13 +205,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "code-notes/Dev/backend/ok.md",
+                "file": "CS Fundamentals/OOPS/notes/10 - Friend Functions, Friend Classes & Namespaces.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of ok"
+              "title": "Outline of 10 - Friend Functions, Friend Classes & Namespaces"
             }
           },
           {
@@ -208,15 +223,7 @@
               "icon": "git-pull-request",
               "title": "Source Control"
             }
-          }
-        ],
-        "currentTab": 5
-      },
-      {
-        "id": "561b871345f7cfb6",
-        "type": "tabs",
-        "dimension": 30.1948051948052,
-        "children": [
+          },
           {
             "id": "7ca0c8162f6c6b20",
             "type": "leaf",
@@ -227,14 +234,16 @@
               "title": "Calendar"
             }
           }
-        ]
+        ],
+        "currentTab": 5
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 242
   },
   "left-ribbon": {
     "hiddenItems": {
+      "graph:Open graph view": false,
       "switcher:Open quick switcher": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
@@ -243,49 +252,49 @@
       "omnisearch:Omnisearch": false,
       "daily-notes:Open today's daily note": false,
       "canvas:Create new canvas": false,
-      "graph:Open graph view": false
+      "realclaudian:Open Claudian": false
     }
   },
-  "active": "68e6eb914987735e",
+  "active": "1f9eb86484264442",
   "lastOpenFiles": [
+    "CS Fundamentals/OOPS/notes/09 - const Correctness & Type Casting in C++ OOPs.md",
+    "CS Fundamentals/OOPS/notes/08 - Move Semantics & Rule of Five (above C++11).md",
+    "CS Fundamentals/OOPS/notes/07 - The static Keyword in C++ OOPs.md",
+    "CS Fundamentals/OOPS/notes/06 - Abstraction & Abstract Class.md",
+    "CS Fundamentals/OOPS/notes/05 - Polymorphism — Overloading, Overriding & Virtual Functions.md",
+    "CS Fundamentals/OOPS/notes/04 - Inheritance — Modes & Types.md",
+    "CS Fundamentals/OOPS/notes/03 - Constructors, this Pointer, Copy Constructor, Shallow & Deep Copy & Destructor.md",
+    "CS Fundamentals/OOPS/notes/02 - Class, Object, Access Specifiers & Encapsulation.md",
+    "CS Fundamentals/OOPS/notes/01 - Introduction, OOP & Pointers.md",
     "Projects/Mini Redis Server/Overview.md",
     "Projects/Mini Redis Server/Theory.md",
-    "Projects/Mini Redis Server/What Is Redis? What Are We Building?.md",
-    "Routine.md",
-    "Projects/Mini Redis Server/Untitled.base",
-    "Untitled.md",
-    "ok.md",
-    "README.md",
-    "Dev/frontend/React/ok.md",
-    "2026-05-29.md",
-    "Untitled 1.canvas",
+    "CS Fundamentals/OOPS/notes/index.md",
     "Untitled.canvas",
-    "OS/ok.md",
-    "CN/ok.md",
+    "CS Fundamentals/OOPS/07 - The static Keyword in C++ OOPs.md",
+    "CS Fundamentals/OOPS/01 - Introduction, OOP & Pointers.md",
+    "CS Fundamentals/OOPS/02 - Class, Object, Access Specifiers & Encapsulation.md",
+    "CS Fundamentals/OOPS/index.md",
+    "Routine.md",
+    "README.md",
+    "CS Fundamentals/OOPS/03 - Constructors, this Pointer, Copy Constructor, Shallow & Deep Copy & Destructor.md",
+    "CS Fundamentals/OOPS/08 - Move Semantics & Rule of Five (above C++11).md",
+    "CS Fundamentals/OOPS/fnj.md",
+    "CS Fundamentals/OOPS/dkjfhdksjdjbhf.md",
+    "CS Fundamentals/OOPS/master.md",
+    "CS Fundamentals/OOPS/Advanced Pointer Mechanics.md",
+    "CS Fundamentals/OOPS/The 4 Pillars of OO,kPs.md",
+    "CS Fundamentals/OOPS/Pointers & Dereferencing in C++.md",
+    "CS Fundamentals",
+    "Untitled.base",
+    "Projects/Mini Redis Server/Untitled.base",
+    "Untitled 1.canvas",
     "Untitled 2.canvas",
-    "Projects/AI Interviewer/ok2.md",
-    "code-notes/Dev/frontend/React/ok.md",
-    "code-notes/Dev/backend/ok.md",
     "code-notes/Dev/frontend",
     "code-notes/Dev/backend",
-    "code-notes/Projects/Mini Redis Server/ok.md",
     "code-notes/Dev/frontend/React",
-    "code-notes/System Design/LLD/ok.md",
-    "code-notes/System Design/HLD/ok.md",
-    "code-notes/Projects/SIIH-fieldSync/ok.md",
-    "code-notes/Projects/Intern-Webyalaya/ok.md",
-    "code-notes/Projects/Coll. Workspace/ok.md",
-    "code-notes/Projects/AI Interviewer/ok.md",
-    "code-notes/OS/ok.md",
-    "code-notes/OOPS/ok.md",
-    "code-notes/CN/ok.md",
-    "code-notes/DBMS/ok.md",
-    "code-notes/Dev/frontend/JS/ok.md",
     "code-notes/System Design/LLD",
     "code-notes/System Design/HLD",
     "code-notes/System Design",
-    "code-notes/Projects/SIIH-fieldSync",
-    "code-notes/Projects/Mini Redis Server",
-    "code-notes/Projects/Intern-Webyalaya"
+    "code-notes/Projects/SIIH-fieldSync"
   ]
 }

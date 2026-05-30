@@ -21,8 +21,8 @@
       {
         "name": "",
         "active": true,
-        "type": "FILES",
-        "pattern": "Routine.md",
+        "type": "DIRECTORIES",
+        "pattern": "System Design/LLD",
         "patternType": "STRICT"
       }
     ],
@@ -46,22 +46,7 @@
         "patternType": "STRICT"
       }
     ],
-    "paths": [
-      {
-        "name": "",
-        "active": true,
-        "type": "FILES_AND_DIRECTORIES",
-        "pattern": "",
-        "patternType": "WILDCARD"
-      },
-      {
-        "name": "",
-        "active": true,
-        "type": "FILES",
-        "pattern": "README.md",
-        "patternType": "STRICT"
-      }
-    ],
+    "paths": [],
     "frontMatter": [
       {
         "name": "",

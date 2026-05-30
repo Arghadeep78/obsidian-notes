@@ -1,2 +1,0 @@
-# obsidian-notes
-Coding Notes 

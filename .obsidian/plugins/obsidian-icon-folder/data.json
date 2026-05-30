@@ -6,11 +6,11 @@
     "emojiStyle": "native",
     "iconColor": null,
     "recentlyUsedIcons": [
+      "LiListTodo",
       "LiBlocks",
       "LiComponent",
       "LiWaypoints",
-      "LiWorkflow",
-      "LiWheat"
+      "LiWorkflow"
     ],
     "recentlyUsedIconsSize": 5,
     "rules": [],
@@ -34,11 +34,7 @@
     "debugMode": false,
     "useInternalPlugins": false
   },
-  "CN": "LiNetwork",
-  "DBMS": "LiDatabaseZap",
   "Dev": "LiCode2",
-  "OOPS": "LiPackage",
-  "OS": "LiCpu",
   "Projects": "LiFolderGit",
   "Projects/AI Interviewer": "LiBot",
   "Projects/Coll. Workspace": "LiUsers",
@@ -47,5 +43,9 @@
   "Projects/SIIH-fieldSync": "LiWheat",
   "System Design": "LiBlocks",
   "System Design/HLD": "LiWaypoints",
-  "System Design/LLD": "LiComponent"
+  "System Design/LLD": "LiComponent",
+  "CS Fundamentals/CN": "LiNetwork",
+  "CS Fundamentals/DBMS": "LiDatabaseZap",
+  "CS Fundamentals/OOPS": "LiPackage",
+  "CS Fundamentals/OS": "LiCpu"
 }
