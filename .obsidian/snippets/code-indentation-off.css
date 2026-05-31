@@ -1,0 +1,11 @@
+/* Hide indentation guides only inside code blocks (Live Preview) */
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock .cm-indent::before {
+    display: none !important;
+    border: none !important;
+}
+
+/* Ensure no background or shadows are used for the guide in certain themes */
+.markdown-source-view.mod-cm6 .cm-line.HyperMD-codeblock .cm-indent {
+    box-shadow: none !important;
+    border: none !important;
+}

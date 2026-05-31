@@ -33,36 +33,30 @@ An object is a **concrete, physical instance** of a class — an actual house bu
 - You can create **millions of objects** from the same class — each is independent
 - Modifying one object's data does NOT affect another
 
+Functions associated with a class are called **methods** of that class
+
 ```cpp
 #include <iostream>
-#include <string>
 using namespace std;
 
-// CLASS — blueprint (no memory yet)
-class Teacher {
-    public:
-        string name;
-        string department;
-        string subject;
-        double salary;
-
-        void changeDepartment(string newDept) {
-            department = newDept;   // function that operates on this object's data
-        }
-};
-
+class Student {
+  private:
+	string name;
+  public:
+    // Inside class definition
+    void setName(string n) {
+        name = n;
+    }
+    void display();// Declaration only
+}; //semi-colon must
+void Student::display() { // Outside class definition
+    cout << name << endl;
+}
 int main() {
-    Teacher t1;   // OBJECT — memory allocated HERE (blueprint → real thing)
-    Teacher t2;   // another independent object
-    Teacher t3;   // yet another; each gets its own name, dept, subject, salary
-
-    t1.name = "Shraddha";         // set t1's data
-    t1.department = "Computer Science";
-    t1.subject = "C++";
-    t1.salary = 25000;
-
-    cout << t1.name << endl;   // prints: Shraddha
-    cout << t2.name << endl;   // prints: "" — t2 has its own separate name (empty)
+    Student s;
+    s.setName("Arghadeep");
+    s.display();
+    cout<<s.name<<endl; //s.name used as var
     return 0;
 }
 ```
@@ -87,16 +81,14 @@ Teacher t1, t2, t3;   // all three share the same blueprint
 
 ---
 
-## The Four Pillars (Every Interview Asks This)
+## The Four Pillars (MEMORISE)
 
-These are the four core principles of OOPs. Memorise the one-line definitions exactly.
-
-| Pillar | What It Means | Real-World Analogy |
-|---|---|---|
-| **[[02 - Class, Object, Access Specifiers & Encapsulation#Encapsulation — What It Actually Means\|Encapsulation]]** | Bundle data + methods into one unit (class), and hide sensitive data | A capsule pill — ingredients inside, outer shell is what you interact with |
-| **[[06 - Abstraction & Abstract Class#What Is Abstraction? (The ATM Analogy)\|Abstraction]]** | Hide *how* something works internally; expose only *what* it does | ATM machine — you press "withdraw", you don't see the banking logic |
-| **[[04 - Inheritance — Modes & Types#What Is Inheritance? (The Intuition First)\|Inheritance]]** | A child class automatically gets properties/methods of a parent class | Child inherits eye colour and height from parents |
-| **[[05 - Polymorphism — Overloading, Overriding & Virtual Functions#What Is Polymorphism? (The Intuition First)\|Polymorphism]]** | Same function name behaves differently depending on context | A person behaves differently as an employee, parent, friend — same person, different roles |
+| Pillar                                                                                                                            | What It Means                                                         | Real-World Analogy                                                                         |
+| --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| **[[02 - Class, Object, Access Specifiers & Encapsulation#Encapsulation — What It Actually Means\|Encapsulation]]**               | Bundle data + methods into one unit (class), and hide sensitive data  | A capsule pill — ingredients inside, outer shell is what you interact with                 |
+| **[[06 - Abstraction & Abstract Class#What Is Abstraction? (The ATM Analogy)\|Abstraction]]**                                     | Hide *how* something works internally; expose only *what* it does     | ATM machine — you press "withdraw", you don't see the banking logic                        |
+| **[[04 - Inheritance — Modes & Types#What Is Inheritance? (The Intuition First)\|Inheritance]]**                                  | A child class automatically gets properties/methods of a parent class | Child inherits eye colour and height from parents                                          |
+| **[[05 - Polymorphism — Overloading, Overriding & Virtual Functions#What Is Polymorphism? (The Intuition First)\|Polymorphism]]** | Same function name behaves differently depending on context           | A person behaves differently as an employee, parent, friend — same person, different roles |
 
 > These four pillars are the **most asked OOPs interview questions**. Know them cold.
 
@@ -264,8 +256,8 @@ int main() {
 **Dangling pointer:** using a pointer after `delete` — undefined behaviour.
 
 ---
-
 ## Stack vs Heap — Two Ways to Create Objects
+
 
 ```cpp
 Teacher t1;                    // Stack object — auto-destroyed when it goes out of scope
@@ -275,7 +267,25 @@ delete t2;                     // MANDATORY — forgetting this = memory leak
 t2 = nullptr;
 ```
 
-Rule of thumb: prefer stack objects. Only use `new` when the object needs to outlive the current function/block.
+| Stack                                     | Heap                      |
+| ----------------------------------------- | ------------------------- |
+| Local variables & objects                 | Dynamic data              |
+| Automatic memory management (no new)      | Manual (`new` / `delete`) |
+| Faster memory allocation and deallocation | Slower                    |
+| Limited memory available                  | Larger available          |
+| freed at scope end                        | persists until deleted    |
+
+
+**Rule of thumb:**
+- Normal variables/objects → Stack, `new` → Heap.
+- prefer stack objects. Only use `new` when the object needs to outlive the current function/block.
+
+*Consideration*
+- **Forget `delete` on heap** → memory leak (block is reserved but never freed)
+- **After `delete ptr;`** → `ptr` is a dangling pointer. Always set `ptr = nullptr;` after deleting
+- **`delete` vs `delete[]`** → use (`delete arr[]`) for arrays , (`delete p`) for single objects
+
+
 
 ---
 

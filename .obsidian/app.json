@@ -11,5 +11,6 @@
   "showIndentGuide": true,
   "vimMode": false,
   "attachmentFolderPath": "./",
-  "showInlineTitle": true
+  "showInlineTitle": true,
+  "focusNewTab": false
 }

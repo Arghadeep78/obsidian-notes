@@ -1,8 +1,8 @@
 {
-  "catppuccin-theme-settings@@catppuccin-theme-dark": "ctp-mocha",
+  "catppuccin-theme-settings@@catppuccin-theme-dark": "ctp-macchiato",
   "catppuccin-theme-settings@@catppuccin-theme-accents": "ctp-full-palette",
   "catppuccin-icon-styles@@ctp-icon-hide": true,
-  "catppuccin-interface-styles@@ctp-bold-folder-title": true,
+  "catppuccin-interface-styles@@ctp-bold-folder-title": false,
   "pln@@pln-hdcl": true,
   "Editor@@h1-color@@light": "#14A59E",
   "catppuccin-heading-settings@@ctp-h1": "var(--ctp-lavender)",

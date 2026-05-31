@@ -12,7 +12,7 @@ class ClassName {
 
     protected:
         // Members here are accessible INSIDE this class
-        // AND inside any child (derived) class
+        // AND inside any derived (child) class
         // but NOT from outside (not from main())
 
     public:
@@ -36,7 +36,7 @@ Think of it as a "who can see this?" question:
 | `protected` | ✅ Yes | ✅ Yes | ❌ No |
 | `public` | ✅ Yes | ✅ Yes | ✅ Yes |
 
-**The key insight:** `private` is for things only *this* class should touch. `protected` is for sharing with *children* only. `public` is for the *world*.
+**The key insight:** `private` is for things only *self* class should touch. `protected` is for sharing with *children* only. `public` is for the *world*.
 
 ---
 
@@ -50,45 +50,35 @@ Let's build a `Teacher` class that properly hides sensitive data (salary) but ex
 using namespace std;
 
 class Teacher {
-    private:
-        double salary;   // HIDDEN from outside — sensitive data
-                         // Only teacher's own methods can read/write this
-
-    public:
-        string name;        // Accessible from anywhere — not sensitive
-        string department;
-        string subject;
-
-        // SETTER — a controlled "write door" for private data
-        // You can add validation here (e.g., salary can't be negative)
-        void setSalary(double s) {
-            if (s >= 0)          // validation — direct field access can't do this
-                salary = s;
-        }
-
-        // GETTER — a controlled "read door" for private data
-        // Caller can read salary, but can't directly change it
-        double getSalary() {
-            return salary;
-        }
-
-        void changeDepartment(string newDept) {
-            department = newDept;
-        }
+private:
+    double salary;   // Hidden from outside intentional security
+public:
+    string name;
+    string subject;
+    string password // no getter or setter
+    void setSalary(double amount) {  // Setter → controlled write access
+	    if(amount>=0)
+	        salary = amount;
+	    else
+		    cout<<"Enter Valid Salary\n";
+    }
+    double getSalary() {        // Getter → controlled read access
+        return salary;
+    }
+    double getName() const {
+	    cout<<name<<endl;   // 'const' = this function won't modify anything
 };
-
 int main() {
-    Teacher t1;                       // object created — memory allocated
+    Teacher t1;
+    t1.name = "Arghadeep";
+    t1.subject = "C++";
+    t1.setSalary(25000);   // Set private data
+    cout << t1.name << endl;
+    cout << t1.subject << endl;
+    cout << t1.getSalary() << endl;  // Get private data
 
-    t1.name       = "Shraddha";       // ✅ public — direct access fine
-    t1.department = "Computer Science";
-    t1.subject    = "C++";
-    t1.setSalary(25000);              // ✅ controlled write via setter
+    // t1.salary = 50000;  // ❌ Error (private)
 
-    cout << t1.name << endl;          // ✅ public — direct read fine
-    cout << t1.getSalary() << endl;   // ✅ controlled read via getter
-
-    // t1.salary = 99999;  ← ❌ ERROR: salary is private — compiler blocks this
     return 0;
 }
 ```
@@ -111,37 +101,9 @@ t1.setSalary(-50000);  // setter catches it: if (s >= 0) → rejected!
 
 Setters let you **validate and control** what data gets written. Direct field access bypasses all guards. This is the entire point of access specifiers.
 
----
+eg: setter may take in a passcode
 
-## Getters & Setters — The Pattern
-
-This pattern is universally used. Here's a more complete example with a BankAccount:
-
-```cpp
-class BankAccount {
-    private:
-        double balance;    // hidden — can't be set arbitrarily
-        string password;   // hidden — never exposed AT ALL (no getter!)
-
-    public:
-        // Setter with validation
-        void setBalance(double amount) {
-            if (amount >= 0)       // can't have negative balance
-                balance = amount;
-            // if amount < 0: silently ignored here for brevity
-            // In real code, always throw an exception (e.g. std::invalid_argument) instead
-            // Silent failure is dangerous — the caller has no way to know the write was rejected
-        }
-
-        // Getter — read-only view of private data
-        double getBalance() const {   // 'const' = this function won't modify anything
-            return balance;
-        }
-
-        // password has NO getter and NO setter — it's completely inaccessible
-        // from outside the class. This is intentional security.
-};
-```
+Therefore we use *Getters* and *Setter*.
 
 **Rule of thumb:** Ask "does the outside world *need* to read/write this?" If no — make it private. If yes — add only the getter/setter needed, not both blindly.
 
@@ -149,9 +111,7 @@ class BankAccount {
 
 # Part 2 — Encapsulation
 
-## Encapsulation — What It Actually Means
-
-> **Encapsulation** = bundling related **data members** and **member functions** that operate on that data into a **single unit** (the class).
+> ***Encapsulation*** = wrapping up of related **data members** and **member functions** that operate on that data into a **single unit** (the class).
 
 The analogy: a medicine capsule bundles multiple ingredients into one unit. You interact with the capsule, not the raw ingredients.
 
@@ -164,11 +124,11 @@ Member Funcs  ──┘
 ### Encapsulation ≠ Just Creating a Class
 
 Creating any class is encapsulation. But *good* encapsulation means:
-1. Related data and functions are grouped together logically
+1. Related data and functions are <u>grouped</u> together logically (*classes* and *sub-class*)
 2. Sensitive data is hidden using `private`/`protected`
 3. Only a minimal, well-defined public interface is exposed
 
-### Encapsulation Enables Data Hiding
+### Encapsulation Enables *Data Hiding*
 
 ```cpp
 class Account {
@@ -177,7 +137,8 @@ class Account {
         string password;  // DATA HIDING — sensitive, locked away
 
     public:
-        int accountId;    // NOT hidden — needed publicly
+        int accountId; 
+           // NOT hidden — needed publicly
         string username;  // NOT hidden — needed publicly
 };
 ```
@@ -193,7 +154,7 @@ class Account {
 | **Encapsulation** | Groups data + functions into a class | The `class` keyword itself |
 | **Data Hiding** | Restricts access to sensitive members | `private` / `protected` keywords |
 
-> Data hiding is a *consequence* of good encapsulation. You can have encapsulation without data hiding (everything public), but you can't have data hiding without encapsulation.
+> Data hiding is a *<u>consequence</u>* of good encapsulation. You can have encapsulation without data hiding (everything public), but you can't have data hiding without encapsulation.
 
 ---
 
@@ -216,14 +177,21 @@ C c; c.x = 5;    // ❌ ERROR — class members are private by default
 ```
 
 **Convention:**
-- Use `struct` for plain data containers (just data, minimal or no behaviour)
+- Use `struct` for simple data containers (just data, minimal or no behaviour, non-confidential data)
 - Use `class` for full OOPs entities with encapsulation, validation, methods
+
+- Struct also have *protected* access modifier.
+- Struct has mostly stayed due to *historical* reasons. *C* had struct without OOPs.
 
 ---
 
 ## Multiple Classes in One Program
 
 Classes can coexist. Each object gets its own independent memory block:
+
+An *object* is an **instance of a class**.
+
+A class is a *blueprint*, while an object is the **actual thing created from that blueprint** and stored in memory.
 
 ```cpp
 class Student {
@@ -232,7 +200,6 @@ class Student {
         int rollNo;
         int age;
 };
-
 class Teacher {
     private:
         double salary;
@@ -242,15 +209,12 @@ class Teacher {
         void setSalary(double s) { salary = s; }
         double getSalary() { return salary; }
 };
-
 int main() {
     Student s1;           // s1 gets memory: name + rollNo + age
     Student s2;           // s2 gets its OWN memory: completely separate from s1
     Teacher t1;           // t1 gets memory: name + dept + salary
-
     s1.name = "Rahul";
     s2.name = "Neha";     // s2.name is independent — changing it doesn't touch s1.name
-
     t1.setSalary(30000);
     // t1.salary = 30000; ← ERROR: private
 }
@@ -259,6 +223,15 @@ int main() {
 ---
 
 ## Memory Layout — What Happens in RAM
+
+<u>Each object</u> gets its **own copy** of all *non-static* data members. (check: [[07 - The static Keyword in C++ OOPs#1. Static Local Variable — Remembers Between Calls | Static Keyword]])
+Changing `t1` does not affect `t2` because they occupy different memory locations.
+Different addresses ⇒ different objects.
+
+The **class itself occupies no memory** for non-static members.
+Memory is allocated only when: objects are created
+
+(see [[01 - Introduction, OOP & Pointers#Stack vs Heap — Two Ways to Create Objects|Stack vs Heap]] for memory details)
 
 ```
 Stack memory (each object = its own block):
@@ -280,6 +253,7 @@ t1.name = "A" has ZERO effect on t2.name — they live at different addresses
 
 ---
 
+
 ## Dot (`.`) vs Arrow (`->`) Operator
 
 ```cpp
@@ -293,6 +267,8 @@ delete ptr;           // must manually free heap objects
 ```
 
 **Rule:** If it's a regular variable → use `.`  |  If it's a pointer → use `->`
+
+ptr->var ≡ (\*ptr).var
 
 ---
 

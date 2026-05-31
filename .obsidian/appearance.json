@@ -1,6 +1,6 @@
 {
   "cssTheme": "Catppuccin",
-  "baseFontSize": 18,
+  "baseFontSize": 16,
   "theme": "obsidian",
   "interfaceFontFamily": "Inter",
   "textFontFamily": "Inter,Geneva,Montserrat,PT Serif",
@@ -8,7 +8,9 @@
   "enabledCssSnippets": [
     "links-color",
     "header-color",
-    "tight-spacing"
+    "tight-spacing",
+    "code-indentation-off",
+    "purple-bullets"
   ],
   "accentColor": "",
   "translucency": false,
