@@ -1,0 +1,11 @@
+/* 1. Fix for Live Preview / Editing Mode */
+.cm-quote.cm-em,
+span.cm-quote.cm-em {
+  color: #aaf2aa !important;
+}
+
+/* 2. Fix for Reading Mode */
+.markdown-rendered blockquote em,
+.markdown-rendered blockquote i {
+  color: #aaf2aa !important;
+}

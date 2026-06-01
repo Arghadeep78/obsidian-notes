@@ -1,27 +1,24 @@
 # Part 1 — Inheritance Basics & Access Modes
 
-## What Is Inheritance? (The Intuition First)
+## What Is Inheritance?
 
-Imagine you're modelling a school system. A `Student` has: name, age, rollNo. A `Teacher` has: name, age, subject. A `Staff` has: name, age, employeeId.
-
-Notice: **name** and **age** appear in ALL three. Without inheritance, you'd copy-paste those fields into each class — and if you need to change how `age` is stored, you'd have to edit all three classes.
+A `Student`, `Teacher`, and `Staff` all have `name` and `age`. Instead of duplicating these fields in every class, *inheritance* lets you place shared data in a parent class and have child classes reuse it while adding their own unique members (`rollNo`, `subject`, `employeeId`).
 
 **Inheritance** solves this: put shared properties in one parent class, and have each child class automatically get them — plus add their own unique stuff.
 
-> **Inheritance** is an OOPs mechanism where a **child (derived) class** automatically acquires the properties and member functions of a **parent (base) class**, enabling code reuse without rewriting.
+> **Inheritance** is an OOPs mechanism where a **child (derived) class** automatically acquires the properties and member functions of a parent (**base**) **class**, enabling **code reuse** without rewriting.
 
-```
-Real world: Children inherit traits (eye colour, height) from parents
+```css
+Real world:  Children inherit traits from parents
 OOPs:        Derived class inherits data members and functions from base class
 ```
 
 **Vocabulary:**
 
-| Term | Synonyms |
-|---|---|
-| Base class | Parent class, Super class |
-| Derived class | Child class, Sub class |
-| Relationship | "is-a" (Dog IS-A Animal, Student IS-A Person) |
+| Term          | Synonyms                                      |
+| ------------- | --------------------------------------------- |
+| Base class    | Parent class, Super class                     |
+| Derived class | Child class, Sub class                        |
 
 ---
 
@@ -49,21 +46,21 @@ class Staff    : public Person { public: int empId; };
 The `: public ClassName` part says "this class inherits from ClassName":
 
 ```cpp
-class Base {
+class BaseClass {
     public:
         string name;
         int age;
         Base() { cout << "Parent constructor called\n"; }
 };
 
-class Derived : public Base {   // ← "Derived inherits from Base"
+class DerivedClass : public Base {   // ← "Derived inherits from Base"
     public:
         int rollNo;
         Derived() { cout << "Child constructor called\n"; }
 };
 
 int main() {
-    Derived d1;         // Creating a Derived object ALSO creates the Base part
+    DerivedClass d1;         // Creating a Derived object ALSO creates the Base part
     // Output:
     //   Parent constructor called  ← base runs first
     //   Child constructor called   ← then child
@@ -76,7 +73,7 @@ int main() {
 
 ---
 
-## Constructor & Destructor Call Order — Important!
+## Constructor & Destructor Call Order
 
 When you create a derived object, the **base constructor runs first**, then the derived constructor. When the object is destroyed, the **derived destructor runs first**, then the base destructor — exactly reversed. See [[03 - Constructors, this Pointer, Copy Constructor, Shallow & Deep Copy & Destructor#Constructor — The "Setup Man"|constructors]] and [[03 - Constructors, this Pointer, Copy Constructor, Shallow & Deep Copy & Destructor#Destructor — The "Cleanup Man"|destructors]] for details.
 
@@ -115,7 +112,7 @@ int main() {
 
 ## Passing Values to the Parent Constructor
 
-When the parent has a parameterized constructor, you must explicitly call it from the child's constructor using an **initializer list**:
+When the parent has a parameterized constructor, you must explicitly call it from the child's constructor using an [[03 - Constructors, this Pointer, Copy Constructor, Shallow & Deep Copy & Destructor#3 ways to write a constructor | Initializer List]]
 
 ```cpp
 class Person {
@@ -127,46 +124,36 @@ class Person {
             this->age  = age;
         }
 };
-
+```
+#### Syntax:
+```cpp
 class Student : public Person {
     public:
         int rollNo;
-
         // ": Person(name, age)" — this calls the parent constructor explicitly
         // It runs BEFORE the { body } of Student's constructor
-        Student(string name, int age, int rollNo)
-            : Person(name, age) {       // ← pass values up to parent
+        Student(string name, int age, int rollNo) : Person(name, age) {       // ← pass values up to parent
             this->rollNo = rollNo;
         }
-
-        void getInfo() {
-            cout << name << " | " << age << " | " << rollNo << endl;
-        }
 };
-
-int main() {
-    Student s1("Rahul Kumar", 21, 1234);
-    s1.getInfo();   // Rahul Kumar | 21 | 1234
-}
 ```
 
 ---
 
 ## Mode of Inheritance — How Access Levels Change
 
-When a class inherits, the **mode** (public/protected/private) controls how the inherited members are re-exposed in the derived class.
+When a class inherits, the **mode** (public/protected/private) controls how the inherited members are re-exposed in the derived *class*.
 
-> **Golden Rule:** `private` members of the base class are **inherited** (they exist inside the derived object's memory and contribute to its size), but they are **inaccessible** to derived class code regardless of inheritance mode. The memory is there — the compiler just forbids you from naming it directly.
+> **Golden Rule:** `private` members are **inherited** and occupy memory in the derived object, but the derived class **cannot access** them *directly*. Access is only possible through the base class's public/protected functions (e.g., getters and *setters*).
 
 ### The Mode Effects Table
 
-| Base member visibility | `public` inheritance | `protected` inheritance | `private` inheritance |
-|---|---|---|---|
-| `public` member | stays `public` | becomes `protected` | becomes `private` |
-| `protected` member | stays `protected` | stays `protected` | becomes `private` |
-| `private` member | ❌ inaccessible (but EXISTS in memory) | ❌ inaccessible (but EXISTS in memory) | ❌ inaccessible (but EXISTS in memory) |
+| **Base** /                 *Derived* | *public*                              | *protected*                           | *private*                             |
+| ------------------------------------ | ------------------------------------- | ------------------------------------- | ------------------------------------- |
+| **public**                           | public                                | protected                             | private                               |
+| **protected**`                       | protected                             | protected                             | private                               |
+| **private**                          | ❌ inaccessible (but EXISTS in memory) | ❌ inaccessible (but EXISTS in memory) | ❌ inaccessible (but EXISTS in memory) |
 
-> **Important:** "inaccessible" means derived class *code* cannot name or use private base members directly. It does NOT mean those members are absent. They are physically present inside every derived object's memory and count toward its size — the compiler just forbids direct access to them. Use the base class's public/protected methods to interact with them.
 
 ```cpp
 class Base {
@@ -214,16 +201,9 @@ A chain of inheritance: A → B → C. Each level inherits from the one above.
 class Person          { public: string name; int age; };
 class Student         : public Person  { public: int rollNo; };
 class GradStudent     : public Student { public: string researchArea; };
-
-int main() {
-    GradStudent gs;
-    gs.name         = "Tony Stark";      // inherited from Person (two levels up)
-    gs.rollNo       = 1001;              // inherited from Student (one level up)
-    gs.researchArea = "Quantum Physics"; // own property
-}
 ```
 
-```
+```css
 Person ──→ Student ──→ GradStudent
 ```
 
@@ -246,17 +226,11 @@ class TeacherBase {
 class TA : public StudentBase, public TeacherBase {
     // inherits all members from both parents
 };
-
-int main() {
-    TA ta;
-    ta.name    = "Tony Stark";    // from StudentBase
-    ta.subject = "Engineering";  // from TeacherBase
-}
 ```
 
-```
-StudentBase ──┐
-              ├──→ TA
+```css
+StudentBase  ──┐
+               ├──→ TA
 TeacherBase  ──┘
 ```
 
@@ -301,9 +275,28 @@ class TA        : public Student, public Teacher { };  // multiple + hierarchica
           TA
 ```
 
-This specific shape — two parents sharing a common grandparent — is the **Diamond Problem** (covered next). The hybrid aspect is the combination of hierarchical (two classes inherit Person) and multiple (TA inherits both) inheritance types.
+This specific shape — two parents sharing a common grandparent — is the **Diamond Problem** (covered next). The hybrid aspect is the combination of *hierarchical* and *multiple* inheritance types.
 
 ---
+
+## Scope Resolution Operator` ::`
+
+The `::` operator is used to specify the scope to which a variable, function, class member, or namespace member belongs.
+
+**Uses:**
+- Define class member functions outside the class.
+- Access global variables hidden by local variables.
+- Access static class members.
+- Access namespace members.
+
+**Example:**
+
+```
+ClassName::functionName()
+::Name = "Arghadeep" //global scope
+```
+
+**In short:** `::` tells the compiler where to look for a name. avoids conflicts..
 
 ## Diamond Problem & Virtual Inheritance
 
@@ -331,7 +324,7 @@ class Liger : public Lion, public Tiger { };
 
 int main() {
     Liger l;
-    l.age  = 5;    // ERROR: ambiguous — is this Lion::Animal::age or Tiger::Animal::age?
+    l.age  = 5;    // ERROR: ambiguous — Lion::Animal::age or Tiger::Animal::age?
     l.eat();       // ERROR: ambiguous — which Animal::eat()?
 }
 ```
@@ -341,7 +334,7 @@ int main() {
 Add `virtual` when inheriting from the shared base. This tells the compiler: "share ONE copy of Animal, don't duplicate it."
 
 ```cpp
-class Animal { public: int age; };
+class Animal { public: int age; void eat() { cout << "Eating\n"; } };
 
 class Lion  : virtual public Animal { };   // virtual keyword here
 class Tiger : virtual public Animal { };   // and here
@@ -353,50 +346,119 @@ int main() {
     l.age = 5;   // ✅ no ambiguity — single shared Animal instance
     l.eat();     // ✅ one Animal::eat()
 }
+```
+#### Constructor order with virtual inheritance:
 
-// Constructor order with virtual inheritance:
-// Animal ← virtual base always constructed FIRST (only once)
-// Lion
-// Tiger
-// Liger
+``` Animal -> Lion -> Tiger > Liger ```
+
+Virtual base classes(Animal) are always constructed first and only once.
+
+```
+						Animal
+						   |
+						(shared)
+						 /      \
+						Lion   Tiger
+						 \      /
+						   Liger
 ```
 
 **Critical interview trap — who calls the virtual base constructor?**
 
-With virtual inheritance, the **most-derived class** (`Liger`) is responsible for directly calling `Animal`'s constructor — NOT `Lion` or `Tiger`. The Lion/Tiger initializer-list calls to `Animal(...)` are silently **ignored** when constructing a `Liger`:
+With virtual inheritance, the **most-derived class** i.e. (the final class being created`Liger`)  is responsible for directly calling `Animal`'s constructor — NOT `Lion` or `Tiger`. 
+Even if `Lion` and `Tiger` call `Animal(...)`, those calls are ignored when a `Liger` is constructed.
 
 ```cpp
-class Animal {
-public:
-    int age;
-    Animal(int a) : age(a) { cout << "Animal(" << a << ")\n"; }
-};
-
-class Lion  : virtual public Animal {
-public:
-    Lion()  : Animal(0) { }   // this call is IGNORED when Liger is constructed
-};
-class Tiger : virtual public Animal {
-public:
-    Tiger() : Animal(0) { }   // this call is also IGNORED when Liger is constructed
-};
-
-class Liger : public Lion, public Tiger {
-public:
-    Liger() : Animal(10), Lion(), Tiger() { }
-    //         ↑ Liger must call Animal() directly — this is the one that actually runs
+class Animal {  
+public:  
+	int id;
+	Animal(int x) {this->id = x;}  
+};  
+  
+class Lion : virtual public Animal {  
+public:  
+	Lion() : Animal(1) {} // ignored when Liger Constructed 
+};  
+  
+class Tiger : virtual public Animal {  
+public:  
+	Tiger() : Animal(2) {} // ignored when Liger Constructed 
+};  
+  
+class Liger : public Lion, public Tiger {  
+public:  
+	Liger() : Animal(10) {} // actually runs  
+	//without virtual error: `Animal` is not a direct base of `Liger`
+	//after this compiler calls Lion() and Tiger() by default
+	instead run: Liger() : Lion(), Tiger() {} ->
 };
 ```
 
 If `Liger` doesn't explicitly call `Animal(...)` in its initializer list, the compiler calls `Animal`'s **default constructor**. Forgetting this when `Animal` only has a parameterized constructor is a compile error.
 
-**Cost of virtual inheritance — know this for interviews:**
+#### Note
+- ``` Liger() : Animal(10) {} is equivalent to Liger() : Animal(10), Lion(), Tiger() {} ```
+these are default constructor of Lion and Tiger (must be defined if paramaterized constructor defined)
+- C++ ignores order of initializer list so Lion() is always called before Tiger() even if Animal(10), Tiger(), Lion()
+#### Rule:
+- Non-virtual inheritance → immediate parent constructs the base.
+- Virtual inheritance → most-derived class constructs the virtual base.
+
+**Cost of virtual inheritance**
 Virtual inheritance adds a hidden pointer (the *virtual base pointer*, sometimes called `vbptr`) to the layout of intermediate classes (`Lion`, `Tiger`) so they can locate the single shared `Animal` sub-object at runtime. This means:
 - Each `Lion`/`Tiger` object is slightly larger than without `virtual`
 - Construction order is more complex (virtual base always initialized first by the most-derived class)
 - A small runtime cost exists when accessing the virtual base's members through an intermediate pointer
 
 This is why you should **not** use `virtual` inheritance by default — only reach for it when you actually have the diamond problem. Prefer composition or interface-only (all-pure-virtual) bases to avoid the need for it entirely.
+
+**Cost of Virtual Inheritance**
+
+- Adds a hidden pointer (`vbptr`, *virtual base pointer*), to layout of intermediate classes(to locate shared sub-object(*Animal*) at runtime)
+- Increases object size of intermediate classes.
+- Slightly more complex construction (virtual base initialized first by the most-derived class).
+- Small runtime overhead when accessing the virtual base (intermediate pointer).
+
+**Use virtual inheritance only to solve the diamond problem; otherwise avoid the extra complexity and overhead.**
+Prefer **composition** or **interfaces** (*pure virtual function.*) to avoid the need for it entirely.
+
+#### interfaces
+```cpp
+class Animal {  
+public:  
+	virtual void speak() = 0;  // pure virtual function.
+}; 
+  
+class Lion : public Animal {  
+public:  
+	void speak() override {  
+		cout << "Roar\n";  
+	}  
+};  
+  
+class Tiger : public Animal { public:  void speak() override {  cout << "Growl\n";  } };  
+  
+class Liger : public Lion, public Tiger {  
+public:  
+	void speak() override {  
+		Lion::speak(); // choose Lion's version  
+	}  
+};  
+  
+int main() {  
+	Liger l;  
+	l.speak(); // Roar  
+}
+```
+
+#### composition
+```cpp
+	class Car : public Engine { };
+	//vs
+	class Car {
+	    Engine engine;   // Car HAS-A Engine
+	};
+```
 
 ---
 
@@ -429,16 +491,39 @@ public:
 ## Object Slicing — A Hidden Danger
 
 When a derived object is assigned **by value** to a base class variable, the derived-only members are *sliced off* and lost:
+``` BMW b;  Car c = b; // slicing ```
+
+``` cpp
+	BMW b;
+	Car* ptr = &b; // no slicing
+	
+	ptr->start();      // ✅ Car func
+	ptr->sportMode();  // ❌ Error BMW func
+```
+
+A **new `Car` object** is created, so only the `Car` part of `s` is copied. All `BMW`-specific data (`rollNo`, etc.) is discarded.
 
 ```cpp
-Student s;   s.name = "Rahul"; s.rollNo = 1;
-Person p = s;   // SLICING — p is a Person, so rollNo is lost
-// p.rollNo doesn't exist — only name and age remain
-
 // Prevention: use pointers or references (see [[05 - Polymorphism — Overloading, Overriding & Virtual Functions#Virtual Functions — The Core of Runtime Polymorphism|virtual functions]] for polymorphic use)
-Person* ptr = &s;   // ✅ no slicing — ptr points to full Student object
-Person& ref = s;    // ✅ no slicing — ref refers to full Student object
+Car* c = &b;   // points to b: ✅ no slicing — ptr points to full Student object
+Cae& c = b;    // alis to b  : ✅ no slicing — (another name) for `s`t
 ```
+
+`ptr` points to a `BMW` object, but its **compile-time type** is `Car*`
+
+To call *BMW-specific functions*, you must cast:
+
+```
+BMW* bmwPtr = static_cast<BMW*>(ptr);bmwPtr->sportMode();   // ✅
+```
+
+The exception is **virtual functions**. If `start()` is virtual and BMW overrides it:
+
+```
+Car* ptr = &b;ptr->start();   // Calls BMW's version
+```
+
+But that's because `start()` exists in `Car`. Virtual dispatch chooses _which implementation_ to run; it does *not* let you call functions that *only exist* in `BMW`.
 
 ---
 
@@ -447,15 +532,20 @@ Person& ref = s;    // ✅ no slicing — ref refers to full Student object
 ```cpp
 class Animal {
     protected:
-        string sound;   // accessible inside Animal AND its children, NOT from outside
+        string bark;   // accessible inside Animal AND its children, NOT from outside
 };
 
 class Dog : public Animal {
-    void bark() { sound = "Woof"; }   // ✅ legal — Dog is a child of Animal
+    void setBark() { bark = "Woof"; }   // ✅ legal — Dog is a child of Animal
 };
 
-// Dog d; d.sound = "X";  ← ❌ illegal — outside the class hierarchy
+Dog d;
+d.bark = "woof woof";  ← ❌ illegal — outside the class hierarchy
 ```
+
+`protected` = accessible inside the class and its derived classes(public, protected, private all modes, but not from outside.
+
+With *private inheritance*, base class public/protected members become private in the derived class, so further derived classes cannot access them.
 
 ---
 

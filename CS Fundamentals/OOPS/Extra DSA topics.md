@@ -1,0 +1,4 @@
+- [ ] Matrix Exponentiation
+- [ ] SQRT Decomposition
+- [ ] Segment Tree
+- [ ] 

@@ -18,7 +18,7 @@ A constructor is a special member function that:
 
 If you don't write any constructor, the compiler silently generates a do-nothing one for you. The moment you write *any* constructor yourself, the compiler stops generating that default.
 
-#### 2 ways to write a constructor
+#### 3 ways to write a constructor
 
 1. *Member Initializer List* (Preferred & Modern)
 ```cpp 
@@ -34,16 +34,18 @@ Student(int a, double cgpa) {
 ```
 
 Initializer lists are preferred because members are **initialized directly** instead of being created first and then assigned.
+- `age` is initialized first (with an unspecified/default/garbage value).
+- `cgpaPtr` is initialized first (with an unspecified value).
+- Then assignments happen inside the constructor body.
 
-What happens:
+3. *Aggregate Initialization*
 
-1. `age` is initialized first (with an unspecified/default/garbage value).
-2. `cgpaPtr` is initialized first (with an unspecified value).
-3. Then assignments happen inside the constructor body.
-
-#### Aggregate Initialization
-
-An **aggregate** is a simple class or struct whose members can be initialized directly using `{}` without writing a constructor.
+An **aggregate** is a class/struct with no
+- user-declared constructors (including default, delete(c++ 20 and beyond))
+- no private/protected non-static data members
+- no base classes
+- no virtual functions *(if these 4 violated can't use) (destructors are allowed)*
+Aggregates support **aggregate initialization**: initializing directly from a brace list without needing a constructor:
 
 ```cpp
 class Student { or //Stuct(public only)
@@ -298,7 +300,7 @@ Both `s1` and `s2` point to the **exact same memory location**. This causes two 
 > - The memory allocator knows whether a memory block is allocated or already  freed. causing double free to lead to undefined behaviour.
 >  - deleting nullptr is safe in c++.
 
-*Note*: ==new== always created ==pointer==
+*Note*: ==new== always creates ==pointer==
 
 
 ```cpp
@@ -374,6 +376,55 @@ s2:  name="Neha"    cgpaPtr → [address 6000] → 9.2   (s2's own NEW block)
 ```
 Completely independent. No sharing.
 
+## Move Constructor
+
+A **move constructor** transfers ownership of resources (heap memory, file handles) from a temporary source object to a new object, avoiding expensive deep copies. It "steals" pointers and *nulls out the source*.
+
+It used *&&* (rvalue reference)
+
+By *default*: we get a *shallow* move constructor & assignment member function.
+
+```cpp
+class Car {  
+	int* ptr;  
+public:  
+	Car(int x) {  
+		ptr = new int(x);  
+	}  
+	Car(Car&& other) noexcept {  //usually noexcept is given
+		ptr = other.ptr; // take ownership  
+		other.ptr = nullptr; // leave source safe  
+	}   
+	//or A(A&&) = default;
+	~Car() {  
+		delete ptr;  
+	}  
+	
+	Car& operator=(Car&& other) noexcept {  //move assignment
+		if (this != &other) {  
+			delete ptr; // free current resource  
+			ptr = other.ptr; // take ownership  
+			other.ptr = nullptr;  
+		}  
+		return *this;  
+	}
+	
+};
+int main() {  
+	Car c1(10), c2(20);  
+	Car c3(std::move(c1)); // move constructor called  
+	car c3 = std::move(c2); //move assignement
+	return 0;  
+}
+```
+
+### Pointer Allocation Behavior
+
+- **`Node* node = new Node[5]`**: Allocates a contiguous block for 5 `Node` objects, sequentially calls the default constructor for each, and requires `delete[] node;`. (only *default constructor*)
+- **`Node* node = new Node()`**: Allocates a single `Node` object, triggers value-initialization (zero-initializing scalar members), and requires `delete node;`.
+	In both case \*node points to the first/only object's memory address
+- **`Node node[2] = { Node(10), Node(30)}`** here also *node* decays to &node\[0\].
+
 ---
 
 # Part 2 — Destructor, Rule of Three & Special Topics
@@ -429,19 +480,7 @@ int main() {
 // After the block ends
 ```
 
-### Destructor & Memory Leak
-
->Why we **need to fre**e dynamically allocated memory?
-
->A memory leak occurs when heap **memory allocated** with `new` is **not fred** using `delete`
->makes the memory **unreachable** but still **occupied**
-> memory '**wasted**'
-
-- In a normal C++ program, when `main()` ends, destructors of local objects are called automatically.  
-- If destructors correctly free heap memory, there is no memory leak.
-- 
-
-**Rule:** Memory leak = allocated heap memory that is no longer reachable and was never freed.
+> for memory link check out [[01 - Introduction, OOP & Pointers#Stack vs Heap — Two Ways to Create Objects | here]]
 
 ### Virtual Destructor
 
@@ -531,322 +570,17 @@ allows chaining `s1 = s2 = s3;` equivalent to `s1 = (s2 = s3);`, `(s2 = s3)` ret
 
 ---
 
-## Operator Overloading (Extra)
-
-> Redefine what built-in operators (`=`, `+`, `==`, `<<`, etc.) do for your custom types.
-
-```cpp
-class Vector2D {
-public:
-    double x, y;
-    Vector2D(double x = 0, double y = 0) : x(x), y(y) {} //same name valid
-    Vector2D operator+(const Vector2D& other) const {
-        return Vector2D(x + other.x, y + other.y);
-    }
-
-    bool operator==(const Vector2D& other) const {
-        return (x == other.x && y == other.y);
-    }
-
-    // << must be non-member (ostream on left) but needs private access → friend
-    friend ostream& operator<<(ostream& os, const Vector2D& v) {
-        os << "(" << v.x << ", " << v.y << ")";
-        return os;
-    } //& return same object type (cout, file stream, etc.) without copy and Streams are not copyable
-};
-
-int main() {
-    Vector2D v1(1, 2), v2(3, 4);
-    Vector2D v3 = v1 + v2;        // calls operator+
-    cout << v3 << "\n";           // (4, 6) — calls operator<<
-    cout << (v1 == v2) << "\n";   // 0 (false)
-}
-```
-
-**Operators you CANNOT overload:** `::` (scope), `.` (member access), `.*`, `?:` (ternary), `sizeof`, `.*` (member pointer access).
-
-**Can overload:** `+ - * / % = == != < > <= >= ++ -- [] () << >> -> && || !`
-
----
-
-## `explicit` Keyword — Prevent Surprise Conversions
-
-> `explicit` on a **single-argument constructor** tells the compiler: "never use this constructor for *implicit* type conversions."
-
-```cpp
-class Radius {
-public:
-    double value;
-    explicit Radius(double v) : value(v) {}
-};
-
-void drawCircle(Radius r) { cout << r.value; }
-
-int main() {
-    drawCircle(5.0);           // ERROR: can't implicitly convert double → Radius
-    drawCircle(Radius(5.0));   // ✅ explicit — intention is clear
-}
-```
-
-Without `explicit`, `drawCircle(5.0)` would silently convert `5.0` to a `Radius` object — which can hide bugs where you accidentally pass the wrong value.
-
----
-
-## `mutable` Keyword — Modify in `const` Functions
-
-> `mutable` marks a member that can be changed even inside a `const` member function.
-
-Use it only for **internal bookkeeping** that doesn't affect the object's logical state:
-
-**const**: This function promises *not* to *modify* the *object*.
-
-```cpp
-class Cache {
-    string data;
-    mutable int accessCount = 0;   // mutable — tracking reads doesn't change "data"
-public:
-    Cache(string d) : data(d) {}
-
-    string getData() const {
-        accessCount++;   // ✅ allowed because accessCount is mutable
-        return data;
-    }
-
-    int getAccessCount() const { return accessCount; }
-};
-```
-
-**Rule:** Use `mutable` only for things like access counters, caches, and mutexes — things that change internally but don't change the observable value of the object.
-
----
-
-## Special Topic — `= default` and `= delete`
-
-### The Problem Without These
-
-Before C++11, you couldn't easily control whether the compiler generated special members. To disable copying you'd declare the copy constructor `private` — a hack. To request the default — you'd just not write one and hope the compiler cooperated.
-
-C++11 added two clean keywords: `= default` and `= delete`.
-
-### `= default` — Explicitly Request the Compiler-Generated Version
-
-```cpp
-class MyClass {
-public:
-    MyClass() = default;                        // "compiler, please generate the default constructor"
-    MyClass(const MyClass&) = default;          // generate default copy constructor
-    MyClass& operator=(const MyClass&) = default; // generate default copy assignment
-    ~MyClass() = default;                       // generate default destructor
-};
-```
-
-**Why use `= default` instead of just not writing it?**
-- Makes intent explicit and visible in code
-- Sometimes needed to re-enable a suppressed default.
-
-  Each special member has its own suppression rule — they are not all the same:
-  - **Default constructor** — suppressed if you write *any* user-defined constructor (parameterized, copy, or move). `MyClass() = default;` explicitly re-requests it.
-  - **Copy constructor / copy assignment** — suppressed if you declare a move constructor or move assignment operator. If you only declare a destructor (but no move operations), the copy operations are still generated by the compiler — but *relying on this implicit generation is deprecated practice* (the standard may remove it in a future revision, so define them explicitly whenever you have a user-declared destructor).
-  - **Move constructor / move assignment** — suppressed if you declare *any* of: destructor, copy constructor, or copy assignment operator. This is the main reason the Rule of Five exists: declaring any one of them kills the generated move operations.
-
-```cpp
-class Teacher {
-public:
-    string name;
-    Teacher(string n) : name(n) {}   // user-defined constructor — compiler stops generating default ctor
-
-    Teacher() = default;             // explicitly bring back the default ctor
-};
-
-Teacher t1;             // ✅ works — default ctor restored via = default
-Teacher t2("Shraddha"); // ✅ works — parameterized ctor
-```
-
-### `= delete` — Explicitly Disable a Function
-
-```cpp
-class NonCopyable {
-public:
-    NonCopyable() = default;
-
-    NonCopyable(const NonCopyable&) = delete;            // copying is DISABLED
-    NonCopyable& operator=(const NonCopyable&) = delete; // copy assignment DISABLED
-
-    // Move is still allowed
-    NonCopyable(NonCopyable&&) = default;
-    NonCopyable& operator=(NonCopyable&&) = default;
-};
-
-NonCopyable a;
-NonCopyable b(a);   // ❌ COMPILE ERROR: use of deleted function
-NonCopyable c = a;  // ❌ COMPILE ERROR
-NonCopyable d(move(a)); // ✅ move is fine
-```
-
-**Common real-world use:** File handles, mutexes, database connections — resources that must not be copied. `std::unique_ptr` uses `= delete` on its copy constructor internally.
-
-`= delete` can also block unwanted implicit conversions:
-```cpp
-class OnlyInt {
-public:
-    void process(int x) { cout << x; }
-    void process(double) = delete;   // prevent silent int → double conversion
-    void process(bool)   = delete;
-};
-
-OnlyInt o;
-o.process(5);     // ✅ int — fine
-o.process(3.14);  // ❌ COMPILE ERROR — double overload is deleted
-o.process(true);  // ❌ COMPILE ERROR — bool overload is deleted
-```
-
----
-
-## Special Topic — `std::initializer_list` & Uniform Initialization
-
-### Uniform Initialization (`{}` syntax — C++11)
-
-Before C++11, there were multiple inconsistent ways to initialise things. C++11 introduced `{}` (brace initialization) as one universal syntax that works everywhere:
-
-```cpp
-int x = 5;       // old style — assignment initialization
-int y(5);        // old style — direct initialization
-int z{5};        // C++11 — uniform/brace initialization ✅ preferred
-
-int arr[] = {1, 2, 3};   // old
-int arr2[] {1, 2, 3};    // C++11 brace init
-
-// Works for objects too:
-Teacher t1{"Shraddha", "CS", "C++", 25000};   // calls matching constructor
-```
-
-**Bonus: `{}` prevents narrowing conversions** (a common source of silent bugs):
-```cpp
-int a = 3.14;    // old style: silently truncates to 3 — no warning
-int b{3.14};     // ❌ COMPILE ERROR: narrowing conversion not allowed in {}
-                 // {} is stricter — it protects you from accidental data loss
-```
-
-### `std::initializer_list` — Constructing from a List of Values
-
-`std::initializer_list<T>` lets a constructor accept a **variable number of values of the same type**, written with `{}` *only*. This is how `std::vector` and other containers support `{1, 2, 3, 4, 5}` construction:
-
-```cpp
-#include <initializer_list>
-#include <iostream>
-using namespace std;
-
-class NumberSet {
-    vector<int> data;
-public:
-    // Constructor taking initializer_list — called when you write NumberSet{1,2,3}
-    NumberSet(initializer_list<int> values) {
-        for (int v : values)
-            data.push_back(v);
-    }
-
-    void print() {
-        for (int v : data) cout << v << " ";
-        cout << "\n";
-    }
-};
-
-int main() {
-    NumberSet s{10, 20, 30, 40, 50};   // calls the initializer_list constructor
-    s.print();   // 10 20 30 40 50
-
-    // This is exactly how vector works:
-    vector<int> v{1, 2, 3, 4, 5};     // vector's initializer_list constructor
-}
-```
-
-**Important: `std::initializer_list` constructor takes priority over other constructors** when `{}` is used: (not to be confused with [[#2 ways to write a constructor|member initializer list constructor]])
-
-```cpp
-class Tricky {
-public:
-    Tricky(int n, int val) { cout << "Regular ctor: " << n << " copies of " << val << "\n"; }
-    Tricky(initializer_list<int> lst) { cout << "initializer_list ctor, size=" << lst.size() << "\n"; }
-};
-
-Tricky a(3, 5);    // Regular ctor: 3 copies of 5   — () picks regular
-Tricky b{3, 5};    // initializer_list ctor, size=2  — {} picks initializer_list!
-```
-
-This is a well-known C++11 gotcha: `vector<int> v(5, 0)` creates 5 zeros, but `vector<int> v{5, 0}` creates a 2-element vector `[5, 0]`.
-
----
-
-## Special Topic — Aggregates & POD Types
-
-### What Is an Aggregate?
-
-An **aggregate** is a class/struct with no user-declared constructors, no private/protected non-static data members, no base classes, and no virtual functions. Aggregates support **aggregate initialization** — initializing directly from a brace list without needing a constructor:
-
-```cpp
-struct Point {        // aggregate: no constructor, all public
-    int x;
-    int y;
-    int z;
-};
-
-Point p1 = {1, 2, 3};   // aggregate initialization — values assigned in order
-Point p2 {4, 5, 6};     // same with uniform initialization syntax
-Point p3 {1};            // partial init — x=1, y=0, z=0 (rest zero-initialized)
-
-cout << p1.x << " " << p1.y << " " << p1.z << "\n";  // 1 2 3
-```
-
-### What Is a POD Type?
-
-**POD (Plain Old Data)** = a type that is compatible with C. It's both an aggregate AND has no non-trivial special members (no user-defined constructors, destructors, or copy operators):
-
-```cpp
-// POD type — layout-compatible with C structs
-struct Packet {
-    int id;
-    float value;
-    char flags;
-};
-// Can safely use memcpy, sizeof, pass over network, write to binary file, etc.
-```
-
-**Why POD matters:**
-- Safe to copy with `memcpy` (bit-by-bit copy is valid)
-- Safe to zero-initialize with `memset`
-- Used in binary file I/O, network protocols, interoperability with C
-- `sizeof` gives predictable layout
-
-```cpp
-Packet p = {42, 3.14f, 'A'};
-// Safe for binary ops:
-Packet p2;
-memcpy(&p2, &p, sizeof(Packet));   // valid for POD — bitwise copy is correct
-```
-
-**Non-POD (fails one or more POD rules):**
-```cpp
-class Teacher {
-    string name;           // string has a constructor/destructor — NOT POD
-    virtual void foo();    // virtual function — NOT POD
-};
-```
-
-**Interview one-liner:** "A POD type is a simple C-compatible struct with no constructors, destructors, virtual functions, or non-public members. Safe for `memcpy` and binary I/O."
-
----
-
 ## Rapid-Fire Interview Q&A
 
-| Question | Answer |
-|---|---|
-| What is a constructor? | Special member function, same name as class, no return type, auto-called at object creation to initialise members. |
-| Can a constructor be `virtual`? | No — vtable isn't set up until construction completes, so `virtual` constructor makes no sense. |
-| `Teacher t1()` vs `Teacher t1;`? | `t1()` is a *function declaration* (Most Vexing Parse). `t1;` creates an object. |
-| Why `const&` in copy constructor? | (1) Reference avoids infinite recursion from passing by value. (2) `const` prevents accidental mutation of the original. |
-| Shallow vs deep copy? | Shallow copies the pointer's address (both objects share heap → double-free risk). Deep allocates new memory and copies the value (independent → safe). |
-| Rule of Three? | If you define any of destructor, copy constructor, or copy assignment — define all three. Class with heap pointer needs all three. |
-| Why `virtual` destructor in base? | Without it, `delete base_ptr` on a derived object skips the derived destructor → resource leak + undefined behaviour. |
-| What is RAII? | Resource Acquisition Is Initialisation — acquire resources in constructor, release in destructor. Guarantees cleanup even on exceptions. |
-| After `delete ptr`, what is `ptr`? | A dangling pointer — pointing to freed memory. Always set `ptr = nullptr` after deleting. |
-| `delete` vs `delete[]`? | `delete` for a single object (`new T`). `delete[]` for arrays (`new T[n]`). Wrong pairing = undefined behaviour. |
+| Question                           | Answer                                                                                                                                                                           |     |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| What is a constructor?             | Special member function, same name as class, no return type, auto-called at object creation to initialise members.                                                               |     |
+| Can a constructor be `virtual`?    | No — vtable isn't set up until construction completes, so `virtual` constructor makes no sense.                                                                                  |     |
+| `Teacher t1()` vs `Teacher t1;`?   | `t1()` is a *function declaration* (Most Vexing Parse). `t1;` creates an object.                                                                                                 |     |
+| Why `const&` in copy constructor?  | (1) Reference avoids infinite recursion from passing by value. (2) `const` prevents accidental mutation of the original.                                                         |     |
+| Shallow vs deep copy?              | Shallow copies the pointer's address (both objects share heap → double-free risk). Deep allocates new memory and copies the value (independent → safe).                          |     |
+| Rule of Three?                     | If you define any of destructor, copy constructor, or copy assignment — define all three. Class with heap pointer needs all three.                                               |     |
+| Why `virtual` destructor in base?  | Without it, `delete base_ptr` on a derived object skips the derived destructor → resource leak + undefined behaviour.                                                            |     |
+| What is *RAII*?                    | *Resource Acquisition Is Initialisation* — acquire resources in constructor, release in destructor. This ensures cleanup happens automatically when an object goes out of scope. |     |
+| After `delete ptr`, what is `ptr`? | A dangling pointer — pointing to freed memory. Always set `ptr = nullptr` after deleting.                                                                                        |     |
+| `delete` vs `delete[]`?            | `delete` for a single object (`new T`). `delete[]` for arrays (`new T[n]`). Wrong pairing = undefined behaviour.                                                                 |     |
