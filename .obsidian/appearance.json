@@ -10,7 +10,9 @@
     "zoom-width",
     "code-indentation-off",
     "header-color",
-    "tight-spacing"
+    "tight-spacing",
+    "italics-color-overwrite-quotes",
+    "links-color"
   ],
   "accentColor": "",
   "translucency": false,

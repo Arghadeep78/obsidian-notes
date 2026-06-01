@@ -2,6 +2,8 @@
 
 ## What Is Inheritance?
 
+A child inherits traits from their parents. For example, a child may inherit the family surname, eye color, or certain characteristics from their parents while also having their own unique qualities.
+
 A `Student`, `Teacher`, and `Staff` all have `name` and `age`. Instead of duplicating these fields in every class, *inheritance* lets you place shared data in a parent class and have child classes reuse it while adding their own unique members (`rollNo`, `subject`, `employeeId`).
 
 **Inheritance** solves this: put shared properties in one parent class, and have each child class automatically get them — plus add their own unique stuff.
@@ -414,39 +416,38 @@ If `Liger` doesn't explicitly call `Animal(...)` in its initializer list, the co
 - Small runtime overhead when accessing the virtual base (intermediate pointer).
 
 Use virtual inheritance *only to solve the diamond problem*; otherwise avoid the extra complexity and overhead.
+
+#### Ways to Avoid Virtual Inheritance
+
 Prefer **composition** or **interfaces** (*pure virtual function.*) to avoid the need for it entirely.
 
-#### interfaces
+##### interfaces
 An **interface** defines a contract—a set of actions an object must support—without providing the implementation details.
+	An interface is typically an abstract class containing [[06 - Abstraction & Abstract Class#Way 2 — Abstraction via Abstract Class|Pure Virtual Functions]] (and usually a virtual destructor) and no data members. Check out [[06 - Abstraction & Abstract Class#Interface vs Abstract Class (C++ Perspective)|Interfaces]]
 ```cpp
 class Animal {  
 public:  
 	virtual void speak() = 0;  // pure virtual function.
 }; 
-  
 class Lion : public Animal {  
 public:  
 	void speak() override {  
 		cout << "Roar\n";  
 	}  
-};  
-  
+};   
 class Tiger : public Animal { public:  void speak() override {  cout << "Growl\n";  } };  
-  
 class Liger : public Lion, public Tiger {  
 public:  
 	void speak() override {  
-		Lion::speak(); // choose Lion's version  
+		Lion::speak(); // choose Lion's version   (must be overidden otherwise compiler don't who which version to use -> error)
 	}  
 };  
-  
 int main() {  
 	Liger l;  
 	l.speak(); // Roar  
 }
 ```
-
-#### composition
+##### composition
 **Composition** is a design principle where a complex object is built by combining one or more simpler objects. Instead of inheriting behavior from a parent class (**Is-A**), a class holds instances of other classes as fields (**Has-A**).
 ```cpp
 	class Car : public Engine { };

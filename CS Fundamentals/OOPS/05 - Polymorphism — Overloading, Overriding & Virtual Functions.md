@@ -2,6 +2,8 @@
 
 ## What Is Polymorphism?
 
+
+
 > **Poly** = many | **Morph** = forms
 > 
 > **Polymorphism** = the ability of a function or object to behave differently depending on context in which they are used, even when called by the same name.
@@ -90,26 +92,6 @@ int main() {
     c3.print();              // 3 + 7i
 }
 ```
-
-### Function Hiding/Redefinition
-
-```cpp
-class Animal {
-public:
-    void speak() { cout << "Animal sound\n"; }
-};
-class Dog : public Animal {
-public:
-    void speak() { cout << "Woof!\n"; } // This is function redefinition
-};
-int main() {
-    // 1. Works as expected with a Derived pointer
-    Dog* dogPtr = new Dog();
-    dogPtr->speak();   // Prints: "Woof!"
-}
-```
-
-True overriding requires `virtual` this is a definition of **Function hiding/redefinition
 
 ---
 
@@ -288,12 +270,10 @@ int main() {
     for (Shape* s : shapes) {
         render(s);   // draws each correctly without knowing the concrete type
     }
-
     // Output:
     // Drawing Circle
     // Drawing Rectangle
     // Drawing Triangle
-
     for (Shape* s : shapes) delete s;
 }
 ```
@@ -304,21 +284,22 @@ This is the **power of runtime polymorphism** — `render()` works for any shape
 
 ## Summary Table — Overloading vs Overriding vs Virtual
 
-| | Overloading | Overriding (without virtual) | Overriding (with virtual) |
-|---|---|---|---|
-| Where | Same class | Parent + Child | Parent + Child |
-| Same signature? | No (differs) | Yes | Yes |
-| Resolved at | Compile time | Compile time (pointer type decides) | Run time (actual object type decides) |
-| Base pointer dispatch? | N/A | Always calls **base** version through base pointer (derived version only reachable via derived pointer/reference) | Calls **derived** version — correct runtime dispatch |
-| Keyword | None | None | `virtual` in base |
+|                        | Overloading  | Overriding (without virtual)                                                                                      | Overriding (with virtual)                            |
+| ---------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Where                  | Same class   | Parent + Child                                                                                                    | Parent + Child                                       |
+| Same signature?        | No (differs) | Yes                                                                                                               | Yes                                                  |
+| Resolved at            | Compile time | Compile time (pointer type decides)                                                                               | Run time (actual object type decides)                |
+| Base pointer dispatch? | N/A          | Always calls **base** version through base pointer (derived version only reachable via derived pointer/reference) | Calls **derived** version — correct runtime dispatch |
+| Keyword                | None         | None                                                                                                              | `virtual` in base                                    |
+|                        |              |                                                                                                                   |                                                      |
 
 > **Why "compile time" for non-virtual overriding:** without `virtual`, the compiler binds the call to a function based solely on the *static type* of the pointer/reference (i.e., what type the pointer is declared as). If `ptr` is `Animal*`, `ptr->speak()` always calls `Animal::speak` — even if the actual object at runtime is a `Dog`. The dispatch decision is baked in at compile time.
 
 ---
 
-## Name Hiding — The Related Trap (Distinct from Overriding)
+## Name/Function Hiding (Distinct from Overriding)
 
-When a derived class defines a function with the **same name** as a base class function but a **different signature**, it does NOT overload the base class version — it **hides** all base class overloads of that name from the derived class scope. This is different from overriding.
+In C++, scope lookup happens strictly **by name first**, before the compiler checks parameters, signatures, or function bodies. If a derived class defines _any_ function with a matching name, **all** overloads of that name in the base class become hidden inside the derived class scope.
 
 ```cpp
 class Base {
@@ -329,30 +310,60 @@ public:
 class Derived : public Base {
 public:
     void show(string s) { cout << "Derived::show(string)\n"; }
-    // Derived defined show() with a NEW signature
-    // This HIDES both Base::show(int) and Base::show(double) — they are invisible in Derived's scope
+    // Unhides all overloads of 'show' from the Base class using
+    Base::show;
+    // Reused the name 'show'. This HIDES both Base::show(int) and Base::show(double).
 };
-
 int main() {
     Derived d;
     d.show("hello");   // ✅ Derived::show(string)
-    d.show(42);        // ❌ COMPILE ERROR — Base::show(int) is hidden!
-    d.show(3.14);      // ❌ COMPILE ERROR — Base::show(double) is hidden!
-
-    // Fix: bring base versions back into scope explicitly
-    // Add "using Base::show;" inside Derived — unhides all Base::show overloads
+    d.show(42);        // ❌ COMPILE ERROR — Base overloads are hidden from direct scope!
+    d.show(3.14);      // ❌ COMPILE ERROR 
+    d.Base::show(42);  // ✅ Works perfectly manual bypass hidden scope
 }
 ```
+#### `using` keyword bypass
+```cpp
+class Derived : public Base {
+public:
+    // Unhides all overloads of 'show' from the Base class using
+    using Base::show;
+    void show(string s) { cout << "Derived::show(string)\n"; }
+};
+```
 
-**Why this trips people up:** It looks like overloading (same name, different params) but it works completely differently. The `override` keyword won't help here because you're not overriding anything (different signature). Use `using Base::show;` inside the derived class to restore all base overloads.
+#### Base Pointer Bypass
+Accessing a `Derived` object through a `Base*` pointer bypasses name hiding. The compiler resolves the call using the **pointer's type**, looking directly inside the `Base` class.
+```cpp
+Derived d;
+Base* ptr = &d; 
+d.show();    // ❌ ERROR: Hidden in Derived scope
+ptr->show(); // ✅ WORKS: Calls Base::show() directly
+```
 
-| Situation                                     | What Happens                                                                                                                                                                                                             |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Same name, same signature, `virtual` in base  | **Overriding** — correct runtime dispatch                                                                                                                                                                                |
-| Same name, same signature, no `virtual`       | **Non-virtual shadowing** — derived version called on derived objects; base version called through base pointer (static dispatch). The base version is NOT hidden — it's reachable via `Base::func()` or a base pointer. |
-| Same name, different signature, in derived    | **Hiding** — ALL base overloads of that name hidden in derived scope; fix with `using Base::show;`                                                                                                                       |
-| Same name, different signature, in same class | **Overloading** — both versions visible and callable                                                                                                                                                                     |
-
+- Same Name, Same Signature
+	  - `virtual` in Base
+	    - *Overriding* + Name Hiding
+	    - `d.func()` → `Derived::func()`
+	    - `d.Base::func()` → `Base::func()`
+	    - `Base* ptr = &d; ptr->func()` → `Derived::func()` (Run-Time Dispatch)
+	  - No `virtual`
+	    -  Name *Hiding*
+	    - `d.func()` → `Derived::func()`
+	    - `d.Base::func()` → `Base::func()`
+	    - `Base* ptr = &d; ptr->func()` → `Base::func()` (Compile-Time Dispatch)
+- Same Name, Different Signature (Inheritance)
+	  - Name *Hiding*
+	  - Derived function hides **all** base overloads.
+	  - `d.func(...)` → Only derived signatures are visible.
+	  - Access base overloads via `d.Base::func(...)` or `using Base::func;`.
+	  - `Base* ptr = &d; ptr->func(...)` → Only base signatures are visible.
+	  - No overriding occurs, even if the base function is `virtual`.
+- Same Name, Different Signature (Same Class)
+	  - Function *Overloading*
+	  - All overloads participate in lookup.
+	  - Compiler selects the best match.
+	  - Always Compile-Time Dispatch.
 ---
 
 ## Interview Q&A
@@ -386,9 +397,9 @@ A: A C++11 keyword placed after a function declaration to tell the compiler "thi
 ## Special Topic — Covariant Return Types
 
 **Q: "Can an overriding function return a different type than the base class virtual function?"**
+The answer is yes — but only if the *return type is a derived class of the base function's return type*. This is called a **covariant return type**.
 
-The answer is **yes — but only if the return type is a derived class of the base function's return type**. This is called a **covariant return type**.
-
+Covariant return types only work with *pointers or references* (`Animal*` to `Dog*`) because they track memory addresses, whereas returning **by value** (`Animal` to `Dog`) is forbidden.
 ```cpp
 class Animal {
 public:
@@ -396,14 +407,12 @@ public:
         return new Animal();
     }
 };
-
 class Dog : public Animal {
 public:
-    Dog* clone() override {        // override returns Dog* — a MORE SPECIFIC type
-        return new Dog();          // Dog* is covariant with Animal* (Dog IS-A Animal)
+    Dog* clone() override { // override returns Dog* — a MORE SPECIFIC type
+        return new Dog(); // Dog* is covariant with Animal* (Dog IS-A Animal)
     }
 };
-
 int main() {
     Dog d;
     Dog* d2 = d.clone();    // ✅ returns Dog* directly — no cast needed
@@ -415,6 +424,3 @@ int main() {
 }
 ```
 
-**Why it's useful:** Without covariant return types, `Dog::clone()` would have to return `Animal*`, and callers who *know* they have a `Dog` would need to `static_cast` the result. Covariant return types eliminate that cast.
-
-**The rule:** The overriding function's return type must be a pointer (or reference) to a class that is derived from the base function's return type. Raw values (e.g., returning `Dog` instead of `Animal`) don't qualify — only pointers and references.
