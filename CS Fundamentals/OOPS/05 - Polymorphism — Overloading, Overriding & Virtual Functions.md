@@ -1,31 +1,26 @@
 # Part 1 — Compile-Time Polymorphism
 
-## What Is Polymorphism? (The Intuition First)
-
-Consider a real person — you *behave* differently as a student in class, as a son/daughter at home, and as a friend in a group. Same person, same name, different behaviour depending on context.
-
-In code: same function name, different behaviour depending on the context (arguments, or which object calls it).
+## What Is Polymorphism?
 
 > **Poly** = many | **Morph** = forms
-> **Polymorphism** = the ability of a function or object to behave differently depending on context, even when called by the same name.
+> 
+> **Polymorphism** = the ability of a function or object to behave differently depending on context in which they are used, even when called by the same name.
 
 ---
 
 ## Two Types — Compile-Time vs Run-Time
 
-```
 Polymorphism
-├── Compile-Time (Static Polymorphism)
-│   Resolved at COMPILE TIME — the compiler knows which version to call
-│   ├── Function Overloading
-│   ├── Constructor Overloading (see [[03 - Constructors, this Pointer, Copy Constructor, Shallow & Deep Copy & Destructor#Constructor Overloading|constructor overloading]])
-│   └── Operator Overloading
-│
-└── Run-Time (Dynamic Polymorphism)
+- Compile-Time (Static Polymorphism)
+   Resolved at COMPILE TIME — the compiler knows which version to call
+	- Function Overloading
+	- Constructor Overloading (see [[03 - Constructors, this Pointer, Copy Constructor, Shallow & Deep Copy & Destructor#Constructor Overloading|constructor overloading]])
+	- Operator Overloading
+
+-  Run-Time (Dynamic Polymorphism)
     Resolved at RUN TIME — decided only when the program is actually executing
-    ├── Function Overriding (requires [[04 - Inheritance — Modes & Types#What Is Inheritance? (The Intuition First)|inheritance]])
+    ├── Function *Overriding* (requires [[04 - Inheritance — Modes & Types#What Is Inheritance? (The Intuition First)|inheritance]])
     └── Virtual Functions (the mechanism that makes it work)
-```
 
 ---
 
@@ -38,29 +33,22 @@ Polymorphism
 The compiler looks at the *argument types* at compile time and picks the right version — zero runtime cost.
 
 ```cpp
-#include <iostream>
-using namespace std;
-
 class Printer {
     public:
         void show(int x) {           // version 1: takes an int
             cout << "Integer: " << x << endl;
         }
-
         void show(char c) {          // version 2: takes a char
             cout << "Character: " << c << endl;
         }
-
         void show(double d) {        // version 3: takes a double
             cout << "Double: " << d << endl;
         }
-
         void show(int x, int y) {    // version 4: takes two ints
             cout << "Sum: " << x + y << endl;
         }
         // Same name "show" — 4 different behaviours depending on arguments
 };
-
 int main() {
     Printer p;
     p.show(10);      // compiler picks version 1 → Integer: 10
@@ -81,22 +69,21 @@ int main() {
 
 Extend what built-in operators (`+`, `==`, `<<`) do for your custom types:
 
+For example the string library in c++ overloads the = operator to allow us to do s1=s2
+
 ```cpp
 class Complex {
     public:
         double real, imag;
         Complex(double r, double i) : real(r), imag(i) {}
-
         // Overload + so Complex + Complex works naturally
         Complex operator+(const Complex& other) const {
             return Complex(real + other.real, imag + other.imag);
         }
-
         void print() {
             cout << real << " + " << imag << "i" << endl;
         }
 };
-
 int main() {
     Complex c1(2, 3), c2(1, 4);
     Complex c3 = c1 + c2;   // calls operator+() — same as c1.operator+(c2)
@@ -104,127 +91,102 @@ int main() {
 }
 ```
 
+### Function Hiding/Redefinition
+
+```cpp
+class Animal {
+public:
+    void speak() { cout << "Animal sound\n"; }
+};
+class Dog : public Animal {
+public:
+    void speak() { cout << "Woof!\n"; } // This is function redefinition
+};
+int main() {
+    // 1. Works as expected with a Derived pointer
+    Dog* dogPtr = new Dog();
+    dogPtr->speak();   // Prints: "Woof!"
+}
+```
+
+True overriding requires `virtual` this is a definition of **Function hiding/redefinition
+
 ---
 
 # Part 2 — Run-Time Polymorphism & Virtual Functions
 
 ## Run-Time Polymorphism
 
-### Function Overriding
+### Function Overriding & Virtual Functions
 
 > **Definition:** A **child class** redefines a function from the **parent class** with the **exact same name and signature** but a **different implementation**.
 
 Unlike overloading, overriding requires **inheritance**. The child's version *replaces* (overrides) the parent's version for that child type.
 
-```cpp
-#include <iostream>
-using namespace std;
+True overriding requires `virtual functions`.
 
-class Animal {
-    public:
-        void speak() {
-            cout << "Some animal sound\n";   // generic default
-        }
-};
+#### The Problem Without `virtual` (Static Dispatch)
 
-class Dog : public Animal {
-    public:
-        void speak() {                        // SAME name, SAME signature — overrides parent's version
-            cout << "Woof!\n";               // Dog-specific behaviour
-        }
-};
-
-class Cat : public Animal {
-    public:
-        void speak() {
-            cout << "Meow!\n";
-        }
-};
-
-int main() {
-    Animal a;  a.speak();   // "Some animal sound" — calls Animal's version
-    Dog    d;  d.speak();   // "Woof!" — Dog's version, not Animal's
-    Cat    c;  c.speak();   // "Meow!" — Cat's version
-}
-```
-
----
-
-## Overloading vs Overriding — Side by Side
-
-| Feature | Overloading | Overriding |
-|---|---|---|
-| Where? | Same class | Parent class + Child class (needs inheritance) |
-| Signature | Different parameters | SAME parameters, same name |
-| Resolved at | Compile time | Run time |
-| Type | Static polymorphism | Dynamic polymorphism |
-| Keyword needed | None | `virtual` (for proper dynamic dispatch) |
-
----
-
-## Virtual Functions — The Core of Runtime Polymorphism
-
-### The Problem Without `virtual`
-
-Suppose you have a base class pointer pointing to a derived class object. Without `virtual`, calling a function through that pointer always calls the **base class version**, even if the derived class overrode it. This is called **static dispatch** — the compiler picks the function based on the *pointer type*, not the *actual object type*.
-
-```cpp
-class Animal {
-    public:
-        void speak() { cout << "Animal sound\n"; }  // NOT virtual
-};
-
-class Dog : public Animal {
-    public:
-        void speak() { cout << "Woof!\n"; }  // overrides, but without virtual...
-};
-
-int main() {
-    Animal* ptr = new Dog();   // base pointer → derived object (common in OOPs)
-    ptr->speak();              // prints: "Animal sound" ← WRONG!
-                               // Compiler sees ptr is Animal* → calls Animal::speak
-                               // It doesn't care that the actual object is a Dog
-}
-```
+When a base class pointer points to a derived class object, calling a non-virtual function executes the base class version. The compiler selects the function based on the **pointer's type**, not the *actual object type.*
 
 This is a big problem: if you have a list of `Animal*` pointers (some pointing to Dogs, some to Cats), calling `speak()` would always give you the generic Animal version — useless.
 
-### The Fix — `virtual` Keyword
+#### The Fix — `virtual` Keyword (Dynamic Dispatch)
 
-Adding `virtual` to the base class function tells the compiler: "when this function is called through a pointer/reference, don't decide at compile time — look up the actual object type at **runtime** and call the right version."
+Adding the `virtual` keyword to the base class function defers the function call resolution to runtime. The application selects the function based on the **actual object type**.
+
+> A **virtual function** is a member function that we expect to be redefined in the derived class.
+> 
+- **Dynamic Nature:** Resolved at runtime rather than compile time.
+- **Overriding:** Redefined and implemented by a child (derived) class to provide specific behavior.
 
 ```cpp
 class Animal {
-    public:
-        virtual void speak() {           // declare virtual in BASE class
-            cout << "Animal sound\n";
-        }
+public:
+    // Without virtual -> Static dispatch
+    void walk() { cout << "Animal walks\n"; }
+    // With virtual -> Dynamic dispatch
+    virtual void speak() { cout << "Animal sound\n"; }
+    virtual ~Animal() = default; //always needed to prevent memory leak
 };
-
 class Dog : public Animal {
-    public:
-        void speak() override {          // override keyword (C++11) — optional but good practice
-            cout << "Woof!\n";           // compiler verifies this actually overrides something
-        }
+public:
+    void walk() { cout << "Dog runs\n"; }
+    void speak() override { cout << "Woof!\n"; } // override keyword (C++11) — optional but good practice
 };
-
-class Cat : public Animal {
-    public:
-        void speak() override {
-            cout << "Meow!\n";
-        }
-};
-
 int main() {
-    Animal* ptr1 = new Dog();   // base pointer → Dog object
-    Animal* ptr2 = new Cat();   // base pointer → Cat object
-
-    ptr1->speak();   // "Woof!" ← correct! Runtime dispatch → Dog::speak
-    ptr2->speak();   // "Meow!" ← correct! Runtime dispatch → Cat::speak
-
-    delete ptr1; delete ptr2;
+    Animal* ptr = new Dog();
+    // === Calls Base Class Versions (Static Dispatch) ===
+    ptr->walk();  // Prints: "Animal walks"
+    ptr->speak(); // Prints: "Woof!"
+    delete ptr;
 }
 ```
+
+#### Why we need to explicitly state virtual destructors
+They are only mandatory when you delete a derived class object through a base class pointer.
+The compiler only looks at the pointer type (`Animal*`).
+So rule of thumb: If a class has ANY virtual function, its destructor MUST also be `virtual`.
+as we intend to work with those.
+
+```cpp
+delete ptr;
+   │
+   └──► Only calls ~Animal()
+        (Memory allocated by Dog is leaked)
+```
+first derived class destructor runs then derived class destructor automatically triggers the base class destructor.
+
+---
+## Overloading vs Overriding — Side by Side
+
+| Feature        | Overloading          | Overriding                                     |
+| -------------- | -------------------- | ---------------------------------------------- |
+| Where?         | Same class           | Parent class + Child class (needs inheritance) |
+| Signature      | Different parameters | SAME parameters, same name                     |
+| Resolved at    | Compile time         | Run time                                       |
+| Type           | Static polymorphism  | Dynamic polymorphism                           |
+| Keyword needed | None                 | `virtual` (for proper dynamic dispatch)        |
 
 ---
 
@@ -236,9 +198,9 @@ When a class has virtual functions, the compiler creates a hidden **vtable (virt
 Animal vtable:  [ speak → Animal::speak ]
 Dog vtable:     [ speak → Dog::speak    ]
 Cat vtable:     [ speak → Cat::speak    ]
-
-Each object has a hidden pointer (vptr) to its class's vtable.
-
+```
+Each object has a hidden pointer (*vptr*) to its *class's* *vtable*.
+```
 Animal* ptr = new Dog();
 → ptr->speak()
 → follow vptr in the Dog object → Dog's vtable → Dog::speak → "Woof!"
@@ -251,6 +213,8 @@ This lookup happens at **runtime**, which is why it's called dynamic dispatch. T
 ## The `override` Keyword (C++11)
 
 `override` is optional but strongly recommended. It tells the compiler: "I *intend* this to override a base class function — if it doesn't, give me a compile error."
+
+**With it:** Forces compile-time checks. The compiler throws an error if the function does not exactly match a base virtual function.
 
 ```cpp
 class Animal { virtual void speak() {} };
@@ -294,7 +258,7 @@ class Shape {
         virtual void draw() {        // virtual — expect every shape to override this
             cout << "Drawing a shape" << endl;
         }
-        virtual ~Shape() {}          // virtual destructor — always needed when using virtual functions
+        virtual ~Shape() {}          // virtual destructor — mandatory when deleting a derived class object through a base class pointer.
 };
 
 class Circle : public Shape {
@@ -334,58 +298,7 @@ int main() {
 }
 ```
 
-This is the **power of runtime polymorphism** — `render()` works for any shape you'll ever create, even ones that don't exist yet.
-
----
-
-## Virtual Destructor — Critical Rule
-
-> **If a class has ANY virtual function, its destructor MUST also be `virtual`.**
-
-Without a virtual destructor, deleting a derived object through a base pointer only calls the base destructor — the derived destructor (and any cleanup it does) is skipped:
-
-```cpp
-class Base {
-    public:
-        ~Base() { cout << "Base dtor\n"; }   // NOT virtual — DANGER
-};
-
-class Derived : public Base {
-    int* data;
-    public:
-        Derived() { data = new int[100]; }
-        ~Derived() { delete[] data; cout << "Derived dtor\n"; }   // never called!
-};
-
-Base* ptr = new Derived();
-delete ptr;
-// Only "Base dtor" prints — Derived's data[] is LEAKED
-```
-
-**Fix:**
-```cpp
-class Base {
-    public:
-        virtual ~Base() { cout << "Base dtor\n"; }   // virtual — now safe
-};
-// delete ptr; → "Derived dtor" then "Base dtor" — correct!
-```
-
----
-
-## Object Slicing — When Polymorphism Breaks
-
-When you assign a derived object **by value** to a base variable, the derived-specific members and vtable pointer are lost. See [[04 - Inheritance — Modes & Types#Object Slicing — A Hidden Danger|object slicing in inheritance]] for details.
-
-```cpp
-Dog d; d.name = "Bruno";
-Animal a = d;    // SLICING — only Animal part copied, Dog-ness is lost
-a.speak();       // calls Animal::speak() — virtual dispatch is gone after slicing!
-
-// Prevention: always use pointers or references for polymorphic objects
-Animal* ptr = new Dog();   // ✅ no slicing — full Dog object alive
-Animal& ref = d;           // ✅ no slicing — reference to full Dog
-```
+This is the **power of runtime polymorphism** — `render()` works for any shape you'll ever create.
 
 ---
 
@@ -413,7 +326,6 @@ public:
     void show(int x)    { cout << "Base::show(int)\n"; }
     void show(double x) { cout << "Base::show(double)\n"; }
 };
-
 class Derived : public Base {
 public:
     void show(string s) { cout << "Derived::show(string)\n"; }
@@ -434,12 +346,12 @@ int main() {
 
 **Why this trips people up:** It looks like overloading (same name, different params) but it works completely differently. The `override` keyword won't help here because you're not overriding anything (different signature). Use `using Base::show;` inside the derived class to restore all base overloads.
 
-| Situation | What Happens |
-|---|---|
-| Same name, same signature, `virtual` in base | **Overriding** — correct runtime dispatch |
-| Same name, same signature, no `virtual` | **Non-virtual shadowing** — derived version called on derived objects; base version called through base pointer (static dispatch). The base version is NOT hidden — it's reachable via `Base::func()` or a base pointer. |
-| Same name, different signature, in derived | **Hiding** — ALL base overloads of that name hidden in derived scope; fix with `using Base::show;` |
-| Same name, different signature, in same class | **Overloading** — both versions visible and callable |
+| Situation                                     | What Happens                                                                                                                                                                                                             |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Same name, same signature, `virtual` in base  | **Overriding** — correct runtime dispatch                                                                                                                                                                                |
+| Same name, same signature, no `virtual`       | **Non-virtual shadowing** — derived version called on derived objects; base version called through base pointer (static dispatch). The base version is NOT hidden — it's reachable via `Base::func()` or a base pointer. |
+| Same name, different signature, in derived    | **Hiding** — ALL base overloads of that name hidden in derived scope; fix with `using Base::show;`                                                                                                                       |
+| Same name, different signature, in same class | **Overloading** — both versions visible and callable                                                                                                                                                                     |
 
 ---
 

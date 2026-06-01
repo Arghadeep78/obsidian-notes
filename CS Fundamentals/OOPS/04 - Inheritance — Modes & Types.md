@@ -365,8 +365,11 @@ Virtual base classes(Animal) are always constructed first and only once.
 
 **Critical interview trap — who calls the virtual base constructor?**
 
-With virtual inheritance, the **most-derived class** i.e. (the final class being created`Liger`)  is responsible for directly calling `Animal`'s constructor — NOT `Lion` or `Tiger`. 
-Even if `Lion` and `Tiger` call `Animal(...)`, those calls are ignored when a `Liger` is constructed.
+When `Liger l;` is executed, the constructors run in this exact order:
+1. `Animal(10)` runs first (direct initialization from the most derived class).
+2. `Lion()` runs next (initializes the `Lion` specific fields; its internal call to `Animal` is ignored).
+3. `Tiger()` runs last (initializes the `Tiger` specific fields; its internal call to `Animal` is ignored).
+As a result, `l.id` is set to `10`.
 
 ```cpp
 class Animal {  
@@ -390,7 +393,6 @@ public:
 	Liger() : Animal(10) {} // actually runs  
 	//without virtual error: `Animal` is not a direct base of `Liger`
 	//after this compiler calls Lion() and Tiger() by default
-	instead run: Liger() : Lion(), Tiger() {} ->
 };
 ```
 
@@ -398,19 +400,11 @@ If `Liger` doesn't explicitly call `Animal(...)` in its initializer list, the co
 
 #### Note
 - ``` Liger() : Animal(10) {} is equivalent to Liger() : Animal(10), Lion(), Tiger() {} ```
-these are default constructor of Lion and Tiger (must be defined if paramaterized constructor defined)
+	these are default constructor of Lion and Tiger (must be defined if parameterized constructor defined)
 - C++ ignores order of initializer list so Lion() is always called before Tiger() even if Animal(10), Tiger(), Lion()
 #### Rule:
 - Non-virtual inheritance → immediate parent constructs the base.
 - Virtual inheritance → most-derived class constructs the virtual base.
-
-**Cost of virtual inheritance**
-Virtual inheritance adds a hidden pointer (the *virtual base pointer*, sometimes called `vbptr`) to the layout of intermediate classes (`Lion`, `Tiger`) so they can locate the single shared `Animal` sub-object at runtime. This means:
-- Each `Lion`/`Tiger` object is slightly larger than without `virtual`
-- Construction order is more complex (virtual base always initialized first by the most-derived class)
-- A small runtime cost exists when accessing the virtual base's members through an intermediate pointer
-
-This is why you should **not** use `virtual` inheritance by default — only reach for it when you actually have the diamond problem. Prefer composition or interface-only (all-pure-virtual) bases to avoid the need for it entirely.
 
 **Cost of Virtual Inheritance**
 
@@ -419,10 +413,11 @@ This is why you should **not** use `virtual` inheritance by default — only rea
 - Slightly more complex construction (virtual base initialized first by the most-derived class).
 - Small runtime overhead when accessing the virtual base (intermediate pointer).
 
-**Use virtual inheritance only to solve the diamond problem; otherwise avoid the extra complexity and overhead.**
+Use virtual inheritance *only to solve the diamond problem*; otherwise avoid the extra complexity and overhead.
 Prefer **composition** or **interfaces** (*pure virtual function.*) to avoid the need for it entirely.
 
 #### interfaces
+An **interface** defines a contract—a set of actions an object must support—without providing the implementation details.
 ```cpp
 class Animal {  
 public:  
@@ -452,6 +447,7 @@ int main() {
 ```
 
 #### composition
+**Composition** is a design principle where a complex object is built by combining one or more simpler objects. Instead of inheriting behavior from a parent class (**Is-A**), a class holds instances of other classes as fields (**Has-A**).
 ```cpp
 	class Car : public Engine { };
 	//vs
@@ -488,42 +484,28 @@ public:
 
 ---
 
-## Object Slicing — A Hidden Danger
+## Object Slicing
 
-When a derived object is assigned **by value** to a base class variable, the derived-only members are *sliced off* and lost:
+When a derived object is assigned **by value** to a base class variable, the derived-specific members and [[vtable]] pointer are lost are *sliced off* and lost:
 ``` BMW b;  Car c = b; // slicing ```
 
-``` cpp
-	BMW b;
-	Car* ptr = &b; // no slicing
-	
-	ptr->start();      // ✅ Car func
-	ptr->sportMode();  // ❌ Error BMW func
-```
+A **new `Animal` object** is created, so only the `Animal` part of `d` is copied. All `Dog`-specific data is discarded.
 
-A **new `Car` object** is created, so only the `Car` part of `s` is copied. All `BMW`-specific data (`rollNo`, etc.) is discarded.
-
+`d` points to a `Dog` object, but its **compile-time type** is `Car*`
 ```cpp
-// Prevention: use pointers or references (see [[05 - Polymorphism — Overloading, Overriding & Virtual Functions#Virtual Functions — The Core of Runtime Polymorphism|virtual functions]] for polymorphic use)
-Car* c = &b;   // points to b: ✅ no slicing — ptr points to full Student object
-Cae& c = b;    // alis to b  : ✅ no slicing — (another name) for `s`t
+Dog d; d.name = "Bruno";
+Animal a = d;    // SLICING — only Animal part copied, Dog-ness is lost
+a.speak();       // calls Animal::speak() — virtual dispatch is gone after slicing!
+
+// Prevention: always use pointers or references for polymorphic objects
+Animal* ptr = &d;   // ✅ no slicing — full Dog object alive
+Animal& ref = d;  //alis to d  : ✅ no slicing — (another name) for `d`
 ```
 
-`ptr` points to a `BMW` object, but its **compile-time type** is `Car*`
-
-To call *BMW-specific functions*, you must cast:
-
+To call *Dog-specific functions*, you must cast:
+``` cpp
+	Dog* dogPtr = dynamic_cast<Dog*>(ptr); //dynamic returns nullptr if cast is invalid
 ```
-BMW* bmwPtr = static_cast<BMW*>(ptr);bmwPtr->sportMode();   // ✅
-```
-
-The exception is **virtual functions**. If `start()` is virtual and BMW overrides it:
-
-```
-Car* ptr = &b;ptr->start();   // Calls BMW's version
-```
-
-But that's because `start()` exists in `Car`. Virtual dispatch chooses _which implementation_ to run; it does *not* let you call functions that *only exist* in `BMW`.
 
 ---
 

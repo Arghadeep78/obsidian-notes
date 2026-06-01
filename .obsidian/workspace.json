@@ -8,20 +8,6 @@
         "type": "tabs",
         "children": [
           {
-            "id": "abaa8b4c3594320c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "CS Fundamentals/OOPS/04 - Inheritance — Modes & Types.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "04 - Inheritance — Modes & Types"
-            }
-          },
-          {
             "id": "cf88ef1826cbfdcd",
             "type": "leaf",
             "state": {
@@ -36,133 +22,20 @@
             }
           },
           {
-            "id": "1b79f9ec45a992b2",
+            "id": "165bb69efd4f0231",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "CS Fundamentals/OOPS/07 - The static Keyword in C++ OOPs.md",
+                "file": "CS Fundamentals/OOPS/04 - Inheritance — Modes & Types.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "07 - The static Keyword in C++ OOPs"
-            }
-          },
-          {
-            "id": "4766acb5de1018de",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "CS Fundamentals/OOPS/08 - Move Semantics & Rule of Five (above C++11).md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "08 - Move Semantics & Rule of Five (above C++11)"
-            }
-          },
-          {
-            "id": "2158ed97d92031da",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "CS Fundamentals/OOPS/09 - const Correctness & Type Casting in C++ OOPs.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "09 - const Correctness & Type Casting in C++ OOPs"
-            }
-          },
-          {
-            "id": "f3babf1238c1fdff",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "CS Fundamentals/OOPS/10 - Friend Functions, Friend Classes & Namespaces.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "10 - Friend Functions, Friend Classes & Namespaces"
-            }
-          },
-          {
-            "id": "638a65c21d80b1e8",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "CS Fundamentals/OOPS/01 - Introduction, OOP & Pointers.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "01 - Introduction, OOP & Pointers"
-            }
-          },
-          {
-            "id": "a78938fe750bd03e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "CS Fundamentals/OOPS/00 - Core C++ Topics.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "00 - Core C++ Topics"
-            }
-          },
-          {
-            "id": "10d0257ddf86fc68",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "CS Fundamentals/OOPS/Extra DSA topics.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Extra DSA topics"
-            }
-          },
-          {
-            "id": "260c3eb23c8bff87",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Dev/frontend/JS/JS-basics-1.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "JS-basics-1"
-            }
-          },
-          {
-            "id": "95cce3b0d8b6343e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "CS Fundamentals/OOPS/03 - Constructors, this Pointer, Copy Constructor, Shallow & Deep Copy & Destructor.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "03 - Constructors, this Pointer, Copy Constructor, Shallow & Deep Copy & Destructor"
+              "title": "04 - Inheritance — Modes & Types"
             }
           }
-        ],
-        "currentTab": 9
+        ]
       }
     ],
     "direction": "vertical"
@@ -340,12 +213,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "CS Fundamentals/OOPS/05 - Polymorphism — Overloading, Overriding & Virtual Functions.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of 05 - Polymorphism — Overloading, Overriding & Virtual Functions"
             }
           },
           {
@@ -396,21 +270,21 @@
       "realclaudian:Open Claudian": false
     }
   },
-  "active": "76351e261117c548",
+  "active": "cf88ef1826cbfdcd",
   "lastOpenFiles": [
-    "Dev/frontend/JS/JS-basics-1.md",
-    "CS Fundamentals/OOPS/Extra DSA topics.md",
-    "CS Fundamentals/OOPS/00 - Core C++ Topics.md",
-    "CS Fundamentals/OOPS/03 - Constructors, this Pointer, Copy Constructor, Shallow & Deep Copy & Destructor.md",
-    "CS Fundamentals/OOPS/01 - Introduction, OOP & Pointers.md",
-    "CS Fundamentals/OOPS/10 - Friend Functions, Friend Classes & Namespaces.md",
-    "CS Fundamentals/OOPS/09 - const Correctness & Type Casting in C++ OOPs.md",
-    "CS Fundamentals/OOPS/08 - Move Semantics & Rule of Five (above C++11).md",
-    "CS Fundamentals/OOPS/07 - The static Keyword in C++ OOPs.md",
-    "CS Fundamentals/OOPS/05 - Polymorphism — Overloading, Overriding & Virtual Functions.md",
     "CS Fundamentals/OOPS/04 - Inheritance — Modes & Types.md",
+    "CS Fundamentals/OOPS/05 - Polymorphism — Overloading, Overriding & Virtual Functions.md",
+    "CS Fundamentals/OOPS/03 - Constructors, this Pointer, Copy Constructor, Shallow & Deep Copy & Destructor.md",
+    "CS Fundamentals/OOPS/07 - The static Keyword in C++ OOPs.md",
+    "CS Fundamentals/OOPS/08 - Move Semantics & Rule of Five (above C++11).md",
+    "CS Fundamentals/OOPS/09 - const Correctness & Type Casting in C++ OOPs.md",
+    "CS Fundamentals/OOPS/10 - Friend Functions, Friend Classes & Namespaces.md",
+    "CS Fundamentals/OOPS/01 - Introduction, OOP & Pointers.md",
+    "CS Fundamentals/OOPS/00 - Core C++ Topics.md",
+    "Extra DSA topics.md",
     "CS Fundamentals/OOPS/Untitled 4.md",
     "CS Fundamentals/OOPS/Pasted image 20260531160658.png",
+    "Dev/frontend/JS/JS-basics-1.md",
     "CS Fundamentals/OOPS/02 - Class, Object, Access Specifiers & Encapsulation.md",
     "CS Fundamentals/OOPS/Untitled 3.md",
     "CS Fundamentals/OOPS/Untitled.base",
@@ -426,7 +300,6 @@
     "Untitled.canvas",
     "CS Fundamentals/OOPS/index.md",
     "Routine.md",
-    "README.md",
     "CS Fundamentals",
     "Untitled.base",
     "Projects/Mini Redis Server/Untitled.base",
