@@ -378,11 +378,11 @@ Completely independent. No sharing.
 
 ## Move Constructor
 
-A **move constructor** transfers ownership of resources (heap memory, file handles) from a temporary source object to a new object, avoiding expensive deep copies. It "steals" pointers and *nulls out the source*.
-
+A **move constructor** transfers ownership of resources (heap memory, file handles) from a temporary source object to a new object, avoiding expensive deep copies. It "steals" pointers and *nulls out the source* (sets source to valid empty state (no double-free by destructor).
 It used *&&* (rvalue reference)
-
 By *default*: we get a *shallow* move constructor & assignment member function.
+
+ *`noexcept`* : tells the STL (e.g., `std::vector`) that the move won't throw. Without this, `std::vector` plays it safe and copies instead of moves during reallocation.
 
 ```cpp
 class Car {  
@@ -417,6 +417,8 @@ int main() {
 	return 0;  
 }
 ```
+
+check [[08 - Move Semantics & Rule of Five (above C++11)#Part 1 — lvalue/rvalue, Move Constructor & Move Assignment||for more details]]
 
 ### Pointer Allocation Behavior
 
@@ -523,13 +525,10 @@ Base Destructor
 ```
 
 Only `Base` destructor may run, causing resource leaks in `Derived`.
-
 ### Rule
-
 ```text
-If a class is intended to be used as a base class, make its destructor virtual.
+If a class is intended to be used as a base class, make its base class destructor virtual.
 ```
-
 
 ---
 

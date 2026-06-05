@@ -25,10 +25,8 @@ You must understand this before move semantics makes sense.
 ```cpp
 int x = 5;         // x is lvalue (has a name, has an address)
                    // 5 is rvalue (a literal — temporary, no name)
-
 string s = "hi";   // s is lvalue
                    // "hi" is rvalue (string literal)
-
 string t = s;      // s is lvalue → COPY happens (s still alive, t gets a new copy)
 string u = move(s); // std::move(s) casts s to rvalue → MOVE happens (s emptied)
 ```
@@ -44,113 +42,33 @@ string u = move(s); // std::move(s) casts s to rvalue → MOVE happens (s emptie
 **Rvalue reference** (`&&`) is a new type in C++11 that binds specifically to rvalues, enabling move operations.
 
 ---
-
-## Move Constructor — Stealing Resources
-
-A move constructor takes an **rvalue reference** (`&&`) as argument. It *steals* the heap resources from the source, then sets the source to a valid but empty state (so its destructor doesn't double-free).
-
-```cpp
-#include <iostream>
-#include <utility>   // for std::move
-using namespace std;
-
-class Buffer {
-public:
-    int*   data;
-    size_t size;
-
-    // Regular constructor — allocates heap memory
-    Buffer(size_t n) : size(n), data(new int[n]) {
-        cout << "Constructor: allocated " << n << " ints\n";
-    }
-
-    // Copy constructor — makes a FULL COPY (expensive)
-    Buffer(const Buffer& other) : size(other.size), data(new int[other.size]) {
-        copy(other.data, other.data + size, data);   // copies every element
-        cout << "Copy constructor (expensive)\n";
-    }
-
-    // Move constructor — STEALS resources (cheap)
-    Buffer(Buffer&& other) noexcept    // && = rvalue reference
-        : size(other.size), data(other.data) {
-        // We've taken other's pointer — now null out the source
-        // If we don't, other's destructor will delete[] the same memory we just took → double free
-        other.data = nullptr;
-        other.size = 0;
-        cout << "Move constructor (cheap — just a pointer swap)\n";
-    }
-
-    ~Buffer() {
-        delete[] data;   // delete[] nullptr is safe — no crash if data was moved out
-        cout << "Destructor\n";
-    }
-};
-
-int main() {
-    Buffer b1(100);              // Constructor: allocated 100 ints
-    Buffer b2(b1);               // Copy constructor (b1 still valid, b2 has its own copy)
-    Buffer b3(move(b1));         // Move constructor (b1's pointer stolen, b1.data = nullptr)
-    // b1 is now empty — do NOT use b1.data after this!
-}
-```
-
-**What `noexcept` means here:** marking move operations `noexcept` tells the STL (e.g., `std::vector` when it reallocates) that the move won't throw. Without this, `std::vector` plays it safe and copies instead of moves during reallocation — defeating the performance gain.
-
----
-
 ## `std::move` — What It Actually Is
 
-> `std::move` does NOT move anything. It is simply a **cast** to an rvalue reference.
-
-It just says: "treat this lvalue as if it were a temporary that you can steal from." The actual moving happens in the move constructor or move assignment operator.
-
-```cpp
-string s1 = "hello";
-string s2 = move(s1);   // std::move casts s1 to rvalue → move constructor runs
-                         // s1 is now in a "valid but unspecified" state (typically empty)
-cout << s1;   // "" (empty) — don't rely on s1's value after moving from it
-cout << s2;   // "hello"
+- `std::move(x)` **does not move anything**.
+- It is just a **cast**: converts `x` from an lvalue to an rvalue reference (`T&&`).
 ```
-
-**After `move(x)`, treat `x` as gone.** The object is in a **valid but unspecified state** — it is still a fully alive object with no undefined behaviour, but its value is unpredictable. A moved-from `std::string` is often empty, but the standard only guarantees "valid" (you can call methods on it, assign to it, destroy it) — not what value it holds.
-
-- **Safe:** destroy it, reassign it (`x = "new value"` is fine)
-- **Unsafe (logically):** read its value and *assume anything about it* — it's unpredictable, not UB, but will produce wrong results in most cases
-
-The difference matters: this is not undefined behaviour like a dangling pointer dereference — it's just an unpredictable value. The standard library guarantees moved-from objects leave the source in a destructible and reassignable state.
-
----
-
-## Move Assignment Operator
-
-Like move constructor, but for when the target object **already exists**:
-
-```cpp
-class Buffer {
-    // ... (same members)
-
-    // Move assignment — steal from rvalue into existing object
-    Buffer& operator=(Buffer&& other) noexcept {
-        if (this == &other) return *this;   // guard against b = move(b)
-
-        delete[] data;          // free what WE currently own before stealing
-
-        data       = other.data;   // steal the pointer
-        size       = other.size;
-        other.data = nullptr;      // null out source so its destructor is safe
-        other.size = 0;
-
-        cout << "Move assignment\n";
-        return *this;
-    }
-};
-
-int main() {
-    Buffer b1(50), b2(100);
-    b2 = move(b1);   // b2 frees its old 100-int buffer, then steals b1's 50-int buffer
-                     // b1 is now empty (data=nullptr, size=0)
-}
+std::move(x);   // "You may steal resources from x"
 ```
+- The **actual move** happens when a move constructor or move assignment operator is called.
+```
+string s2 = std::move(s1);   // move constructor runs
+```
+#### After Moving From an Object
+- Source object is **valid but unspecified**.
+- Object is still alive.
+- Destructor is **not** called.
+- You can:
+    - destroy it
+    - assign to it
+    - call valid member functions
+```
+s1 = "new value";   // OK
+```
+#### Do NOT Assume Its Value
+```
+cout << s1;   // Legal
+```
+but the result is unspecified (often empty for `string`).
 
 ---
 
@@ -172,81 +90,13 @@ C++11 added move operations, making it the **Rule of Five**:
 | 4 | **Move Constructor** `T(T&&)` | `T b(move(a))`, return temp from function |
 | 5 | **Move Assignment** `T& operator=(T&&)` | `b = move(a)` |
 
-**Why "all five"?** A class managing raw heap memory (`new`/`delete`) needs:
-- Destructor → free the heap when done
-- Copy constructor + copy assignment → deep copy (not shallow) when copying
-- Move constructor + move assignment → efficient transfer of ownership
-
-Missing any one causes either double-free, shallow copy bugs, or missed performance.
-
-### Complete Rule-of-Five Class
-
-```cpp
-class MyResource {
-    int*   data;
-    size_t size;
-
-public:
-    // Regular constructor
-    MyResource(size_t n) : size(n), data(new int[n]) {}
-
-    // 1. Destructor
-    ~MyResource() { delete[] data; }
-
-    // 2. Copy Constructor (deep copy)
-    MyResource(const MyResource& o) : size(o.size), data(new int[o.size]) {
-        copy(o.data, o.data + size, data);
-    }
-
-    // 3. Copy Assignment (deep copy)
-    MyResource& operator=(const MyResource& o) {
-        if (this == &o) return *this;      // self-assignment guard
-        delete[] data;                      // free old resource
-        size = o.size;
-        data = new int[size];
-        copy(o.data, o.data + size, data);
-        return *this;
-    }
-
-    // 4. Move Constructor (steal)
-    MyResource(MyResource&& o) noexcept
-        : size(o.size), data(o.data) {
-        o.data = nullptr; o.size = 0;      // leave source in valid empty state
-    }
-
-    // 5. Move Assignment (steal)
-    MyResource& operator=(MyResource&& o) noexcept {
-        if (this == &o) return *this;
-        delete[] data;                      // free what we own
-        data = o.data; size = o.size;
-        o.data = nullptr; o.size = 0;
-        return *this;
-    }
-};
-```
+- **Destructor missing** → Resource leak.
+- **Copy constructor missing** → Shallow copy → double delete.
+- **Copy assignment missing** → Shallow copy, leaks, double delete.
+- **Move constructor missing** → Expensive copies instead of cheap moves.
+- **Move assignment missing** → Expensive copy assignment instead of move.
 
 ---
-
-## Performance Impact — Why This Actually Matters
-
-```cpp
-// Before C++11 — returning large container from function
-vector<int> buildLargeVec() {
-    vector<int> v(1000000, 42);
-    return v;   // C++03: copies 1 million ints — allocates new memory
-}
-vector<int> result = buildLargeVec();   // C++03: might copy again
-
-// C++11 with move semantics:
-// return v; → move constructor runs → just swap internal pointer → O(1)
-// vector<int> result = buildLargeVec() → move constructor → O(1)
-// Total: 2 pointer swaps instead of 2 million element copies
-```
-
-**Important — NRVO often goes further:** Most compilers apply **Named Return Value Optimization (NRVO)**: the returned object is constructed *directly* in the caller's memory, so the move constructor never runs at all — zero copies, zero moves. NRVO has existed since before C++11 and is even more efficient than a move. Move semantics are the guaranteed fallback when NRVO can't apply (e.g., returning from multiple return paths with different objects). In an interview: mention NRVO as the first optimization, move semantics as the standard-guaranteed backup.
-
----
-
 ## Rule of Zero — The Modern Idiomatic Approach
 
 If your class **only contains** RAII-managed members (`unique_ptr`, `shared_ptr`, `string`, `vector`), you can define **none of the five** and the compiler-generated defaults handle everything correctly:

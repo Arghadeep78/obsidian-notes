@@ -331,9 +331,11 @@ int main() {
 }
 ```
 
-### Fix — `virtual` Inheritance
+### Fix — `virtual` Inheritance (Virtual Base Class)
 
 Add `virtual` when inheriting from the shared base. This tells the compiler: "share ONE copy of Animal, don't duplicate it."
+
+Here Lion and Tiger are **Virtual Base Class**.
 
 ```cpp
 class Animal { public: int age; void eat() { cout << "Eating\n"; } };
@@ -423,7 +425,7 @@ Prefer **composition** or **interfaces** (*pure virtual function.*) to avoid the
 
 ##### interfaces
 An **interface** defines a contract—a set of actions an object must support—without providing the implementation details.
-	An interface is typically an abstract class containing [[06 - Abstraction & Abstract Class#Way 2 — Abstraction via Abstract Class|Pure Virtual Functions]] (and usually a virtual destructor) and no data members. Check out [[06 - Abstraction & Abstract Class#Interface vs Abstract Class (C++ Perspective)|Interfaces]]
+	An interface is typically an abstract class containing [[06 - Abstraction & Abstract Class#Way 2 — Abstraction via Abstract Class|Pure Virtual Functions]] (and usually a virtual destructor) and no data membersfbase. Check out [[06 - Abstraction & Abstract Class#Interface vs Abstract Class (C++ Perspective)|Interfaces]]
 ```cpp
 class Animal {  
 public:  

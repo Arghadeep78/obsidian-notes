@@ -547,11 +547,11 @@ High address
 ┌──────────────────┐
 │      Stack       │  ← local vars, function call frames (grows downward)
 │        ↓         │    grow down
-│                  │
+|  --------------  │
 │        ↑         │    grow up
-│      Heap        │  ← new/malloc (grows upward)
+│      Heap        │  ← new/malloc (dynamic allocation)
 ├──────────────────┤
-│  Static / Global │  ← static variables, global variables (compile time    |                  |                                        allocation)
+│  Static / Global │  ← static variables, global variables (compile time allocation)     |  Storage (Fixed) |                                         )
 ├──────────────────┤
 │  Code (Text)     │  ← compiled instructions, string literals
 └──────────────────┘

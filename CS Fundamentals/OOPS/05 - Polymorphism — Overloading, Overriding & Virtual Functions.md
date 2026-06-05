@@ -78,7 +78,7 @@ class Complex {
     public:
         double real, imag;
         Complex(double r, double i) : real(r), imag(i) {}
-        // Overload + so Complex + Complex works naturally
+        // Overload+ so Complex + Complex works naturally
         Complex operator+(const Complex& other) const {
             return Complex(real + other.real, imag + other.imag);
         }
@@ -92,6 +92,13 @@ int main() {
     c3.print();              // 3 + 7i
 }
 ```
+
+- First `const`: prevents modification of the argument `c`.
+- Second `const`: guarantees the member function does not modify the object on which it is called (`*this`).
+- *Compiler Translation*: The expression `v1 + v2` is shorthand syntax for an explicit member function call: `v1.operator+(v2)`.
+- **Left side (`v1`):** Implicitly calls the function (acts like `v1.func()`).
+- **Right side (`v2`):** Passed into the function as the argument.
+- **Benefit:** Provides clean, natural syntax instead of explicit dot notation.
 
 ---
 
