@@ -1,32 +1,36 @@
+# Lecture 08 — Transformation from ER Model to Relational Model
+
+---
+
 ## 1. Context
 
 - **DB design = ER Model (→ ER Diagram) → Relational Model (→ tables / conceptual schema).**
-- The relational model gives many **relation schemas**; relationships between them are shown using **foreign keys** (referential constraints).
-- **Goal:** Given an ER diagram, reduce it to a relational model — how many tables, which primary keys, which foreign keys, and how relationships are shown.
-- The video uses the **Banking System ER diagram from Lecture 05** (which had weak entities, weak relationships, generalization, and unary relationships).
+- The relational model gives many **relation schemas**; relationships between them are shown using **foreign keys** (referential constraints).
+- **Goal:** Given an ER diagram, reduce it to a relational model — how many tables, which primary keys, which foreign keys, and how relationships are shown.
+- Uses the **Banking System ER diagram from Lecture 05** (which had weak entities, weak relationships, generalization, and unary relationships).
 
 ---
 
 ## 2. Converting ER Notations into Relations (Tables)
 
 ### 2.1 Strong Entity
-
-- Each **strong entity → its own individual table**.
-- Each **single-valued attribute → a column**.
+- Each **strong entity → its own individual table**.
+- Each **single-valued attribute → a column**.
 - **Table name = entity name.**
-- **Primary key** = the same PK given to that entity in the ER diagram.
-- A **foreign key** is added if the entity establishes a relationship with another.
+- **Primary key** = the same PK given to that entity in the ER diagram.
+- A **foreign key** is added if the entity establishes a relationship with another.
 
-**Example — `Loan` (strong entity):** | Loan Number (PK) | Amount |
+**Example — `Loan` (strong entity):**
+| Loan Number (PK) | Amount |
 
 ### 2.2 Weak Entity
+- A weak entity has no existence of its own; it **totally participates / depends on a strong entity**.
+- Reduce it to a table, then add the **PK of the owner (strong) entity** into it.
+- **Primary Key = (PK of strong entity) + (discriminator of weak entity)** — a composite key.
+- The strong entity's PK inside the weak-entity table is also a **foreign key**.
 
-- A weak entity has no existence of its own; it **totally participates / depends on a strong entity**.
-- Reduce it to a table, then add the **PK of the owner (strong) entity** into it.
-- **Primary Key = (PK of strong entity) + (discriminator of weak entity)** — a composite key.
-- The strong entity's PK inside the weak-entity table is also a **foreign key**.
-
-**Example — `Payment` (weak entity, owner = `Loan`):** | Loan Number (FK, part of PK) | Payment Number (discriminator, part of PK) | ...other attrs |
+**Example — `Payment` (weak entity, owner = `Loan`):**
+| Loan Number (FK, part of PK) | Payment Number (discriminator, part of PK) | ...other attrs |
 
 ```
   Why the composite PK for a weak entity?
@@ -47,19 +51,19 @@
     - A foreign key referencing the Loan table
 ```
 
-> The discriminator (`Payment Number`) cannot be a PK by itself because the weak entity depends on the strong entity → combine **strong-entity PK + discriminator**.
+> The discriminator (`Payment Number`) cannot be a PK by itself because the weak entity depends on the strong entity → combine **strong-entity PK + discriminator**.
 
 ### 2.3 Single-Valued Attribute
-
-- Simply acts as **one column** in the relation.
+- Simply acts as **one column** in the relation.
 
 ### 2.4 Composite Attribute
+- **Break it into separate (component) attributes** when building the table.
 
-- **Break it into separate (component) attributes** when building the table.
+**Example — `Customer` with composite `Address` (and `Street` itself composite):**
+`Address` had 5 components → flatten:
+| Customer Name | Address_City | Address_State | Address_PinCode | Address_StreetNumber | Address_StreetName |
 
-**Example — `Customer` with composite `Address` (and `Street` itself composite):** `Address` had 5 components → flatten: | Customer Name | Address_City | Address_State | Address_PinCode | Address_StreetNumber | Address_StreetName |
-
-> Store only the **leaf components** as separate columns.
+> Store only the **leaf components** as separate columns.
 
 ```
   Composite attribute flattening:
@@ -81,23 +85,22 @@
 ```
 
 ### 2.5 Multi-Valued Attribute → New Table
-
-- A multi-valued attribute is **moved into a NEW table (relation)**.
+- A multi-valued attribute is **moved into a NEW table (relation)**.
 - The new table's name = the multi-valued attribute's name.
-- It holds: the **owner entity's PK as a foreign key** + a **column for the value**.
-- **Primary Key of the new table = (FK) + (the multi-valued column)** — composite.
+- It holds: the **owner entity's PK as a foreign key** + a **column for the value**.
+- **Primary Key of the new table = (FK) + (the multi-valued column)** — composite.
 
-**Example — `Dependent Name` (multi-valued on Employee):** A single Employee can have multiple dependents (father, mother, wife...). Don't repeat all employee attributes; make a new table:
+**Example — `Dependent Name` (multi-valued on Employee):**
+A single Employee can have multiple dependents (father, mother, wife...). Don't repeat all employee attributes; make a new table:
 
-**Table: `Dependent_Name`**
+**Table: `Dependent_Name`**
+| EMP_ID (FK → Employee, part of PK) | D_Name (part of PK) |
+|------------------------------------|---------------------|
+| 1 | ... |
+| 1 | ... |
 
-|EMP_ID (FK → Employee, part of PK)|D_Name (part of PK)|
-|---|---|
-|1|...|
-|1|...|
-
-- `EMP_ID` is a **foreign key** (PK of Employee table) → lets you reference the Employee table.
-- PK = `(EMP_ID, D_Name)`.
+- `EMP_ID` is a **foreign key** (PK of Employee table) → lets you reference the Employee table.
+- PK = `(EMP_ID, D_Name)`.
 
 ```
   Why a multi-valued attribute must become its own table:
@@ -127,33 +130,33 @@
 ```
 
 ### 2.6 Derived Attribute
-
-- **Not stored in tables.** Used only as an ER-diagram notation.
-- It can be computed directly via the API (e.g., `Age` is derived from DOB and current date), so there is no place for it in the table.
+- **Not stored in tables.** Used only as an ER-diagram notation.
+- It can be computed directly via the API (e.g., `Age` is derived from DOB and current date), so there is no place for it in the table.
 
 ---
 
 ## 3. Generalization → Two Methods
 
-Example: generalized entity `Account`, specialized into `Current Account` and `Saving Account`.
+Example: generalized entity `Account`, specialized into `Current Account` and `Saving Account`.
 
 ### Method 1 — Table for higher-level entity + tables for lower-level entities
+- Create a table for the **parent (higher-level)** entity **and** for each **child (lower-level)** entity.
 
-- Create a table for the **parent (higher-level)** entity **and** for each **child (lower-level)** entity.
+**Table 1: Account**
+| Account Number (PK) | Balance |
 
-**Table 1: Account** | Account Number (PK) | Balance |
+**Table 2: Saving Account** (PK = Account Number from parent)
+| Account Number (PK) | Interest | Daily Withdrawal Limit |
 
-**Table 2: Saving Account** (PK = Account Number from parent) | Account Number (PK) | Interest | Daily Withdrawal Limit |
+**Table 3: Current Account** (PK = Account Number from parent)
+| Account Number (PK) | Overdraft Amount | Per-Transaction Charges |
 
-**Table 3: Current Account** (PK = Account Number from parent) | Account Number (PK) | ... |
-
-- Lower-level tables **reuse the generalized entity's PK** as their PK.
+- Lower-level tables **reuse the generalized entity's PK** as their PK.
 
 ### Method 2 — Drop the parent table; keep only lower-level tables
-
-- Remove the `Account` table.
-- Make tables only for `Saving Account` and `Current Account`.
-- `Account Number` is the PK in both anyway; **push down the parent's attributes (e.g., `Balance`) into both child tables.**
+- Remove the `Account` table.
+- Make tables only for `Saving Account` and `Current Account`.
+- `Account Number` is the PK in both anyway; **push down the parent's attributes (e.g., `Balance`) into both child tables.**
 
 ```
   Method 1 (parent + children):           Method 2 (children only):
@@ -178,30 +181,28 @@ Example: generalized entity `Account`, specialized into `Current Account` and
 
 ### Drawbacks of Method 2
 
-**(a) Overlapping generalization** → causes **redundancy**.
+**(a) Overlapping generalization** → causes **redundancy**.
+- If an account is **both** Saving **and** Current (same account number, both features), there is no generalized entity to store shared data.
+- You must store an entry in **both** Saving and Current tables, and the shared `Balance` (₹10) gets **stored twice** → redundancy.
+- **Method 1 avoids this:** `Balance` is stored only once (in the Account table); child tables don't store balance.
 
-- If an account is **both** Saving **and** Current (same account number, both features), there is no generalized entity to store shared data.
-- You must store an entry in **both** Saving and Current tables, and the shared `Balance` (₹10) gets **stored twice** → redundancy.
-- **Method 1 avoids this:** `Balance` is stored only once (in the Account table); child tables don't store balance.
-
-**(b) Incomplete (non-total) generalization** → some accounts can't be represented.
-
-- If an account is **neither** Saving **nor** Current (a third type not stored), Method 2 has **no table** to store it (no generalized `Account` table exists).
+**(b) Incomplete (non-total) generalization** → some accounts can't be represented.
+- If an account is **neither** Saving **nor** Current (a third type not stored), Method 2 has **no table** to store it (no generalized `Account` table exists).
 - "Such an account could not be represented with the second method."
 
-> **Verdict:** Method 2 looks simpler (only 2 tables), but it **breaks** when generalization is overlapping (a record belongs to multiple sub-classes) or incomplete (a record belongs to neither). **Method 1** (keeping the parent table) handles both cases correctly because shared attributes live in one place and every sub-type record has a parent row. Use Method 2 only when generalization is total and disjoint (every entity belongs to exactly one sub-class, never two).
+> **Verdict:** Method 2 looks simpler (only 2 tables), but it **breaks** when generalization is overlapping (a record belongs to multiple sub-classes) or incomplete (a record belongs to neither). **Method 1** (keeping the parent table) handles both cases correctly because shared attributes live in one place and every sub-type record has a parent row. Use Method 2 only when generalization is total and disjoint (every entity belongs to exactly one sub-class, never two).
 
 ---
 
 ## 4. Aggregation
 
-Recall (Lecture 04): a **ternary relationship** among `Job`, `Employee`, `Branch` was aggregated into a single `Work On` entity, and a relationship was established between `Work On` and `Manager` (a manager _manages_ that combination).
+Recall (Lecture 04): a **ternary relationship** among `Job`, `Employee`, `Branch` was aggregated into a single `Work On` entity, and a relationship was established between `Work On` and `Manager` (a manager *manages* that combination).
 
 ### Reducing aggregation to a table
-
-- Take the **relationship between the aggregated entity and the normal (strong) entity** → make it a **table**.
-- Columns = **primary keys of all participating entities**: `Manager ID`, `EMP ID`, `Job ID`, `Branch ID`.
-- **Primary Key = composite** of all these PKs.
+- Take the **relationship between the aggregated entity and the normal (strong) entity** → make it a **table**.
+- Columns = **primary keys of all participating entities**: `Manager ID`, `EMP ID`, `Job ID`, `Branch ID`.
+- **Primary Key = composite** of all these PKs.
+- Also **add any descriptive attribute** present on the relationship as a column of this table.
 
 ```
   Aggregation reduction:
@@ -225,23 +226,20 @@ Recall (Lecture 04): a **ternary relationship** among `Job`, `Employee`, `B
 
 ## 5. Unary (Recursive) Relationships
 
-A relationship of an entity **with itself**. Three sub-types:
+A relationship of an entity **with itself**. Three sub-types:
 
 ### 5.1 Unary 1:N
-
-**Example — `Employee MANAGES Employee` (1:N).**
-
-- In the **Employee** table, add a column that is a **foreign key referencing the Employee table's own PK** (the manager's Employee ID).
+**Example — `Employee MANAGES Employee` (1:N).**
+- In the **Employee** table, add a column that is a **foreign key referencing the Employee table's own PK** (the manager's Employee ID).
 
 **Employee table:**
+| EMP_ID (PK) | ... | Manager_ID (FK → Employee.EMP_ID) |
+|-------------|-----|-----------------------------------|
+| 201 | ... | 205 |
+| 202 | ... | 205 |
 
-|EMP_ID (PK)|...|Manager_ID (FK → Employee.EMP_ID)|
-|---|---|---|
-|201|...|205|
-|202|...|205|
-
-- One manager (205) manages multiple employees → **1:N**.
-- `Manager_ID` **can be NULL** (e.g., a CEO has no manager).
+- One manager (205) manages multiple employees → **1:N**.
+- `Manager_ID` **can be NULL** (e.g., a CEO has no manager).
 
 ```
   Unary 1:N — self-referencing FK in the SAME table:
@@ -261,25 +259,25 @@ A relationship of an entity **with itself**. Three sub-types:
 ```
 
 ### 5.2 Unary 1:1
+**Example — `Person MARRIED TO Person` (monogamy, 1:1).**
 
-**Example — `Person MARRIED TO Person` (monogamy, 1:1).**
+**Person table:**
+| ID (PK) | Name | Spouse_ID (FK → Person.ID) |
 
-**Person table:** | ID (PK) | Name | Spouse_ID (FK → Person.ID) |
-
-- `Spouse_ID` behaves as a foreign key referencing the same table.
+- `Spouse_ID` behaves as a foreign key referencing the same table.
 
 ### 5.3 Unary M:N → New (relationship) Table
-
-**Example — `Course PREREQUISITE Course` (M:N).**
-
+**Example — `Course PREREQUISITE Course` (M:N).**
 - A course can require many prerequisite courses, and be a prerequisite for many → many-to-many.
 
-**Course table:** | ID (PK) | Title |
+**Course table:**
+| ID (PK) | Title |
 
-**Prerequisite table** (named after the relationship): | ID (FK → Course.ID) | Prereq_Course_ID (FK → Course.ID) |
+**Prerequisite table** (named after the relationship):
+| ID (FK → Course.ID) | Prereq_Course_ID (FK → Course.ID) |
 
-- **Both** columns are foreign keys referencing the Course table's PK.
-- **Primary Key = composite** of both columns.
+- **Both** columns are foreign keys referencing the Course table's PK.
+- **Primary Key = composite** of both columns.
 
 ```
   Unary M:N — why a separate table is needed:
@@ -314,59 +312,44 @@ A relationship of an entity **with itself**. Three sub-types:
 
 ## 6. Worked Example — Reducing the Facebook ER Diagram (Lecture 06) to a Relational Model
 
-Applying everything above to the Facebook ERD → **9 tables (relations)**:
+Applying all the above rules to the Facebook ERD → **9 tables (relations)**:
 
 ### Table 1: User Profile
-
 | User Name (PK) | Password | DOB | ... | (single-valued attrs) |
 
-### Table 2: User Profile Email (multi-valued `Email` → new table)
-
+### Table 2: User Profile Email (multi-valued `Email` → new table)
 | User Name (FK, part of PK) | Email (part of PK) |
+- Composite PK = `(User Name, Email)`.
 
-- Composite PK = `(User Name, Email)`.
-
-### Table 3: User Profile Contact (multi-valued `Contact` → new table)
-
+### Table 3: User Profile Contact (multi-valued `Contact` → new table)
 | User Name (FK, part of PK) | Contact (part of PK) |
 
 ### Table 4: Friendship (unary M:N on User Profile → new table)
-
 | Profile_Requested (FK → UserProfile.UserName) | Profile_Accepted (FK → UserProfile.UserName) |
-
 - Both are foreign keys (each is some user name).
-- **Compound Key** (two FKs combined) → serves as PK.
+- **Compound Key** (two FKs combined) → serves as PK.
 
 ### Table 5: Post Like (strong entity)
-
 | Post Like ID (PK) | Time Stamp | Post_ID (FK → UserPost) | User_Name (FK → UserProfile) |
-
-- `Post_ID` FK shows the **HAS** relationship (User Post has Post Like).
-- `User_Name` FK shows the **CAN/like** relationship (a user liked the post).
+- `Post_ID` FK shows the **HAS** relationship (User Post has Post Like).
+- `User_Name` FK shows the **CAN/like** relationship (a user liked the post).
 
 ### Table 6: User Post (strong entity)
-
 | Post ID (PK) | (content attrs) | User_Name (FK → UserProfile) |
+- `User_Name` FK shows the **Posts** relationship (linkage between User Post and User Profile via `User Name`).
+- Note: `Image` and `Video` were **multi-valued** → moved to their own tables (below).
 
-- `User_Name` FK shows the **Posts** relationship (linkage between User Post and User Profile via `User Name`).
-- Note: `Image` and `Video` were **multi-valued** → moved to their own tables (below).
-
-### Table 7: User Post Image (multi-valued `Image` → new table)
-
+### Table 7: User Post Image (multi-valued `Image` → new table)
 | Post_ID (FK → UserPost, part of PK) | Image_URL (part of PK) |
-
 - Each image has its own URL; combined → composite PK.
 
-### Table 8: User Post Video (multi-valued `Video` → new table)
-
+### Table 8: User Post Video (multi-valued `Video` → new table)
 | Post_ID (FK → UserPost, part of PK) | Video_URL (part of PK) |
 
 ### Table 9: Post Comment
-
 | Post Comment ID (PK) | Text Content | Time Stamp | User_Name (FK → UserProfile) | Post_ID (FK → UserPost) |
-
-- `User_Name` FK → **Comments** + **HAS** relationships (the user profile that commented).
-- `Post_ID` FK → links the comment to its post.
+- `User_Name` FK → **Comments** + **HAS** relationships (the user profile that commented).
+- `Post_ID` FK → links the comment to its post.
 - Two foreign keys here.
 
 ```
@@ -398,24 +381,24 @@ Applying everything above to the Facebook ERD → **9 tables (relations)**:
     T9 (Post Comment) carries Post_ID FK -> represents "Has" (Post->Comment)
 ```
 
-> **Result:** 9 relations. These can be directly implemented in an RDBMS (e.g., MySQL) using **SQL `CREATE TABLE` commands**.
+> **Result:** 9 relations. These can be directly implemented in an RDBMS (e.g., MySQL) using **SQL `CREATE TABLE` commands**.
 
 ---
 
 ## 7. Summary
 
-|ER Construct|Reduction to Relational Model|
-|---|---|
-|Strong Entity|Own table; PK preserved|
-|Weak Entity|Own table; PK = owner PK + discriminator; owner PK is FK|
-|Single-valued attribute|Column|
-|Composite attribute|Split into leaf-component columns|
-|Multi-valued attribute|New table (owner PK as FK + value); composite PK|
-|Derived attribute|Not stored (computed)|
-|Generalization|Method 1 (parent + child tables) or Method 2 (only child tables)|
-|Aggregation|Table of all participating PKs; composite PK|
-|Unary 1:N|Self-referencing FK column|
-|Unary 1:1|Self-referencing FK column (spouse_id)|
-|Unary M:N|New relationship table with two self-referencing FKs; composite PK|
+| ER Construct | Reduction to Relational Model |
+|--------------|-------------------------------|
+| Strong Entity | Own table; PK preserved |
+| Weak Entity | Own table; PK = owner PK + discriminator; owner PK is FK |
+| Single-valued attribute | Column |
+| Composite attribute | Split into leaf-component columns |
+| Multi-valued attribute | New table (owner PK as FK + value); composite PK |
+| Derived attribute | Not stored (computed) |
+| Generalization | Method 1 (parent + child tables) or Method 2 (only child tables) |
+| Aggregation | Table of all participating PKs; composite PK |
+| Unary 1:N | Self-referencing FK column |
+| Unary 1:1 | Self-referencing FK column (spouse_id) |
+| Unary M:N | New relationship table with two self-referencing FKs; composite PK |
 
-**Next lecture:** Normalization.
+**Next lecture:** Normalization.

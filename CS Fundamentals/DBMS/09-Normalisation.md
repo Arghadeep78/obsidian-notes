@@ -1,10 +1,14 @@
+# Lecture 09 — Normalisation
+
+---
+
 ## 1. Functional Dependency (FD)
 
-Before normalization, understand FD (close to mathematics).
+Before normalization, understand FD.
 
-- Given a table with attributes `A, B, C, D`, an FD like **`A → B`** ("A determines B") means: **if I give you the value of `A`, you can determine the value of `B`.**
-- Feels like a primary key: knowing the PK lets you fetch the rest of the data.
-- **`A`** = the left side, a single attribute or a **set of attributes** (since two attributes can combine to form a PK).
+- Given a table with attributes `A, B, C, D`, an FD like **`A → B`** ("A determines B") means: **if I give you the value of `A`, you can determine the value of `B`.**
+- Analogous to a primary key: knowing the PK lets you fetch the rest of the data.
+- **`A`** = the left side, a single attribute or a **set of attributes** (two attributes can combine to form a PK).
 
 ```
   Functional Dependency — what it means concretely:
@@ -30,42 +34,37 @@ Before normalization, understand FD (close to mathematics).
 ```
 
 ### Terminology
+| Term | Meaning |
+|------|---------|
+| **Determinant** | The left side (`A`) — its value lets you derive another's value |
+| **Dependent** | The right side (`B`) — its value depends on `A` |
 
-|Term|Meaning|
-|---|---|
-|**Determinant**|The left side (`A`) — its value lets you derive another's value|
-|**Dependent**|The right side (`B`) — its value depends on `A`|
+**Definition:** A functional dependency is a **relationship between the primary-key attribute(s)** of a relation **and another attribute**. (PK or candidate key on the left.)
 
-**Definition:** A functional dependency is a **relationship between the primary-key attribute(s)** of a relation **and another attribute**. (PK or candidate key on the left.)
-
-**Example — Employee table:** `EMP_ID, Name, Department`, PK = `EMP_ID`.
-
-- `EMP_ID → Employee Name` (EMP_ID determines name)
+**Example — Employee table:** `EMP_ID, Name, Department`, PK = `EMP_ID`.
+- `EMP_ID → Employee Name` (EMP_ID determines name)
 - `EMP_ID → Department`
 
-> Shorthand: FD is written **FD**.
+> Shorthand: FD is written **FD**.
 
 ---
 
 ## 2. Types of Functional Dependency
 
 ### 2.1 Trivial FD
-
-- `A → B` where **`B` is a subset of `A`** (`B ⊆ A`).
+- `A → B` where **`B` is a subset of `A`** (`B ⊆ A`).
 - "Trivial" = obvious / ordinary.
 - Examples:
-    - `{EMP_ID, Name} → EMP_ID` (the dependent is contained in the determinant).
-    - `A → A` (A always determines A).
-    - `B → B`.
+  - `{EMP_ID, Name} → EMP_ID` (the dependent is contained in the determinant).
+  - `A → A` (A always determines A).
+  - `B → B`.
 
 ### 2.2 Non-Trivial FD
-
-- `A → B` where **`B` is NOT a subset of `A`**, i.e. `A ∩ B = ∅` (the intersection is empty — they share no attributes).
-- Example: `{EMP_ID, Name} → Employee Address` (Address is not a subset of `{EMP_ID, Name}`).
-- Example: `EMP_ID → Department` (Department is not a subset of EMP_ID).
+- `A → B` where **`B` is NOT a subset of `A`**, i.e. `A ∩ B = ∅` (the intersection is empty — they share no attributes).
+- Example: `{EMP_ID, Name} → Employee Address` (Address is not a subset of `{EMP_ID, Name}`).
+- Example: `EMP_ID → Department` (Department is not a subset of EMP_ID).
 
 **Venn diagrams:**
-
 ```
   Trivial FD (B is inside A):         Non-Trivial FD (A and B are disjoint):
 
@@ -89,18 +88,15 @@ Before normalization, understand FD (close to mathematics).
 These are the three inference rules for deriving new FDs from existing ones.
 
 ### Rule 1 — Reflexivity
-
-- If `A` is a set of attributes and **`B ⊆ A`**, then **`A → B` holds**.
-- (Similar to trivial FD.) If `Y ⊆ X`, then `X → Y` — knowing `X`, you can determine `Y`.
+- If `A` is a set of attributes and **`B ⊆ A`**, then **`A → B` holds**.
+- (Similar to trivial FD.) If `Y ⊆ X`, then `X → Y` — knowing `X`, you can determine `Y`.
 
 ### Rule 2 — Augmentation
-
-- If `A → B`, then **adding an attribute to both sides changes nothing**: `AC → BC` (or `XZ → YZ`).
-- If `X → Y` holds, then `XZ → YZ` is also a valid FD.
+- If `A → B`, then **adding an attribute to both sides changes nothing**: `AC → BC` (or `XZ → YZ`).
+- If `X → Y` holds, then `XZ → YZ` is also a valid FD.
 
 ### Rule 3 — Transitivity
-
-- If `A → B` and `B → C`, then **`A → C`**.
+- If `A → B` and `B → C`, then **`A → C`**.
 
 ```
   Armstrong's Axioms — how each one works:
@@ -127,41 +123,38 @@ These are the three inference rules for deriving new FDs from existing ones.
 ```
 
 ### Worked check — legal vs. illegal FDs
+Given relation `A, B, C, D, E` with FDs:
+`A → B`, `A → C`, `CD → E`, `B → D`, `E → A`.
 
-Given relation `A, B, C, D, E` with FDs: `A → B`, `A → C`, `CD → E`, `B → D`, `E → A`.
-
-- **Is `BC → CD` valid?** → `B → D` is given; augment both sides with `C` → `BC → CD`. **Valid.**
-- **Is `EC → A` valid?** → `E → A` is given; augment with `C` → `EC → CA`, so `EC → A`. **Valid.**
-- **Is `BD → CD` valid?** → would need `B → C` (remove `D`); no such FD is given → **Illegal FD.**
+- **Is `BC → CD` valid?** → `B → D` is given; augment both sides with `C` → `BC → CD`. **Valid.**
+- **Is `EC → A` valid?** → `E → A` is given; augment with `C` → `EC → CA`, so `EC → A`. **Valid.**
+- **Is `BD → CD` valid?** → would need `B → C` (remove `D`); no such FD is given → **Illegal FD.**
 
 ### Worked proof — Transitivity + Reflexivity
+Given `A, B, C, D, E` with FDs:
+`A → B`, `A → C`, `CD → E`, `B → D`, `E → A`.
 
-Given `A, B, C, D, E` with FDs: `A → B`, `A → C`, `CD → E`, `B → D`, `E → A`.
-
-**Prove `CD → AC`:**
-
-1. `CD → E` (given) and `E → A` (given) → by **transitivity**, `CD → A`.
-2. `CD → C` (since `C ⊆ CD`, by **reflexivity / trivial FD**).
-3. Therefore `CD → A` and `CD → C` → **`CD → AC`. Valid.** ✔
+**Prove `CD → AC`:**
+1. `CD → E` (given) and `E → A` (given) → by **transitivity**, `CD → A`.
+2. `CD → C` (since `C ⊆ CD`, by **reflexivity / trivial FD**).
+3. Therefore `CD → A` and `CD → C` → **`CD → AC`. Valid.** ✔
 
 ---
 
 ## 4. Why Normalize? — To Avoid Redundancy
 
-- **Normalization** is used to **avoid redundancy** in a database (not storing redundant values).
-- Redundancy introduces many problems; normalization **optimizes** the DB so redundant values are minimal/none.
+- **Normalization** is used to **avoid redundancy** in a database (not storing redundant values).
+- Redundancy introduces many problems; normalization **optimizes** the DB so redundant values are minimal/none.
 
 ### Problems caused by redundant data → 3 Anomalies
-
-Redundant data introduces **three anomalies** (a.k.a. data-dependency anomalies):
-
+Redundant data introduces **three anomalies** (a.k.a. data-dependency anomalies):
 1. **Insertion Anomaly**
 2. **Deletion Anomaly**
 3. **Updation (Modification) Anomaly**
 
 ### Example table (un-normalized — has redundancy)
-
-**Student table:** `ID, Name, Age, Branch_Code, Branch_Name, Branch_HOD` (Mixing Student info and Branch info into one table.)
+**Student table:** `ID, Name, Age, Branch_Code, Branch_Name, Branch_HOD`
+(Mixing Student info and Branch info into one table.)
 
 ```
   Un-normalized Student table — redundancy highlighted:
@@ -181,18 +174,14 @@ Redundant data introduces **three anomalies** (a.k.a. data-dependency anomalie
 ```
 
 ### 4.1 Insertion Anomaly
-
-> Certain data cannot be inserted into the DB **without the presence of other data**.
-
-- A new student enrolls but **hasn't chosen a branch yet** → you can't insert the row, or you must insert **NULLs** for the branch columns and update later (double work).
-- Or: you add an **IT department** (Branch Code 4) but **no student is yet enrolled** in IT → you can't insert IT without a student, or you insert NULLs.
-- Root cause: Student existence and Branch existence are **independent**, but they were merged.
+> Certain data cannot be inserted into the DB **without the presence of other data**.
+- A new student enrolls but **hasn't chosen a branch yet** → you can't insert the row, or you must insert **NULLs** for the branch columns and update later (double work).
+- Or: you add an **IT department** (Branch Code 4) but **no student is yet enrolled** in IT → you can't insert IT without a student, or you insert NULLs.
+- Root cause: Student existence and Branch existence are **independent**, but they were merged.
 
 ### 4.2 Deletion Anomaly
-
-> Deleting data results in the **unintended loss of other important data**.
-
-- If the **only** Mechanical Engineering student is deleted (passed out), the **Mechanical Engineering branch** disappears from the DB entirely — making it look like the university doesn't teach Mechanical.
+> Deleting data results in the **unintended loss of other important data**.
+- If the **only** Mechanical Engineering student is deleted (passed out), the **Mechanical Engineering branch** disappears from the DB entirely — making it look like the university doesn't teach Mechanical.
 
 ```
   Deletion Anomaly:
@@ -209,29 +198,25 @@ Redundant data introduces **three anomalies** (a.k.a. data-dependency anomalie
 ```
 
 ### 4.3 Updation (Modification) Anomaly
-
-> A single value update requires **multiple rows to be updated**.
-
-- If the CS-department HOD changes (X → Q), you must update **every** enrolled CS student's row.
-- A change required in _one place_ must be made in _many places_ → if some rows are missed → **data inconsistency**.
+> A single value update requires **multiple rows to be updated**.
+- If the CS-department HOD changes (X → Q), you must update **every** enrolled CS student's row.
+- A change required in *one place* must be made in *many places* → if some rows are missed → **data inconsistency**.
 
 ### Other downsides
-
-- **DB size increases** (data repeated across rows) → slower searches/queries.
+- **DB size increases** (data repeated across rows) → slower searches/queries.
 
 ---
 
 ## 5. What Normalization Does
 
-- **Decompose** a table into **multiple tables**.
-- Keep decomposing until **SRP (Single Responsibility Principle)** is achieved — **one table should represent one single idea / do one job**.
+- **Decompose** a table into **multiple tables**.
+- Keep decomposing until **SRP (Single Responsibility Principle)** is achieved — **one table should represent one single idea / do one job**.
 
 ### Quick fix of the example (intuition)
+- **Table 1:** `ID, Name, Age, Branch_Code`
+- **Table 2 (Branch Info):** `Branch_Code, Branch_Name, HOD_Name`
 
-- **Table 1:** `ID, Name, Age, Branch_Code`
-- **Table 2 (Branch Info):** `Branch_Code, Branch_Name, HOD_Name`
-
-Now: no insertion anomaly (add IT department without students), no deletion anomaly, no updation anomaly. HOD change → update **one** row in Branch Info.
+Now: no insertion anomaly (add IT department without students), no deletion anomaly, no updation anomaly. HOD change → update **one** row in Branch Info.
 
 ```
   After decomposition — all three anomalies gone:
@@ -278,22 +263,19 @@ Decompose progressively, each form adding more restrictions and further optimizi
 ---
 
 ### 6.1 First Normal Form (1NF)
-
 - **Every cell of a relation must contain an atomic value.**
-- The relation **must not have multi-valued attributes.**
+- The relation **must not have multi-valued attributes.**
 
 **Example — Employee table (NOT in 1NF):**
-
-|ID|Name|Phone Number|
-|---|---|---|
-|1|A|88..., (multiple)|
+| ID | Name | Phone Number |
+|----|------|--------------|
+| 1 | A | 88..., (multiple) |
 
 → Convert to 1NF by giving each phone its own row (atomic value):
-
-|ID|Name|Phone Number|
-|---|---|---|
-|1|A|88...|
-|1|A|(other)|
+| ID | Name | Phone Number |
+|----|------|--------------|
+| 1 | A | 88... |
+| 1 | A | (other) |
 
 ```
   1NF violation and fix:
@@ -315,20 +297,18 @@ Decompose progressively, each form adding more restrictions and further optimizi
   1NF's only job is atomicity.
 ```
 
-> 1NF **only** requires atomic values; it does **not** care about the data repetition this may introduce. (This is the same idea as decomposing a multi-valued attribute when going from ER → relational model.)
+> 1NF **only** requires atomic values; it does **not** care about the data repetition this may introduce. (This is the same idea as decomposing a multi-valued attribute when going from ER → relational model.)
 
 ---
 
 ### 6.2 Second Normal Form (2NF)
-
 **Conditions:**
+1. Relation is in **1NF** (all atomic values).
+2. **No partial dependency** — every non-prime attribute must be **fully dependent** on the (whole) primary key, not on a *part* of it.
 
-1. Relation is in **1NF** (all atomic values).
-2. **No partial dependency** — every non-prime attribute must be **fully dependent** on the (whole) primary key, not on a _part_ of it.
+**Partial dependency definition:** A **non-prime attribute** (one not part of the candidate/primary key) depends on **part of** a (composite) primary key.
 
-**Partial dependency definition:** A **non-prime attribute** (one not part of the candidate/primary key) depends on **part of** a (composite) primary key.
-
-**Why partial dependency is a problem:** If PK = `{A, B}` (composite) and `B → C` (a part of the PK alone determines a non-prime attribute C), then the value of C is repeated in every row that shares the same value of B — regardless of A. This causes the same redundancy, insertion anomalies, deletion anomalies, and updation anomalies as in the un-normalized examples above. 2NF eliminates this by requiring every non-prime attribute to depend on the _whole_ composite PK, not just a part of it.
+**Why partial dependency is a problem:** If PK = `{A, B}` (composite) and `B → C` (a part of the PK alone determines a non-prime attribute C), then the value of C is repeated in every row that shares the same value of B — regardless of A. This causes the same redundancy, insertion anomalies, deletion anomalies, and updation anomalies as in the un-normalized examples above. 2NF eliminates this by requiring every non-prime attribute to depend on the *whole* composite PK, not just a part of it.
 
 ```
   What "partial dependency" means:
@@ -355,36 +335,33 @@ Decompose progressively, each form adding more restrictions and further optimizi
   (the grade of a student ON a specific project needs BOTH IDs).
 ```
 
-**Conversion example:** Relation `A, B, C, D` with PK `{A, B}`, FD `B → C` (partial dependency), and `{A, B} → D` (full dependency). Decompose into:
+**Conversion example:** Relation `A, B, C, D` with PK `{A, B}`, FD `B → C` (partial dependency), and `{A, B} → D` (full dependency).
+Decompose into:
+- **R1:** `A, B, D` (PK = `{A, B}`), removing the attribute `C` that was partially determined by only `B`.
+- **R2:** `B, C` (PK = `B`), capturing the partial dependency `B → C` in its own table.
 
-- **R1:** `A, B, D` (PK = `{A, B}`), removing the attribute `C` that was partially determined by only `B`.
-- **R2:** `B, C` (PK = `B`), capturing the partial dependency `B → C` in its own table.
+**Real-life example — Student Project table:**
+| Student_ID | Project_ID | Student_Name | Project_Name |
 
-**Real-life example — Student Project table:** | Student_ID | Project_ID | Student_Name | Project_Name |
-
-- PK (composite) = `{Student_ID, Project_ID}`; prime = those two; non-prime = `Student_Name, Project_Name`.
-- FDs: `Student_ID → Student_Name`, `Project_ID → Project_Name` → **both are partial dependencies** (a non-prime attr determined by a _part_ of the PK).
+- PK (composite) = `{Student_ID, Project_ID}`; prime = those two; non-prime = `Student_Name, Project_Name`.
+- FDs: `Student_ID → Student_Name`, `Project_ID → Project_Name` → **both are partial dependencies** (a non-prime attr determined by a *part* of the PK).
 
 **Decompose (2NF):**
+- **Student table:** `Student_ID (PK), Student_Name` → `Student_ID → Student_Name` (full dependency)
+- **Project table:** `Project_ID (PK), Project_Name` → `Project_ID → Project_Name` (full dependency)
+- **Enrollment table:** `Student_ID (FK, part of PK), Project_ID (FK, part of PK)` — retains the original composite PK relationship between Student and Project, preserving which student works on which project.
 
-- **Student table:** `Student_ID (PK), Student_Name` → `Student_ID → Student_Name` (full dependency)
-- **Project table:** `Project_ID (PK), Project_Name` → `Project_ID → Project_Name` (full dependency)
-- **Enrollment table:** `Student_ID (FK, part of PK), Project_ID (FK, part of PK)` — retains the original composite PK relationship between Student and Project, preserving which student works on which project.
-
-> 2NF **completely removes partial dependencies.**
+> 2NF **completely removes partial dependencies.**
 
 ---
 
 ### 6.3 Third Normal Form (3NF)
-
 **Conditions:**
+1. Relation is in **2NF**.
+2. **No transitive dependency.** The formal rule: for every non-trivial FD `α → β`, at least one of these must be true: (a) `α` is a super key, OR (b) every attribute in `β` is a **prime attribute** (part of some candidate key). The most common violation — and the one to focus on — is a **non-prime attribute determining another non-prime attribute** (transitive dependency).
 
-1. Relation is in **2NF**.
-2. **No transitive dependency.** The formal rule: for every non-trivial FD `α → β`, at least one of these must be true: (a) `α` is a super key, OR (b) every attribute in `β` is a **prime attribute** (part of some candidate key). The most common violation — and the one to focus on — is a **non-prime attribute determining another non-prime attribute** (transitive dependency).
-
-**Example:** Relation `A, B, C`, PK = `A`, FDs: `A → B`, `B → C`.
-
-- `A → B` and `B → C` ⇒ `A → C` (transitive). So why keep `B → C`? Because `B` (non-prime) determines `C` (non-prime) → **transitive dependency** → causes **redundancy** (repeated data).
+**Example:** Relation `A, B, C`, PK = `A`, FDs: `A → B`, `B → C`.
+- `A → B` and `B → C` ⇒ `A → C` (transitive). So why keep `B → C`? Because `B` (non-prime) determines `C` (non-prime) → **transitive dependency** → causes **redundancy** (repeated data).
 
 ```
   Transitive dependency — what it looks like and why it causes problems:
@@ -410,28 +387,24 @@ Decompose progressively, each form adding more restrictions and further optimizi
   If Delhi changes its name, every student row in zip 110001 must update.
 ```
 
-**Conversion (3NF):** Decompose:
-
-- **R1:** `A, B` (PK = `A`)
-- **R2:** `B, C` (PK = `B`)
+**Conversion (3NF):** Decompose:
+- **R1:** `A, B` (PK = `A`)
+- **R2:** `B, C` (PK = `B`)
 
 → Removes the transitive dependency and the redundancy.
 
 ---
 
 ### 6.4 Boyce-Codd Normal Form (BCNF)
-
-- Full form: **Boyce-Codd Normal Form**. A **stronger version of 3NF**.
+- Full form: **Boyce-Codd Normal Form**. A **stronger version of 3NF**.
 
 **Conditions:**
-
-1. Relation is in **3NF**.
-2. For every non-trivial FD `A → B`, **`A` must be a super key.**
+1. Relation is in **3NF**.
+2. For every non-trivial FD `A → B`, **`A` must be a super key.**
 
 > Progression:
-> 
 > - 3NF removed non-prime → non-prime determination (but was silent about non-super-keys determining prime attributes).
-> - BCNF closes that gap: **every determinant in every non-trivial FD must be a superkey**, regardless of whether the right-hand side is prime or non-prime. The most common violation is a non-super-key attribute determining a prime attribute (as in the example below), which 3NF does not catch.
+> - BCNF closes that gap: **every determinant in every non-trivial FD must be a superkey**, regardless of whether the right-hand side is prime or non-prime. The most common violation is a non-super-key attribute determining a prime attribute (as in the example below), which 3NF does not catch.
 
 ```
   The gap between 3NF and BCNF:
@@ -448,14 +421,13 @@ Decompose progressively, each form adding more restrictions and further optimizi
   BCNF forbids: non-super-key ---> anything  (including prime attributes)
 ```
 
-**Example — `Student_ID, Subject, Professor`:**
-
-- Constraints: one student enrolls in multiple subjects; **each subject** for a student has an assigned professor; **one professor teaches only one subject**.
-- PK (composite) = `{Student_ID, Subject}`.
+**Example — `Student_ID, Subject, Professor`:**
+- Constraints: one student enrolls in multiple subjects; **each subject** for a student has an assigned professor; **one professor teaches only one subject**.
+- PK (composite) = `{Student_ID, Subject}`.
 - FDs:
-    - `{Student_ID, Subject} → Professor`
-    - `Professor → Subject` (since one professor teaches exactly one subject)
-- This is in 1NF, 2NF (no partial dependency), and 3NF — **but** in `Professor → Subject`, **`Subject` is a prime attribute** and `Professor` is **not a super key** → **violates BCNF.**
+  - `{Student_ID, Subject} → Professor`
+  - `Professor → Subject` (since one professor teaches exactly one subject)
+- This is in 1NF, 2NF (no partial dependency), and 3NF — **but** in `Professor → Subject`, **`Subject` is a prime attribute** and `Professor` is **not a super key** → **violates BCNF.**
 
 ```
   Why the BCNF example satisfies 3NF but violates BCNF:
@@ -487,22 +459,17 @@ Decompose progressively, each form adding more restrictions and further optimizi
   +------------+---------+-----------+
 ```
 
-**Conversion (BCNF):** Decompose by moving the violating FD (`Professor → Subject`) into its own table:
-
-- **Professor table:** `Professor (PK), Subject` — captures the FD `Professor → Subject` directly. Professor is now the sole key of this table (a super key), so BCNF is satisfied here.
-    
-    |Professor|Subject|
-    |---|---|
-    |PJ|Java|
-    |PC|C++|
-    
-- **Student_Professor table:** `Student_ID (part of PK), Professor (FK → Professor table, part of PK)` — retains which student is assigned which professor.
-    
-    |Student_ID|Professor|
-    |---|---|
-    |101|PJ|
-    |102|PJ|
-    
+**Conversion (BCNF):** Decompose by moving the violating FD (`Professor → Subject`) into its own table:
+- **Professor table:** `Professor (PK), Subject` — captures the FD `Professor → Subject` directly. Professor is now the sole key of this table (a super key), so BCNF is satisfied here.
+  | Professor | Subject |
+  |-----------|---------|
+  | PJ        | Java    |
+  | PC        | C++     |
+- **Student_Professor table:** `Student_ID (part of PK), Professor (FK → Professor table, part of PK)` — retains which student is assigned which professor.
+  | Student_ID | Professor |
+  |------------|-----------|
+  | 101        | PJ        |
+  | 102        | PJ        |
 
 → In both resulting tables every determinant in every non-trivial FD is a super key (Professor is the PK of the Professor table; {Student_ID, Professor} is the PK of the Student_Professor table) → BCNF satisfied. Subject can be retrieved by joining through Professor.
 
@@ -510,22 +477,22 @@ Decompose progressively, each form adding more restrictions and further optimizi
 
 ## 7. Normal Forms — Consolidated Summary
 
-For a dependency `α → β`:
+For a dependency `α → β`:
 
-|Form|Rule|
-|---|---|
-|**1NF**|All cell values atomic; no multi-valued attributes.|
-|**2NF**|1NF + **no partial dependency** (`β` must not depend on _part_ of a composite PK).|
-|**3NF**|2NF + for every non-trivial FD `α → β`, **at least one** of the following must hold: (a) `α` is a super key, OR (b) `β` is a prime attribute (part of some candidate key). In practice the main violation to eliminate is a **non-prime attribute determining another non-prime attribute** (transitive dependency).|
-|**BCNF**|3NF + for every non-trivial `α → β`, `α` **must** be a super key — no exceptions. Stricter than 3NF because 3NF allowed non-super-key `α` as long as `β` was prime; BCNF eliminates that loophole.|
+| Form | Rule |
+|------|------|
+| **1NF** | All cell values atomic; no multi-valued attributes. |
+| **2NF** | 1NF + **no partial dependency** (`β` must not depend on *part* of a composite PK). |
+| **3NF** | 2NF + for every non-trivial FD `α → β`, **at least one** of the following must hold: (a) `α` is a super key, OR (b) `β` is a prime attribute (part of some candidate key). In practice the main violation to eliminate is a **non-prime attribute determining another non-prime attribute** (transitive dependency). |
+| **BCNF** | 3NF + for every non-trivial `α → β`, `α` **must** be a super key — no exceptions. Stricter than 3NF because 3NF allowed non-super-key `α` as long as `β` was prime; BCNF eliminates that loophole. |
 
 ---
 
 ## 8. Advantages of Normalization
 
-- **Removes data redundancy** → no insertion/deletion/updation **anomalies**.
-- Overall **well-structured DB**.
+- **Removes data redundancy** → no insertion/deletion/updation **anomalies**.
+- Overall **well-structured DB**.
 - **No data inconsistency.**
-- **Faster, optimized DB** — takes less space; queries run optimized.
+- **Faster, optimized DB** — takes less space; queries run optimized.
 
-**Next lecture:** Transactions & ACID Properties.
+**Next lecture:** Transactions & ACID Properties.
