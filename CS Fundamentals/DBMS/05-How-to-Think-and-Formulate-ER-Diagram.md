@@ -1,56 +1,29 @@
-# Lecture 05 — How to Think and Formulate an ER Diagram
+## 0. ER Diagram Construction
 
----
-
-## 0. Recap & Goal
-Previous lectures covered the full ER Model: relationships, entity sets, constraints applied on relationships (**mapping cardinality**, **participation constraints**), and ER notations. This lecture = **Steps to make an ER Diagram** for any system (university, school, banking — any use case).
-
-> The ER Model / ER Diagram is used to build the **Conceptual Schema**.
+- ER Diagram is used to create the **Conceptual Schema**.
+- It acts as a **logical blueprint** before converting the design into relational tables.
+- Previous topics: Entities, Relationships, Mapping Cardinality, Participation Constraints, ER Notations.
+- This topic: **Systematic steps for building an ER Diagram** for any application (university, school, banking, etc.).
 
 ```
-  ER Diagram  ──────────────────────────────────────────────────────────►  Relational Tables
-  (Conceptual Schema / logical blueprint)          (implemented in MySQL, PostgreSQL, etc.)
-
-  This lecture: HOW to build the ER Diagram systematically.
+ER Diagram (Conceptual Schema)
+            ↓
+Relational Tables(MySQL, PostgreSQL, etc.)
 ```
-
----
 
 ## 1. The 3 Steps to Make an ER Diagram
-
-Follow these 3 steps for **any** system:
-
 ### Step 1 — Identify Entity Sets
-Which entities / entity sets exist in the system.
-
+Which entities / *entity sets* exist in the system.
 ### Step 2 — Identify Attributes (and their types)
-For each entity, decide attributes and their **types** (single-valued, multi-valued, derived, composite) — and the **Primary Key**.
-
+For each entity, decide *attributes* and their **types** (single-valued, multi-valued, derived, composite) — and the **Primary Key**.
 ### Step 3 — Identify Relationships & Constraints (MOST IMPORTANT)
 - Which relationships to establish (strong / weak).
 - **Degree** of the relationship.
 - **Mapping Cardinality** (1:1, 1:N, N:1, M:N).
 - **Participation Constraint** (Total vs Partial).
-
-```
-  3-Step ER Formulation Process:
-
-  Step 1: Entities          Step 2: Attributes        Step 3: Relationships
-  ───────────────           ──────────────────        ─────────────────────────
-  What "things" exist?      What describes them?      How are they connected?
-  Student, Loan, Branch     Name, ID, Amount ...      borrows, teaches, enrolls
-                            + types (composite,       + cardinality (1:1, M:N)
-                              derived, multi-val)     + participation (total/partial)
-                            + Primary Key             ← MOST IMPORTANT STEP
-```
-
-> **Interview tip:** Many people draw a simple ER diagram but forget **mapping cardinality** and **participation constraints** — the most important from an interview perspective. Always add them.
-
 ---
-
 ## 2. Before designing: Requirement Specification
 Before building the ER model, **collect DB requirements** — what the DB user/stakeholders want (separate customer data, a loan DB, an accounts DB, etc.). This is **Requirement Engineering**: interview the DB user and stakeholders to remove ambiguity.
-
 > **In an interview** you don't have time for full requirement engineering, so you **assume** many requirements yourself and build the diagram with those assumptions.
 
 ```
@@ -58,9 +31,7 @@ Before building the ER model, **collect DB requirements** — what the DB user/s
   Interview:    State your assumptions upfront  →  then design directly
                 ("I'm assuming a customer can hold multiple accounts ...")
 ```
-
 ---
-
 ## 3. Worked Example — Banking System
 
 > This consolidates the Lecture-03/04 banking examples (Customer–Loan total participation, Loan–Payment weak relationship, etc.) into one ER diagram.
@@ -75,9 +46,7 @@ Before building the ER model, **collect DB requirements** — what the DB user/s
 7. Accounts are of **two types: Saving Account & Current Account**.
 8. A **Loan is originated by a Branch**; a loan can be **held by multiple customers** (e.g., an education loan held by self + father). A loan has a unique ID, loan amount, and a **Payment Schedule**.
 9. **Loan ↔ Payment** is a **weak relationship** (Payment is a weak entity).
-
 ---
-
 ### Step 1 — Entity Sets
 1. `Branch`
 2. `Customer`
@@ -87,7 +56,7 @@ Before building the ER model, **collect DB requirements** — what the DB user/s
 6. `Loan`
 7. `Payment` (a **weak entity**, totally associated with Loan)
 
-> **Bottom-up thinking (Generalization):** `Saving Account` and `Current Account` each have special attributes but are both an *account type* → **generalize** them into a single `Account` entity.
+> **Bottom-up thinking (Generalization):** `Saving Account` and `Current Account` each have special attributes but are both an *account type* → *generalize* them into a single `Account` entity.
 
 ```
   Generalization applied (Step 1 → refined entity list):
@@ -179,91 +148,5 @@ Consolidating the 3 steps gives the complete Banking System ER diagram, which de
 - **Total Participation** (Customer borrows Loan — loan side).
 - **Weak Relationship & Weak Entity** (Loan ↔ Payment; Payment has no own primary key → uses Loan Number).
 - **Unary Relationship** (Employee managed-by Employee).
-
-```
-  Complete Banking ER Diagram (simplified ASCII):
-  (double lines ══ = total participation; single lines ── = partial participation)
-
-  Branch attrs: (Name-PK)  (City)  (Assets)  (Liabilities)
-                      │
-                ┌─────┴──────┐
-                │   Branch   │
-                └─────┬──────┘
-                      │  (partial — a branch may not yet have any loan)
-                      │
-                 ◇ originated-by   [N:1 — each loan from exactly one branch]
-                      │
-                      ║  (total — every loan must originate from a branch)
-                ┌─────╨──────┐          ╔════════════════╗
-                │    Loan    │══════════╣    Payment     ║  (weak entity)
-                │ (Loan_ID)  │  ◇loan-  ║ (·Pay_Num·)   ║  ← dotted underline
-                │ (Amount)   │  payment ╚════════════════╝
-                └─────┬──────┘  [1:N; Payment side = total participation]
-                      ║  (total — every loan is borrowed by someone)
-                      │
-                 ◇ borrows   [M:N — one customer many loans; one loan many customers]
-                      │
-                      │  (partial — a customer may have no loan)
-  Employee attrs:     │                    ┌──────────────────────┐
-  (Emp_ID)  (Name)  ┌─┴─────────┐         │       Employee       │◄──┐
-  (Contact) (Start) │ Customer  │──────── ◇ associated-with [N:1]│   │
-  ((Dep_Name))      │ (Cust_ID) │         │ (Emp_ID) (Name)      │   │ ◇ managed-by
-  (···YrsService···)│ (Name)    │         │ ((Dep_Name))         │   │ [N:1 unary —
-                    │ (Address*)│         │ (StartDate)          │───┘  manager is
-                    │((Contact))│         │ (···YrsOfService···) │      also employee]
-                    │ (···Age···│         └──────────────────────┘
-                    │ (DOB)     │
-                    └─────┬─────┘
-                          │  (partial — a customer may not hold an account)
-                     ◇ deposits   [M:N — customer many accounts; account many customers]
-                          │
-                    ┌─────┴──────┐
-                    │  Account   │  (generalized entity)
-                    │ (AcctNum)  │
-                    │ (Balance)  │
-                    └─────┬──────┘
-                          │ IS-A
-              ┌───────────┴──────────────┐
-              ▼                          ▼
-       Saving Account             Current Account
-       (InterestRate)             (TransactionCharges)
-       (DailyWithdrawLimit)       (OverdraftAmount)
-
-  Legend:
-    *   = composite attribute (e.g., Address → Street, City, State, PinCode)
-    (()):  multi-valued attribute (e.g., Contact_No, Dep_Name)
-    ···:  derived attribute (e.g., Age from DOB; YrsOfService from StartDate)
-    ══:   total participation (double line)
-    ──:   partial participation (single line)
-    ╔╗/╚╝: weak entity (double rectangle)
-    ·key·: partial/discriminator key (dotted underline)
-```
-
+![[Pasted image 20260606154853.png]]
 ---
-
-## 5. Summary & Homework
-
-**Method = 3 steps:** (1) Entities → (2) Attributes + types → (3) Relationships + cardinality + participation. The 3rd step (relationships & constraints) is the hardest and the most important for interviews.
-
-```
-  Interview answer template for "design an ER diagram for X":
-
-  1. State your assumptions.
-  2. List entity sets.
-  3. List attributes per entity (note composite, derived, multi-valued, PK).
-  4. List relationships with:
-       - cardinality (1:1 / 1:N / N:1 / M:N)
-       - participation (total ═══ or partial ───) on each side
-       - degree (unary / binary / ternary) and whether weak/strong.
-  5. Apply EER if needed (generalize overlapping entities, specialize bloated ones).
-```
-
-**Homework:**
-1. **Online Delivery System** — entities: Customer, Product, Order, Payment, …; think about mapping cardinality (one customer orders N products, etc.).
-2. **University System** — entities: Professor, Student, Course, Department.
-
-> **The only way to learn ER diagrams is to draw many of them.**
-
----
-
-> This completes the first 5 lectures (01–05): DBMS basics → architecture/DBA → ER Model → Extended ER features → formulating ER diagrams.

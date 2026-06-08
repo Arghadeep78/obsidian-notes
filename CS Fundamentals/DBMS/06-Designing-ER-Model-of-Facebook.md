@@ -1,9 +1,3 @@
-# Lecture 06 — Designing the ER Model of Facebook
-
-> Applies the **3-step ER design process** (from Lecture 05) to build a simplified Facebook database.
-
----
-
 ## 1. Recap — The 3 Steps to Build an ER Diagram
 
 1. **Identify Entity Sets**
@@ -12,24 +6,7 @@
 
 Design the DB of a basic social-media network (Facebook) using the **ER Model**, producing an **ER Diagram**.
 
-```
-  The 3-step process applied to Facebook:
-
-  Step 1: What are the "things" (entities)?
-          --> User Profile, User Post, Post Comment, Post Like
-
-  Step 2: How do they relate, and in what ratio?
-          --> Posts (1:N), Friendship (M:N), Likes (1:N), etc.
-
-  Step 3: Is participation total (mandatory) or partial (optional)?
-          --> Every post MUST belong to a user (total on Post side), etc.
-          |
-          v
-      ER Diagram (Conceptual Schema)
-```
-
 ---
-
 ## 2. Features & Use Cases (Scope)
 
 Model only **basic Facebook functionality** (not pages, reels, ads, etc.):
@@ -42,7 +19,6 @@ Model only **basic Facebook functionality** (not pages, reels, ads, etc.):
 - **Timeline** — friends can visit your timeline and see all your posts. A *retrieval feature* implemented via DB queries: go to a profile → retrieve all posts associated with that profile → display on the timeline.
 
 ---
-
 ## 3. Step 1 — Identify Entity Sets
 
 | # | Entity | Notes |
@@ -58,7 +34,6 @@ Model only **basic Facebook functionality** (not pages, reels, ads, etc.):
 - If *likes* were an **attribute** of Post, establishing a relationship becomes hard — in the ER model, **a relationship is shown between two entities, NOT between an attribute and an entity.**
 - Therefore Post-Like and Post-Comment are broken out into their **own separate entities**, so relationships with User Profile can be drawn.
 
-```
   The problem with making Like an attribute of Post:
 
   User Profile ----[Can Like]----> ??? 
@@ -75,7 +50,6 @@ Model only **basic Facebook functionality** (not pages, reels, ads, etc.):
 
   Now "Can Like" is a relationship between two entities:
   User Profile and Post Like. This is valid ER.
-```
 
 > **Design tip:** While building a model, you often discover wrong assumptions mid-way. You go back and **refine the DB schema**. This clarity comes with practice.
 
@@ -130,113 +104,56 @@ Model only **basic Facebook functionality** (not pages, reels, ads, etc.):
 
 Six relationships are established:
 
-| # | Relationship | Between | Mapping Cardinality | Participation Constraint |
-|---|--------------|---------|---------------------|--------------------------|
-| 1 | **Friendship** | User Profile ↔ User Profile (unary/self) | **M : N** | — |
-| 2 | **Posts** | User Profile → User Post | **1 : N** | **Total** on User Post (no orphan post; every post belongs to some user) |
-| 3 | **Likes (Can Like)** | User Profile → Post Like | **1 : N** | **Total** on Post Like |
-| 4 | **Comments** | User Profile → Post Comment | **1 : N** | **Total** on Post Comment |
-| 5 | **Has** | User Post → Post Comment | **1 : N** | **Total** on Post Comment |
-| 6 | **Has** | User Post → Post Like | **1 : N** | **Total** on Post Like |
+| #   | Relationship         | Between                                  | Mapping Cardinality | Participation Constraint                                                 |
+| --- | -------------------- | ---------------------------------------- | ------------------- | ------------------------------------------------------------------------ |
+| 1   | **Friendship**       | User Profile ↔ User Profile (unary/self) | **M : N**           | —                                                                        |
+| 2   | **Posts**            | User Profile → User Post                 | **1 : N**           | **Total** on User Post (no orphan post; every post belongs to some user) |
+| 3   | **Likes (Can Like)** | User Profile → Post Like                 | **1 : N**           | **Total** on Post Like                                                   |
+| 4   | **Comments**         | User Profile → Post Comment              | **1 : N**           | **Total** on Post Comment                                                |
+| 5   | **Has**              | User Post → Post Comment                 | **1 : N**           | **Total** on Post Comment                                                |
+| 6   | **Has**              | User Post → Post Like                    | **1 : N**           | **Total** on Post Like                                                   |
 
-### Reasoning
-
-- **Friendship (M:N):** One user profile can be a friend of many profiles, and one friend can be a friend of many profiles → many-to-many. Since both sides are the same entity (User Profile), this is a **unary/self relationship**.
-
+### Relationship Justification
+#### 1. Friendship (M:N)
+A user can have many friends, and a friend can be connected to many users. Since both participants are **User Profile**, this is a **unary (self) relationship**.
 ```
-  Unary (Self) Relationship — Friendship:
-
-  Both sides of the relationship are the same entity type (User Profile).
-  This is drawn as a loop — the diamond connects back to the same rectangle.
-
-        +-------------------+
-        |   User Profile    |
-        +-------------------+
-                |
-         [Friendship] (M:N)
-                |
-        +-------------------+
-        |   User Profile    |  <-- same entity
-        +-------------------+
-
-  In ER notation this is drawn as a single rectangle with a
-  relationship diamond looping back to itself.
-
-  Why M:N? 
-    Alice can be friends with Bob, Carol, Dave  (one user, many friends)
-    Bob   can be friends with Alice, Eve, Frank (one friend, many users)
-    --> Many-to-many.
+User Profile ── Friendship ── User Profile        (M)                     (N)
 ```
+#### 2. Posts (1:N)
+A user can create multiple posts, but each post is created by exactly one user.
+- One User Profile → Many User Posts
+- Every post must belong to a user → **Total participation on User Post**
+#### 3. Likes (1:N)
+A user can create many likes, but each like is made by exactly one user.
+- One User Profile → Many Post Likes
+- Every like must be associated with a user → **Total participation on Post Like**
+#### 4. Comments (1:N)
+A user can write many comments, but each comment is written by exactly one user.
+- One User Profile → Many Post Comments
+- Every comment must belong to a user → **Total participation on Post Comment**
+#### 5. User Post HAS Post Comment (1:N)
+A post can have multiple comments, but each comment belongs to exactly one post.
+- One User Post → Many Post Comments
+- Every comment must belong to a post → **Total participation on Post Comment**
+#### 6. User Post HAS Post Like (1:N)
+A post can receive multiple likes, but each like is associated with exactly one post.
+- One User Post → Many Post Likes
+- Every like must belong to a post → **Total participation on Post Like**
+### Participation Constraints
 
-- **Posts (1:N, total):** A post is always made by some user — no orphan post exists → **total participation** on the post side.
-- **Likes (1:N):** One user profile can like N posts; but a single like was made by exactly one user. Every like belongs to some user → total participation.
-- **Comments (1:N):** One user profile can make N comments; one comment is made by exactly one user profile → total participation.
-- **User Post HAS Post Comment (1:N, total):** A post can have N comments; every comment belongs to some post.
-- **User Post HAS Post Like (1:N, total):** A post can have N likes; every like is associated with some post.
-
-```
-  Total participation — what it means:
-
-  In ER diagrams, total participation is drawn with a DOUBLE LINE
-  between the entity and the relationship diamond.
-
-  Partial participation (single line): an entity MAY or MAY NOT
-    participate. Example: a User Profile may or may not have posts.
-
-  Total participation (double line): every instance MUST participate.
-    Example: every Post Like MUST be associated with a User Post
-    (a "floating" like that belongs to no post makes no sense).
-
-  Post Comment has total participation in BOTH:
-    - "Has" with User Post  (every comment belongs to some post)
-    - "Comments" with User Profile (every comment was made by some user)
-```
-
+- **Partial Participation:** Entity may or may not participate in a relationship.
+    - Example: A user may have zero posts.
+- **Total Participation:** Every entity instance must participate in the relationship.
+    - Every Post, Like, and Comment must be associated with their corresponding User/Post.
+    - Represented by a **double line** in ER diagrams.
 ---
-
 ## 6. Final ER Diagram (Conceptual Schema)
-
 Putting it together produces the **conceptual schema (ER diagram)** of Facebook using the same 3 steps:
 
 1. Entity sets identified (4 entities, 4 stated assumptions — kept basic).
 2. Attributes assigned (Name = composite, Contact = multi-valued, User Name = PK, Age = derived, Email = multi-valued).
 3. Relationships (6) with cardinalities and total-participation constraints.
-
-```
-  Simplified ER Diagram — Facebook (entities and relationships only):
-
-                    [Friendship]
-                    (M:N, unary)
-                    /           \
-                   /             \
-  +--------------+                +--------------+
-  | User Profile |---[Posts]----->|  User Post   |
-  |              |   (1:N,total  |              |
-  +--------------+  on Post side)+--------------+
-         |    |                       |        |
-         |    |                    [Has]     [Has]
-    [Can |    | [Comments]         (1:N,    (1:N,
-    Like]|    |  (1:N, total        total    total
-    (1:N,|    |  on Comment)        on      on Like)
-    total|    |                   Comment)    |
-    on   |    |                      |        |
-    Like)|    v                      v        v
-         |  +-------------+   +-------------+ +----------+
-         |  | Post Comment|   | Post Comment| | Post Like|
-         |  +-------------+   +-------------+ +----------+
-         v
-      +----------+
-      | Post Like|
-      +----------+
-
-  Cleaner reading: Post Comment participates in TWO relationships:
-    (a) "Comments" with User Profile (who wrote it)
-    (b) "Has"      with User Post    (which post it belongs to)
-
-  Likewise Post Like participates in TWO relationships:
-    (a) "Can Like" with User Profile (who liked it)
-    (b) "Has"      with User Post    (which post was liked)
-```
+ ![[Pasted image 20260606155546.png]]
 
 > **Key takeaway:** Had *likes* been an attribute of User Post, the like relationship could not have been established. Modeling it as a separate entity is a skill that **comes only with practice** — by drawing and studying many ER diagrams.
 

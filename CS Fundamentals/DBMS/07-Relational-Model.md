@@ -1,42 +1,33 @@
-# Lecture 07 — Relational Model
-
----
-
 ## 1. What is the Relational Model?
-
 - The Relational Model is a **type of data model** (like the ER model).
 - It is used to:
   - **Describe data**
   - **Describe relationships** within the data
   - **Define data consistency constraints**
 - Core idea: data is represented in **tabular form (tables)**.
-
 ### Table = Relation
 - A **table IS a relation** in the relational model. Table and relation are the same thing.
-
 ### Example: Customer data
 Attributes: `Customer ID`, `Name`, `Address`, `Contact`.
 
-| Customer ID | Name | Address | Contact |
-|-------------|------|---------|---------|
-| 1 | Lakshya | ... | ... |
-| 2 | Raj | ... | ... |
+| Customer ID | Name    | Address | Contact |
+| ----------- | ------- | ------- | ------- |
+| 1           | Lakshya | ...     | ...     |
+| 2           | Raj     | ...     | ...     |
 
 - **Columns** = the attributes.
 - A **row = a tuple** → each tuple represents **one customer**.
 - A set of values in a row together **define one customer** (one real-world entity / relationship of values).
-
 ---
-
 ## 2. Terminology
 
-| Term | Meaning | In the example |
-|------|---------|----------------|
-| **Relation** | The table itself | Customer table |
-| **Tuple** | A single row / one data point | One customer |
-| **Attribute** | A column | Customer ID, Name, ... |
-| **Degree of Relation** | **Number of attributes (columns)** | 4 |
-| **Cardinality** | **Total number of rows (tuples)** | 2 (two unique customers) |
+| Term                   | Meaning                            | In the example           |
+| ---------------------- | ---------------------------------- | ------------------------ |
+| **Relation**           | The table itself                   | Customer table           |
+| **Tuple**              | A single row / one data point      | One customer             |
+| **Attribute**          | A column                           | Customer ID, Name, ...   |
+| **Degree of Relation** | **Number of attributes (columns)** | 4                        |
+| **Cardinality**        | **Total number of rows (tuples)**  | 2 (two unique customers) |
 
 > Difference from ER model: in ER, *cardinality* meant mapping cardinality; here **cardinality = number of tuples**.
 
@@ -53,43 +44,30 @@ Attributes: `Customer ID`, `Name`, `Address`, `Contact`.
   Degree     = count of columns (attributes) = 4
   Cardinality = count of rows (tuples)        = 2
 ```
-
 ---
-
 ## 3. DB Design is a 2-Step Process
-
 1. **Step 1:** Build the **ER Model** → gives the ER Diagram.
 2. **Step 2:** Convert the ER Model into the **Relational Model** (tabular form).
 
 > Any real-world problem / use case → design the **conceptual schema** in these two steps.
-
 ### Example: Online Delivery System
 From an ER diagram, build tables:
 
 **Customer table** (PK = Cust ID)
 | Cust ID | Name | Address | Contact Number |
-
 **Order table** (PK = Order ID)
 | Order ID | Time Stamp (when order placed) | Delivery Date |
-
 - **Each entity → a separate table (relation).**
 - **Each attribute of that entity → a column** of the relation.
-
-> A third step exists: implement the relational model in an **RDBMS software** (the software implementation of the relational model).
->
+> A third step exists: implement the relational model in an **RDBMS software** (the software implementation of the relational model).>
 > **RDBMS examples:** MySQL, Microsoft Access, Oracle.
-
 ---
-
 ## 4. Relational Model Definition & Properties
-
 The relational model = data organized as a **collection of tables**. Each table has a **unique name** (e.g., Customer, Order).
-
 - A **single row = one tuple** = one data point.
 - **Columns = attributes.**
 - **Relation Schema** — *defines the structure of the relation*: the relation name + its attributes. (e.g., the schema of Customer, the schema of Order.)
-
-### Properties of a Relation
+### Properties of a Table
 1. **Name of the table is distinct** among all relations (every table has a unique name in the DB).
 2. **Values must be atomic** — cannot be broken further (e.g., a contact number is atomic; a name is atomic).
 3. **Name of each attribute is unique** within the relation.
@@ -98,11 +76,8 @@ The relational model = data organized as a **collection of tables**. Each table 
 6. **Tables must follow integrity constraints** — helps maintain data consistency across the table.
 
 ---
-
 ## 5. Relational Keys
-
 A **relational key** = a set of attributes that can uniquely identify a tuple.
-
 ### Super Key
 - **Any permutation/combination of attributes that can uniquely identify a tuple.**
 - Examples (for Customer): `{Cust ID}`, `{Cust ID, Email}`, `{Name, Contact}`, etc.

@@ -290,7 +290,7 @@ To interact with the DBMS you need a language. Two kinds of statements:
   │  └────────────┘  │   upgrades)          │   │
   │                  └──────────────────────┘   │
   └─────────────────────────────────────────────┘
-         ▼ works mostly at the Logical Level
+         ▼ works mostly at the Logical Level but also at physical level
 ```
 
 ---
@@ -357,10 +357,3 @@ The architecture is defined by **how these machines are arranged** (where the DB
 - **Security maintained** — the DB is not accessed directly; an interface sits in the middle, keeping the DB consistent and secure.
 
 > **Choosing architecture:** Tier-1 → app only you use on your own computer. Tier-2 → LAN/home use (few users, low security concern). Tier-3 → large WWW apps (need app server for scalability, data integrity, and security).
-
----
-
-## Lecture Recap
-Most important: **Three-Schema Architecture** (end goal = multiple users access same data with personalized views via abstraction), **Instance**, **Schema**, **Data Models**, **DB Languages**, and **how application programs access the DB**.
-
-> **Next lecture:** ER Model (Entity-Relationship Model).

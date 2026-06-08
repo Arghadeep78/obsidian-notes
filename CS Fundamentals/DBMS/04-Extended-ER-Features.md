@@ -29,7 +29,7 @@ Basic ER (Lecture 03) covers entities, attributes, cardinality, participation co
                 ┌───────────┐
                 │  Person   │   ← common attrs: Name, Address, Contact
                 └─────┬─────┘
-                 IS-A │ IS-A
+                 IS-A │ IS-A (inverted triangle)
           ┌───────────┴────────────┐
     ┌─────▼──────┐          ┌──────▼──────┐
     │  Customer  │          │  Employee   │
@@ -37,7 +37,7 @@ Basic ER (Lecture 03) covers entities, attributes, cardinality, participation co
     │ ProfilePic │          │  JobRole    │
     └────────────┘          └─────────────┘
 ```
-
+![[Pasted image 20260606151620.png]]
 **Definition:**
 > **Specialization = splitting an entity set into further sub-entities on the basis of their functional specialty and features.**
 
@@ -79,7 +79,7 @@ Basic ER (Lecture 03) covers entities, attributes, cardinality, participation co
 
 ## 2. Generalization
 
-- **Generalization is the reverse of specialization.** Specialization = top→bottom; **Generalization = Bottom-Up approach.**
+- Generalization is the *reverse of specialization*. Specialization = top→bottom; **Generalization = Bottom-Up approach.**
 
 **Example (Vehicle):**
 - The designer first thinks of separate entities: `Car`, `SUV`, `Bus`. `Vehicle` does **not** exist yet.
@@ -154,7 +154,7 @@ When generalization/specialization is applied, **inheritance** must happen (else
   │  Person  │ ──────────► │ Vehicle │
   └──────────┘             └─────────┘
        │ IS-A
-  ┌────┴────────────┐
+  ┌────┴──────┐
   │           │
   ▼           ▼
 Customer   Employee
@@ -168,23 +168,29 @@ Customer   Employee
 ## 4. Aggregation
 
 **The problem first:**
-- Basic ER has a limitation: **how do you show a relationship among relationships?**
+- Basic ER has a limitation: *how do you show a relationship among relationships?*
 - Recall the **ternary relationship** (Lecture 03): `Employee works-on` relating **Employee + Branch + Job**.
 - Now suppose you want a **Manager** who manages **the combination** of (Employee + Branch + Job) — i.e., manage the specific work assignment, **not** an employee/branch/job individually.
 
-**The wrong (redundant) approach:**
+The wrong (*redundant*) approach:
 - Add a `Manager` entity and a `Manages` relation linked to all three (a **quaternary** relation). This wrongly implies the manager manages a particular Branch, a particular Job, and a particular Employee individually — **redundant information**, and not the actual requirement (manage the *combination*).
 
 ```
   Wrong approach — quaternary relationship (4 entities, 1 diamond):
-
-  ┌──────────┐    ┌────────┐    ┌─────┐    ┌─────────┐
-  │ Employee │    │ Branch │    │ Job │    │ Manager │
-  └────┬─────┘    └───┬────┘    └──┬──┘    └────┬────┘
-       │              │            │             │
-       └──────────────┴────────────┴─────────────┘
-                              ◇
-                           Manages
+                      |--------------------------- 
+  ┌──────────┐      ┌─|───┐    ┌────────┐        |
+  │ Employee │      │ Job │    │ Manager│
+  └─|──┬─────┘      └──┬──┘    └───┬────┘        |
+    |   │              |           │   |     
+    |   └──--─Works on─┴───────────┴   |         |
+    |             ◇                    |         |
+    |---------|           |------------| 
+              |----◇ Manages---------------------|
+  ┌──────────┐     |                           
+  │ Manager  │-----|
+  └────┬─────┘   
+                 
+                           
 
   Why is this wrong?
   This implies the Manager manages:
@@ -246,13 +252,13 @@ Customer   Employee
 
 ```
   Student–Semester–Subject via Aggregation:
-
-  ┌────────────────────────────────┐
-  │   Aggregated Entity            │
-  │  ┌─────────┐ ◇attends ┌──────┐│
-  │  │ Student │──────────│Sem.  ││
-  │  └─────────┘          └──────┘│
-  └──────────────┬─────────────────┘
+          Aggregated Entity
+  ┌───────────────────────────--─────┐
+  │                                  │
+  │  ┌─────────┐ ◇attends         ┌──────┐│
+  │  │ Student │────◇attends──────│Sem.  ││
+  │  └─────────┘                  └──────┘│
+  └──────────────┬───────────-----────┘
                  │
               ◇ HAS
                  │

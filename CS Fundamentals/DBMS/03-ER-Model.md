@@ -1,9 +1,4 @@
-## 0. Recap of Lecture 02
-View of Data / Three-Schema Architecture (physical, logical, view abstraction), DB Instance, DB Schema, Data Models, DBA functions, Application Architectures (Tier-1/2/3), and host-app DB access via JDBC/ODBC.
-
----
-
-## 1. What is the ER Model?
+ ## 1. What is the ER Model?
 
 - The **ER (Entity-Relationship) Model is a data model**. Data models work at the **conceptual/logical layer** — the same layer where the DBA defines data: *what* the data is, *what relationships* exist among data, and *consistency constraints*.
 - **Definition:** *"A high-level model based on perception of the real world that consists of a collection of basic objects called **entities** and **relationships** among those objects."*
@@ -133,7 +128,7 @@ View of Data / Three-Schema Architecture (physical, logical, view abstraction), 
   (oval)     = Attribute (ellipse)
 ```
 
-> **ER Diagram acts as a BLUEPRINT for the DB.** Steps: (1) find **entities**, (2) find their **attributes**, (3) establish **relationships** → draw the full ER diagram. Later this blueprint is **converted into tables / the Relational Model**.
+> **ER Diagram acts as a *BLUEPRINT* for the DB.** Steps: (1) find **entities**, (2) find their **attributes**, (3) establish **relationships** → draw the full ER diagram. Later this blueprint is **converted into tables / the Relational Model**.
 
 ---
 
@@ -221,14 +216,14 @@ A NULL value of an attribute can mean:
   Strong Entity:          Weak Entity:
   ┌──────────┐            ╔══════════╗
   │  Loan    │            ║ Payment  ║   ← double rectangle
-  │ ─────── │            ║ ········ ║   ← dotted underline = partial key
+  │ ───────  │            ║ ········ ║   ← dotted underline = partial key
   │ Loan_ID  │            ║ Pay_Num  ║
   └──────────┘            ╚══════════╝
        │                       │
   identified by           identified by Loan_ID + Pay_Num together
   own Loan_ID             (Pay_Num alone is NOT unique across all loans)
 
-  Loan  ═══◇═══  Payment   ← double diamond = weak relationship
+  Loan -----◇Loan Payemnt◇═══  Payment   ← concentric double diamond = weak relationship
 ```
 
 > A weak entity's existence exists only when the related strong entity (e.g., the Loan) exists.
@@ -242,10 +237,10 @@ A NULL value of an attribute can mean:
 
 ```
   Strong Relationship:          Weak Relationship:
-  ┌──────────┐  ◇  ┌──────┐    ┌──────┐  ◇◇  ╔═════════╗
-  │ Customer │─────│ Loan │    │ Loan │══════╣ Payment ║
-  └──────────┘     └──────┘    └──────┘      ╚═════════╝
-   (own PK)   ◇   (own PK)    (own PK)  ◇◇  (no own PK)
+  ┌──────────┐       ◇◇         ╔═════════╗
+  │ Customer │───── Loan  ══════╣ Payment ║
+  └──────────┘                  ╚═════════╝
+   (own PK)       (own PK)      (no own PK)
 ```
 
 ---
@@ -342,9 +337,9 @@ A NULL value of an attribute can mean:
 
 ---
 
-## 12. Participation Constraints (Minimum Cardinality Constraint)
+## 12. Participation Constraints (aka Minimum Cardinality Constraint)
 
-Two types:
+#### Two types:
 
 ### Total Participation
 - **Every** entity in the entity set participates in **at least one** relationship instance.
@@ -357,8 +352,8 @@ Two types:
 
 ```
   Participation in "Customer borrows Loan":
-
-  Customer ────────────────── borrows ══════════════ Loan
+  
+  Customer ────────────────── ◇ borrows ══════════════ Loan
   (single line = partial)              (double line = total)
 
   Partial: some customers have no loan (OK)
@@ -375,31 +370,5 @@ Two types:
 
 ## 13. Summary of ER Notations
 
-```
-  ER Diagram Notation Cheat Sheet
-
-  Element                  Symbol / Notation
-  ─────────────────────    ────────────────────────────────────────
-  Entity (strong)          ┌──────────┐  (rectangle)
-                           └──────────┘
-  Entity (weak)            ╔══════════╗  (double rectangle)
-                           ╚══════════╝
-  Attribute                (  oval  )
-  Multi-valued attribute   (( oval ))   (double ellipse)
-  Derived attribute        ·· oval ··   (dotted ellipse)
-  Primary key              ( underline )  (solid underline on attr)
-  Partial/discriminator key (·underline·) (dotted underline on attr)
-  Relationship (strong)    ◇              (diamond)
-  Relationship (weak)      ◇◇             (double diamond)
-  Total participation      ══════         (double line)
-  Partial participation    ──────         (single line)
-```
-
-- **Entity** → rectangle; **Weak Entity** → double rectangle.
-- **Attribute** → ellipse; **Multi-valued** → double ellipse; **Derived** → dotted ellipse; **Primary Key** → solid underline; **Discriminator/Partial Key** → **dotted underline**.
-- **Relationship** → diamond; **Weak Relationship** → double diamond.
-- **Total Participation** → double lines.
-
----
-
-> **Next lecture:** Extended ER Features (EER) — Generalization, Specialization, etc.; then hands-on practice drawing ER diagrams.
+![[Pasted image 20260606150623.png]]
+Rect, ellipse, diamond
