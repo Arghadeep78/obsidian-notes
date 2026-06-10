@@ -1,12 +1,14 @@
 # Critical Section Problem
 
+Process synchronization techniques play a key role in maintaining the consistency of shared data.
+
 ---
 
 ## How `count++` Actually Works at the CPU Level
 
 When you write `count++` in code, at the machine instruction level it is **not atomic** — it involves at least two distinct CPU-level operations:
 
-```
+```css
 temp = count + 1      ← read current value from memory, add 1, store result in a CPU register (temp)
 count = temp          ← write the register value back to memory
 ```
@@ -21,7 +23,7 @@ Consider an Aadhaar center analogy:
 - A central database (shared resource) tracks a citizen count.
 - Multiple branch offices (threads A, B, C, D) all send `count++` requests to the database simultaneously.
 
-```
+```css
 Thread A ──┐
 Thread B ──┼──► Database (Shared Resource) ← count++
 Thread C ──┤
@@ -32,7 +34,7 @@ Because `count++` involves two separate memory operations (read-then-write), a *
 
 **Example — count = 11, Thread A and Thread B both send count++:**
 
-```
+```css
 Thread A: temp = 11 + 1 = 12   ← context switch happens here!
 Thread B: temp = 11 + 1 = 12   ← reads old count (still 11)
 Thread A: count = temp = 12
@@ -96,7 +98,7 @@ A Python demo confirms this: running two threads each incrementing a counter 1 m
 
 A **lock** acts like a room key — only one person enters at a time. The next person must wait outside until the first exits.
 
-```
+```css
 Thread T1 → acquire lock → critical section → release lock
 Thread T2 → tries to acquire → BLOCKED until T1 releases → enters
 ```
@@ -108,11 +110,17 @@ Python demo with a lock applied to the `count++` critical section always produce
 
 ---
 
+## Can a Simple Flag Variable Solve Race Condition?
+
+No. A simple flag/turn variable alone cannot fully solve the race condition — it violates the Progress condition (see analysis below).
+
+---
+
 ## Single Flag Solution (Attempt)
 
 **Proposed:** Use a `turn` variable (0 or 1) to decide which thread enters the critical section.
 
-```
+```css
 turn = 0 → T1 enters critical section, T2 waits
 turn = 1 → T2 enters critical section, T1 waits
 ```
@@ -134,7 +142,7 @@ An improvement over the single flag solution. Uses **two variables**:
 
 **How it works (for two threads T1 and T2):**
 
-```
+```css
 T1:
   flag[0] = true
   turn = 1
@@ -169,7 +177,7 @@ T2:
 - Situation: P1 holds R1 and needs R2. P2 holds R2 and needs R1.
 - Neither can proceed. Neither releases. *The system is permanently stuck.*
 
-```
+```css
 P1 holds R1, waiting for R2
 P2 holds R2, waiting for R1
 → Deadlock

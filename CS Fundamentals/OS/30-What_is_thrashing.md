@@ -23,7 +23,7 @@ When an interviewer asks "What is thrashing?", they are not just asking for a on
 Consider a RAM with 6 frames. Two different ways to allocate those frames:
 
 **Situation 1 — Few processes, each with several pages:**
-```
+```css
 Frame:  [ P1:pg1 ] [ P1:pg2 ] [ P1:pg3 ]
         [ P2:pg1 ] [ P2:pg2 ] [ P2:pg3 ]
 ```
@@ -32,7 +32,7 @@ Frame:  [ P1:pg1 ] [ P1:pg2 ] [ P1:pg3 ]
 - Degree of multiprogramming = 2 (low)
 
 **Situation 2 — Many processes, each with only one page:**
-```
+```css
 Frame:  [ P1:pg1 ] [ P2:pg1 ] [ P3:pg1 ]
         [ P4:pg1 ] [ P5:pg1 ] [ P6:pg1 ]
 ```
@@ -62,7 +62,7 @@ Recall: a **page fault** occurs when the CPU needs a page that is not currently 
 8. The page just loaded to handle P5's fault must evict some other process's only page → triggering yet another page fault shortly after
 
 **The cycle:**
-```
+```css
 Process runs → needs next page → page fault
 → evict another process's only page → load needed page
 → that other process runs → needs its evicted page → page fault
@@ -96,7 +96,7 @@ Process runs → needs next page → page fault
 
 There is a well-defined relationship between how many processes are in RAM (degree of multiprogramming) and how effectively the CPU is used (CPU utilization):
 
-```
+```css
 CPU Utilization
      ^
      |                  * ← peak: thrashing threshold
@@ -137,7 +137,7 @@ CPU Utilization
 
 The OS scheduler monitors CPU utilization. When it drops, the OS responds by loading more processes to increase multiprogramming. But if the drop is caused by thrashing, this makes things worse:
 
-```
+```css
 Step 1: CPU utilization drops
          ↓
 Step 2: OS scheduler sees low CPU utilization
@@ -208,7 +208,7 @@ Instead of predicting localities in advance, monitor the page fault rate in real
 
 **Set an upper and lower bound on the acceptable page fault rate:**
 
-```
+```css
 Page Fault Rate (for a given process)
      ^
      |
@@ -234,13 +234,13 @@ Page Fault Rate (for a given process)
 - **Action:** **Reclaim frames** from this process — move some of its less-used pages back to swap space, freeing those physical frames
 - Give the reclaimed frames to other processes that have high page fault rates, or use them to increase the degree of multiprogramming by loading a new process
 
-**Goal:** Keep every process's page fault rate within the acceptable zone — avoiding both thrashing (too high) and inefficient frame hoarding (too low).
+**Goal:** Keep every process's page fault rate within the acceptable zone — avoiding both thrashing (too high) and inefficient frame hoarding (too low). By controlling the page fault rate this way, thrashing can be prevented.
 
 ---
 
 ## **The Complete Picture: How Everything Connects**
 
-```
+```css
 Paging (divide process into fixed-size pages; load into frames)
        ↓
 Virtual Memory + Demand Paging

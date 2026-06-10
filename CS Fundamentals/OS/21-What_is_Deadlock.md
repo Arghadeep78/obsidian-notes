@@ -40,6 +40,7 @@ Deadlock is dangerous because:
 - From the user's perspective, the PC has hung — nothing is happening.
 - CPU cycles (a precious resource) are completely wasted.
 - No progress is being made by any involved process.
+- The processes involved never finish executing, and the system resources are tied up — preventing other jobs from starting.
 
 ---
 
@@ -60,7 +61,7 @@ Deadlock is dangerous because:
 
 Every time a process/thread uses a resource, it goes through exactly three phases:
 
-```
+```css
 1. Request  →  2. Use  →  3. Release
 ```
 
@@ -121,7 +122,7 @@ The **Resource Allocation Graph** (RAG, also written as RAG) is a standard picto
 
 ### Vertices (Nodes)
 
-```
+```css
 Process vertex:   drawn as a circle    →   ( P1 )
 Resource vertex:  drawn as a box       →   [ R1 ]
 ```
@@ -134,7 +135,7 @@ A resource can have **multiple instances**. For example:
 - Two hard disks → two instances of "disk."
 
 How instances are shown inside the resource box:
-```
+```css
 [ • ]         →  1 instance (single instance — implied if no dots drawn)
 [ • • ]       →  2 instances
 [ • • • • ]   →  4 instances (e.g., quad-core CPU)
@@ -144,7 +145,7 @@ If a resource box just has a label and no dots, it means **single instance**.
 
 ### Edges
 
-```
+```css
 Assigning edge (allocation edge):
     R ──→ P    (resource R has been allocated to process P)
     Drawn FROM the resource TO the process.
@@ -175,7 +176,7 @@ The reason for "may" is explained by the two examples below.
 - P3 is requesting R2. R2 has multiple instances, but the one instance of R2 relevant here is already allocated to P2.
 - Two cycles are visible in this graph.
 
-```
+```css
 (P1) ──requests──→ [R1] ──allocated──→ (P2)
 (P2) ──requests──→ [R3] ──allocated──→ (P3)
 (P3) ──requests──→ [R2] ──one instance allocated──→ (P2)
@@ -199,7 +200,7 @@ The reason for "may" is explained by the two examples below.
 - P1 requests R1.
 - P3 requests R2.
 
-```
+```css
 P1 ──requests──→ R1  (instance 1 → P3, instance 2 → P2)
 P3 ──requests──→ R2  (instance 1 → P1, instance 2 → P4)
 ```
@@ -217,7 +218,7 @@ P3 ──requests──→ R2  (instance 1 → P1, instance 2 → P4)
 
 Three broad approaches exist:
 
-```
+```css
 Approach 1: Prevention / Avoidance
     → Ensure the system NEVER enters a deadlock state.
 
@@ -242,7 +243,7 @@ Approach 3: Ostrich Algorithm
 - If no deadlock → wait for the next interval and run again.
 - Used in systems where neither prevention nor avoidance is implemented.
 
-### Approach 3: Ostrich Algorithm
+### Approach 3: Ostrich Algorithm (Deadlock Ignorance)
 
 - The OS **pretends deadlock can never happen** and does nothing about it.
 - All responsibility for detecting and handling deadlock is pushed onto the **application programmer** — the OS takes no ownership.

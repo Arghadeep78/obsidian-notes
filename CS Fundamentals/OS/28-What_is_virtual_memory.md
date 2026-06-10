@@ -15,6 +15,11 @@
 
 - With traditional full-process loading: only 2 processes can run in a 12 KB RAM
 - On a modern PC with 16 GB RAM, GTA 5 (which is 30+ GB) still runs — *this is virtual memory making that possible*
+- Instructions must be in physical memory to be executed — but this limits the size of a program to the size of physical memory. In many cases, the entire program is not needed at the same time. Executing a program that is only partially in memory gives many benefits:
+  - A program would no longer be constrained by the amount of physical memory available.
+  - Each user program takes less physical memory → more programs can run at the same time → increase in CPU utilization and throughput.
+  - Running a program not entirely in memory benefits both the system and the user.
+- The programmer is provided a very large virtual memory even when only a smaller physical memory is available.
 
 ---
 
@@ -51,7 +56,7 @@
 - *Needed pages* of a process → loaded into actual RAM frames
 - *Not-needed pages* of a process → stored in swap space on disk, ready to be brought in on demand
 
-```
+```css
 +------------------+          +-----------------------------+
 |   Physical RAM   |          |         Hard Disk           |
 |  (12 KB)         |          |  +----------------------+   |
@@ -138,9 +143,11 @@ In virtual memory / demand paging, we use the term ***pager*** — because we ar
 
 **Why "lazy pager"?**
 - The pager is called *lazy* because it does the minimum work: it never preloads pages that might not be needed
+- When a process is to be swapped in, the pager guesses which pages will be used and brings only those into memory — avoiding reading pages that will not be used anyway
 - At process startup: the pager loads only the page containing `main()` (the entry point) and perhaps a few nearby pages
 - All other pages go to swap space initially
 - As the program runs and needs new pages, the pager brings them in *on demand*
+- This way, the OS decreases the swap time and the amount of physical memory needed
 
 ---
 
@@ -155,7 +162,7 @@ To track whether a page is currently in RAM or in swap space, the page table has
 
 **Example — a process with 8 pages (A through H), page table:**
 
-```
+```css
 Logical Page | Frame # | Valid-Invalid Bit | Location
 -------------|---------|-------------------|--------------------
      0 (A)   |    4    |        1          | In RAM, frame 4
@@ -181,7 +188,7 @@ Page fault ≠ error. It is a normal, expected event in a virtual memory system.
 
 ### **Page Fault Handling — Step by Step**
 
-```
+```css
 Step 1: CPU generates a logical address and checks the page table
               |
               v
@@ -254,7 +261,7 @@ This is also the basis of the *Working Set Model* (covered in lecture 31).
 
 ## **Summary of the Full Picture**
 
-```
+```css
 Process's full logical address space
            |
            | (split by pager using locality of reference)

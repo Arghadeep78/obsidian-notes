@@ -21,7 +21,7 @@ A single MS Word process has three sub-tasks:
 
 These three sub-tasks are divided into three threads — Thread 1, Thread 2, Thread 3 — each executing independently.
 
-```
+```css
 MS Word Process
 ├── Thread 1: Text Editor
 ├── Thread 2: Spell Checker
@@ -37,13 +37,13 @@ Without threads, these would run sequentially: type → spell check → format. 
 ## Process vs Thread — Memory Layout
 
 **Single Process:**
-```
+```css
 Process P
 └── Own isolated address space (independent of other processes)
 ```
 
 **Threaded Process:**
-```
+```css
 Process P
 ├── Thread T1 ──┐
 ├── Thread T2 ──┼── All share the SAME address space
@@ -65,6 +65,8 @@ Process P
 - *No address space switch happens* — both threads belong to the same process, so the same address space is used.
 - Context switching between threads is therefore **much faster** than between processes.
 - The CPU cache state is also preserved (same address space), so no cache reset is needed.
+- Context switching between threads is triggered by I/O or TQ expiry — same triggers as process context switching.
+- Thread state is saved/restored using a **TCB (Thread Control Block)**, analogous to the PCB for processes.
 
 ---
 
@@ -85,7 +87,7 @@ Process P
 ## Memory Layout — Threads vs Process
 
 **Process memory layout:**
-```
+```css
 +----------+
 |   Text   |
 +----------+
@@ -98,7 +100,7 @@ Process P
 ```
 
 **Multi-threaded process memory layout:**
-```
+```css
 +----------+
 |   Text   |  ← shared by all threads
 +----------+
@@ -160,7 +162,7 @@ int main() {
 
     return 0;
 }
-```
+```css
 
 - Without `join()`: The main thread exits immediately, killing the child threads before they complete — causes a termination error.
 - With `join()`: The main thread waits for both threads to finish before exiting.

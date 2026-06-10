@@ -9,7 +9,7 @@
 
 **Register:** A storage location inside the CPU where actual computation happens. It holds data (as bits) on which the CPU performs arithmetic and logical operations.
 
-```
+```css
 32-bit Register:
 [ b0 | b1 | b2 | ... | b31 ]   ← holds 32 bits = 4 bytes at once
 
@@ -39,7 +39,7 @@ The CPU accesses data in RAM by **memory addresses**. The width of the register 
 
 **Address format example:**
 
-```
+```css
 32-bit address (hex):
   First address: 0x00 00 00 00
   Last address:  0xFF FF FF FF

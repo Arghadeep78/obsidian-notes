@@ -16,7 +16,7 @@
 
 ## How System Calls Work — The Flow
 
-```
+```css
 User Application (User Mode)
         │
         │  calls libc (C library wrapper)

@@ -13,7 +13,7 @@
 - Currently allocated resources to each process
 - Total number of instances of each resource type
 
-**Goal:** Schedule processes and allocate resources in such a way that the system always remains in a **safe state**.
+**Goal:** Schedule processes and allocate resources in such a way that the system always remains in a **safe state**. The key principle: *a resource request must only be approved if the resulting state is a safe state.*
 
 ---
 
@@ -26,9 +26,9 @@
 - *A safe state guarantees deadlock-free execution.*
 
 **Unsafe State:**
-> A state where no safe sequence exists — the OS cannot guarantee that all processes will complete without deadlock. *Deadlock may occur* (the four necessary conditions may become satisfied).
+> A state where no safe sequence exists — the OS cannot guarantee that all processes will complete without deadlock. *Deadlock may occur* (the four necessary conditions may become satisfied). If the system is unable to fulfill the request of all processes, the state is called unsafe. Note: not all unsafe states are deadlocks — an unsafe state *may lead to* a deadlock, but does not guarantee one.
 
-```
+```css
 Safe State ──────────────────────────────────────────────────────────►
   ∃ safe sequence → all processes complete without deadlock
 
@@ -100,7 +100,7 @@ The **Banker's Algorithm** finds whether a safe sequence exists given the curren
 
 **Approach:** Allow the system to enter deadlock. Run a detection algorithm periodically. If deadlock is detected, invoke recovery.
 
-```
+```css
 System runs
     │
     ▼
@@ -117,7 +117,7 @@ Detection algorithm runs at intervals
   - Removing all resource vertices (the boxes).
   - Collapsing all edges: if P1 → R → P2 (P1 waits for a resource held by P2), this becomes P1 → P2.
 
-```
+```css
 RAG:                           Wait-For Graph:
 P1 ──→ R1 ──→ P2               P1 ──→ P2
 P2 ──→ R2 ──→ P1               P2 ──→ P1

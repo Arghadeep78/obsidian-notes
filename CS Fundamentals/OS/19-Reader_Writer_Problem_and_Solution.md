@@ -11,7 +11,7 @@ There is a **shared database** (the critical section). Two types of threads acce
 - **Reader threads** — only read data from the database.
 - **Writer threads** — write (update) data to the database.
 
-```
+```css
 Reader 1 ──┐
 Reader 2 ──┤──► [ DATABASE ]
 Reader N ──┘
@@ -73,7 +73,7 @@ Three variables are used:
 
 ## Writer Solution
 
-```
+```css
 Writer:
     wait(wrt)            // acquire exclusive access to database
     // → critical section: write/update data
@@ -86,7 +86,7 @@ Writer:
 
 ## Reader Solution
 
-```
+```css
 Reader:
     wait(mutex)              // protect read_count update
     read_count++
@@ -132,7 +132,7 @@ Reader:
 
 ## Summary of Behavior
 
-```
+```css
 Multiple readers present → writers are blocked
 No readers present → writer may enter
 Writer present → all readers are blocked

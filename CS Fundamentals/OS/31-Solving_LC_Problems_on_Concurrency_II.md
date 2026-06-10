@@ -24,7 +24,7 @@
 
 **Execution trace (n=2):**
 
-```
+```css
 Initial: turn = false
 
 T1 (foo): locks → turn==false → condition (turn==true) is false → prints "foo"
@@ -75,7 +75,7 @@ T1 (foo): was waiting → wakes → re-checks: turn==false → exits wait
 
 **Execution trace for i=1,2,3 (n=3):**
 
-```
+```css
 turn=0: zero prints 0. i=1 (odd) → sets turn=1, notifies.
 turn=1: odd prints 1. i becomes 2. sets turn=0, notifies.
 turn=0: zero prints 0. i=2 (even) → sets turn=2, notifies.
@@ -121,7 +121,7 @@ turn=0: zero tries; i=4 > n=3 → exits while via break. Notifies.
 
 **Execution trace (two H threads and one O thread ready):**
 
-```
+```css
 Initial: turn=0
 
 H1: locks → turn=0, (turn==2) is false → exits wait → releaseHydrogen()

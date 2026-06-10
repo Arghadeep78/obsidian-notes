@@ -1,7 +1,3 @@
-# Lecture 2 – Types of Operating Systems
-
----
-
 ## Goals of Any Operating System
 
 Before jumping into the types, understand *why* these types evolved — they were built with specific goals in mind. Every OS type can be evaluated against these three goals:
@@ -48,7 +44,7 @@ There are **7 types**. The first two are historical; the next three are the most
 - *No Process Starvation?* **Fails.** If P1 is a massive job (the `while(1)` case), P2 and P3 never get a turn. Ever.
 - *High Priority Execution?* **No.** P1 is running, a high-priority job arrives — it doesn't matter, P1 will keep running. No preemption possible.
 
-**Example:** MS-DOS
+**Example:** MS-DOS [1981]
 
 ---
 
@@ -71,7 +67,7 @@ There are **7 types**. The first two are historical; the next three are the most
 6. Each batch is submitted sequentially to the CPU.
 7. Within each batch, jobs execute sequentially — just like Single Process OS.
 
-```
+```css
 Users submit jobs via punch cards
          │
    [Operator] — sorts by requirements, divides into batches
@@ -86,7 +82,7 @@ Users submit jobs via punch cards
 - *No Process Starvation?* **Fails.** If J1 within Batch 1 takes very long, J4 starves inside that batch. Additionally, if Batch 1 takes a very long time, Batch 4 may starve waiting for its turn.
 - *High Priority Execution?* **No.** A batch must fully complete before the next batch runs. A high-priority job arriving mid-batch cannot interrupt.
 
-**Example:** ATLAS OS
+**Example:** ATLAS OS [Manchester University, late 1950s – early 1960s]
 
 ---
 
@@ -108,6 +104,7 @@ Users submit jobs via punch cards
 - *Instead of letting the CPU idle*, the OS schedules J2 from the Ready Queue to the CPU immediately.
 - J1 sits in wait state. J2 executes. When J1's I/O completes, J1 returns to the Ready Queue.
 - *The CPU is almost never idle — it always has another job to switch to when the current one waits.*
+- Multiprogramming increases CPU utilization by keeping multiple jobs (code and data) in **memory** so that the CPU always has one to execute in case some job gets busy with I/O.
 
 **Goal check:**
 - *Maximum CPU Utilization?* **Improved.** CPU doesn't sit idle during I/O — another job fills the gap.
@@ -138,7 +135,7 @@ Users submit jobs via punch cards
 - Every process has its own PCB.
 - When context switching happens: P1's state is saved into P1's PCB; P2's state is loaded from P2's PCB.
 
-```
+```css
 P1 executing on CPU
      │
 P1 → I/O (wait state)
@@ -152,7 +149,7 @@ P2 starts executing on CPU
 (P1's I/O completes → P1 returns to Ready Queue)
 ```
 
-**Example:** THE OS
+**Example:** THE OS [Dijkstra, early 1960s]
 
 ---
 
@@ -173,7 +170,7 @@ P2 starts executing on CPU
 - Every process gets exactly 100ms of CPU time. When those 100ms are up, the CPU forcibly switches to the next process — regardless of whether the current process went to I/O or not.
 - This is *Time Sharing*: each process gets a share of time in turns.
 
-```
+```css
 Without time sharing (Multi-Programming):
   P1 executes ──────────────────────────── (P1 never goes to I/O, P2 starves forever)
 
@@ -186,10 +183,11 @@ With time sharing (Multi-Tasking):
 - *Maximum CPU Utilization?* **Yes.** CPU is always busy — either doing I/O-triggered switching (like Multi-Programming) or time-quantum-triggered switching. CPU never idles.
 - *No Process Starvation?* **Significantly reduced.** Even if P1 is a very heavy job, P2 still gets its 100ms quantum when P1's quantum expires. No process is locked out.
 - *High Priority Execution?* **Yes.** Context switching is available. A software interrupt can immediately switch to a high-priority job. Example: an antivirus job arrives as P4 — a software interrupt fires, P4 gets the CPU immediately without waiting for a time quantum to expire.
+- **Increases responsiveness** — all processes get regular CPU turns, making the system feel responsive.
 
 *Most modern OS are Multi-Tasking OS.* When you run many apps simultaneously on your computer and they all feel responsive — that's time sharing at work.
 
-**Example:** CTSS (Compatible Time-Sharing System)
+**Example:** CTSS (Compatible Time-Sharing System) [MIT, early 1960s]
 
 ---
 
@@ -206,7 +204,7 @@ With time sharing (Multi-Tasking):
 - More CPUs → more jobs running truly simultaneously → higher throughput → starvation even less likely.
 
 **How it looks:**
-```
+```css
 CPU 1: P1 (100ms) → P2 (100ms) → ...
 CPU 2: P3 (100ms) → P4 (100ms) → ...
 
@@ -219,13 +217,12 @@ OS decides which job goes to which CPU (via process scheduling algorithms).
 - Each core = an independent CPU for scheduling purposes.
 - 8 cores = 8 separate CPUs that the OS can schedule jobs on simultaneously.
 
-**Additional benefit — Increased Reliability:**
-- In a single-CPU system, if that one CPU has a hardware failure — the entire system goes down.
-- In Multi-Processing: if CPU 1 fails, CPU 2 (and CPU 3, CPU 4...) keeps running.
-- The system doesn't crash completely. Other CPUs continue to serve jobs.
-- *This is called Increased Reliability* — users can rely on the system even when one component fails.
+**Additional benefits:**
+- **Increased Reliability:** In a single-CPU system, if that one CPU has a hardware failure — the entire system goes down. In Multi-Processing: if CPU 1 fails, CPU 2 (and CPU 3, CPU 4...) keeps running. The system doesn't crash completely. Other CPUs continue to serve jobs.
+- **Better throughput** — more jobs complete per unit time due to true parallel execution.
+- **Lesser process starvation** — if 1 CPU is busy with a process, others can be executed on another CPU.
 
-**Example:** Windows (modern versions)
+**Example:** Windows NT
 
 ---
 
@@ -236,6 +233,8 @@ OS decides which job goes to which CPU (via process scheduling algorithms).
 **Contrast with everything above:**
 - Everything so far: one OS, one box (machine), one or more CPUs inside that box — all physically connected together inside the same computer.
 - Distributed OS: multiple physically separate computers, each potentially with their own CPU, GPU, memory — connected to each other over a **network** (Internet or LAN).
+- OS manages many bunches of resources: >=1 CPUs, >=1 memory, >=1 GPUs, etc.
+- Collection of independent, networked, communicating, and physically separate computational nodes — **loosely connected autonomous** nodes.
 
 **How it works:**
 - Think of it this way: one CPU box at your house, one at your friend Babbar bhaiya's house, one more somewhere else — all interconnected over the Internet.
@@ -244,7 +243,7 @@ OS decides which job goes to which CPU (via process scheduling algorithms).
 - Jobs get distributed across the machines: P1 goes to Machine A, P2 goes to Machine B, P3 goes to Machine C, P4 goes to Machine D.
 - Different machines can have different hardware configurations — one might be a low-end machine, another a high-end machine with a GPU. The OS routes work accordingly.
 
-```
+```css
 [Machine A] ─────┐
 [Machine B] ──── [Distributed OS] ─── distributes jobs across machines
 [Machine C] ─────┘
@@ -261,6 +260,8 @@ OS decides which job goes to which CPU (via process scheduling algorithms).
 - Those machines are all interconnected over the Internet. One Distributed OS coordinates all of them.
 - *That infrastructure is a Distributed OS.*
 
+**Example:** LOCUS
+
 ---
 
 ### 7. Real-Time OS (RTOS)
@@ -272,6 +273,7 @@ OS decides which job goes to which CPU (via process scheduling algorithms).
 **Examples of where RTOS is used:**
 
 - **Air Traffic Control (ATC):** Many flights are in the air simultaneously. ATC controllers have hardware and software that must make computations in real time. A delayed computation or an error means planes could collide. Lives depend on this being error-free and instant.
+- **ROBOTS** and industrial automation systems.
 - **Nuclear Plants:** Industrial control systems for nuclear reactors demand extremely high-accuracy, error-free computation that must happen quickly and within certain deadlines.
 - **Industrial Applications:** Any factory automation, precision machinery, medical devices — wherever a missed deadline or an error has catastrophic consequences.
 
@@ -281,6 +283,8 @@ OS decides which job goes to which CPU (via process scheduling algorithms).
 - Very fast computation — a job given to the CPU must execute within seconds or milliseconds
 
 *The OS that satisfies all these constraints — fast, error-free, deadline-bound — is called an RTOS.*
+
+**Example:** ATCS
 
 ---
 
@@ -306,7 +310,7 @@ OS decides which job goes to which CPU (via process scheduling algorithms).
 
 **Quick differentiator for the confused trio:**
 
-```
+```css
 Multi-Programming  → single CPU, context switch only on I/O/wait
 Multi-Tasking      → single CPU, context switch on I/O/wait + time quantum (time sharing added)
 Multi-Processing   → multiple CPUs, context switch + time sharing, true parallel execution
@@ -320,12 +324,10 @@ Multi-Processing   → multiple CPUs, context switch + time sharing, true parall
 
 | OS Type | Example |
 |---|---|
-| Single Process | MS-DOS |
-| Batch Processing | ATLAS |
-| Multi-Programming | THE OS |
-| Multi-Tasking | CTSS (Compatible Time-Sharing System) |
-| Multi-Processing | Windows (modern) |
-| Distributed OS | *(homework — find examples and note them)* |
-| RTOS | *(homework — find examples and note them)* |
-
-*Homework: Search for examples of Distributed OS and RTOS. Know at least one example for each.*
+| Single Process | MS-DOS [1981] |
+| Batch Processing | ATLAS [Manchester University, late 1950s – early 1960s] |
+| Multi-Programming | THE OS [Dijkstra, early 1960s] |
+| Multi-Tasking | CTSS (Compatible Time-Sharing System) [MIT, early 1960s] |
+| Multi-Processing | Windows NT |
+| Distributed OS | LOCUS |
+| RTOS | ATCS |

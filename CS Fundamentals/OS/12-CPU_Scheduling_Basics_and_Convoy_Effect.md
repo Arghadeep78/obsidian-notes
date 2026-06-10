@@ -4,7 +4,7 @@
 
 The CPU Scheduler (Short-Term Scheduler) picks a process from the Ready Queue and dispatches it to the CPU whenever the CPU becomes idle.
 
-```
+```css
 [Ready Queue]  --STS/CPU Scheduler-->  [CPU / Running]
   p1, p2, p3                                |
      ^                                      |
@@ -103,7 +103,7 @@ The simplest scheduling algorithm.
 | P3 | 2 | 2 |
 
 **Gantt Chart:**
-```
+```css
 | P1 (0→20) | P2 (20→22) | P3 (22→24) |
 ```
 
@@ -139,7 +139,7 @@ The *Convoy Effect* is a major problem with FCFS.
 | P1 | 2 | 20 |
 
 **Gantt Chart:**
-```
+```css
 | P2 (0→2) | P3 (2→4) | P1 (4→24) |
 ```
 

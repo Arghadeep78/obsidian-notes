@@ -1,5 +1,7 @@
 ## Starting with "Why" — Before the "What"
 
+- **Application software** performs specific tasks for the user.
+- **System software** operates and controls the computer system and provides a platform to run application software.
 - The lecture deliberately starts with **why** an OS exists before defining what it is.
 - A minimalistic computer has four core components: **CPU**, **GPU**, **Memory (RAM)**, **Disk**.
 - Keep this in mind: imagine a world where **no OS exists at all**.
@@ -17,7 +19,7 @@
 
 **The fix — insert an OS layer between apps and hardware:**
 
-```
+```css
 WITHOUT OS:
   TikTok ──────────────────────→ Hardware (takes 100% of everything)
   PUBG   ──────────────────────→ Hang state (nothing left)
@@ -30,12 +32,12 @@ WITH OS:
 - Because TikTok is now limited to its allocated share, PUBG can load into memory.
 - PUBG is a heavier app so it gets more — but both now run simultaneously.
 - Resources are not going to just one app anymore; they are being distributed.
-- This is called **Resource Management** — *the first job of the OS.*
+- This is called *Resource Management* — *<u>the first job of the OS.</u>*
 
 **Technical note on the OS position in the system:**
 
-- Once the OS layer is added, you can see that it sits **between** the apps/user and the hardware.
-- Technically speaking, the OS is acting as an **Interface** here.
+- Once the OS layer is added, you can see that it sits *between* the apps/user and the hardware.
+- Technically speaking, the OS is acting as an *Interface* here.
 
 ---
 
@@ -50,7 +52,7 @@ WITH OS:
 - The cashier gives you a slip, you fill in your account number and amount, and the cashier goes into the vault and brings the cash to you.
 - *The cashier is acting as the interface between you and the vault.*
 
-```
+```css
 You (Customer)
       │
   [Cashier at counter] ← Interface
@@ -90,9 +92,9 @@ You (Customer)
 
 - In coding: if you need an `isPrime()` function in 10 places, you write it **once** as a function and call it wherever needed. You never copy-paste the same logic 10 times.
 - Here: both TikTok and PUBG are copy-pasting the same memory management logic. Every new app that runs on the machine has to do the same.
-- Result: apps become **bloated** — stuffed with infrastructure code that has nothing to do with their actual purpose.
+- Result: apps become **bloated**(*bulky*) — stuffed with infrastructure code that has nothing to do with their actual purpose.
 
-```
+```css
 WITHOUT OS:
   TikTok = [TikTok app logic] + [memory management code] + [resource management code] + ...
   PUBG   = [PUBG app logic]   + [memory management code] + [resource management code] + ...
@@ -140,7 +142,7 @@ WITH OS:
 - TikTok does not even know PUBG is running — their **existences are kept separate**.
 - Both apps have fully isolated memory. Neither can corrupt the other's data.
 
-```
+```css
 RAM WITH OS:
   [0 ──────── X : TikTok's memory region]  [X ──────── Y : PUBG's memory region]
        OS enforces this boundary — TikTok cannot cross into PUBG's region
@@ -156,7 +158,7 @@ RAM WITH OS:
 At this point, having seen all three problems, the functions of an OS can be listed clearly:
 
 1. **Resource Management** *(also called Arbitration)*
-   - Allocates CPU, RAM, GPU, and all other resources among apps.
+   - Allocates CPU, RAM, GPU, and all other resources (memory, device, file, security, process, etc.) among apps.
    - No single app can monopolise everything.
    - Fancy interview word: *arbitration*.
 
@@ -187,7 +189,10 @@ At this point, having seen all three problems, the functions of an OS can be lis
 
 ## Formal Definition of an Operating System
 
-> **An Operating System is a piece of software that manages all the resources of a computer system — both hardware resources and software resources — and provides an environment in which a user can execute programs in a convenient and efficient manner.**
+> **An Operating System is a piece of software that manages all the resources of a computer system — both hardware resources and software resources — and provides an environment in which a user can execute programs in a convenient and efficient manner by hiding the underlying complexity of the hardware and acting as a resource manager.**
+
+- The OS provides the means for proper use of the resources in the operation of the computer system.
+- An OS is made up of a **collection of system software**.
 
 - The OS is itself a piece of software — just like the apps you write, except it manages everything underneath them.
 - It manages both hardware resources (CPU, RAM, GPU, disk) and software resources.

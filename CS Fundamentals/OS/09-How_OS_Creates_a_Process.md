@@ -71,7 +71,7 @@
 
 ## Architecture of a Process in Memory
 
-```
+```css
 High Address
 ┌─────────────┐
 │   Stack     │  ← grows downward (local vars, function args, return values)
@@ -131,7 +131,7 @@ Each entry in the Process Table is a **PCB (Process Control Block)** — a data 
 - After each instruction executes, PC increments to point to the next instruction.
 
 **Fetch-Execute cycle:**
-```
+```css
 while process is running:
   1. Fetch instruction at address stored in PC
   2. Increment PC (PC++)
@@ -167,7 +167,7 @@ while process is running:
 
 ## PCB Diagram
 
-```
+```css
 ┌───────────────────────────┐
 │       Process ID          │
 ├───────────────────────────┤
@@ -192,7 +192,7 @@ while process is running:
 
 ## Process Table
 
-```
+```css
 Process Table
 ┌────┬─────────────────────────────────────┐
 │ P1 │  PCB of Process 1                   │

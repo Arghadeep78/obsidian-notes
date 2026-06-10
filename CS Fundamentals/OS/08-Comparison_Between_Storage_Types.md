@@ -4,7 +4,7 @@
 
 ## Storage Hierarchy in a Computer
 
-```
+```css
 Closest to CPU
       │
       ▼
@@ -17,7 +17,7 @@ Closest to CPU
   Main Memory       ← RAM, primary memory
       │
       ▼
-Secondary Storage   ← HDD / SSD, slowest, largest
+Secondary Storage   ← Electronic Disk, Magnetic Disk, Optical Disk, Magnetic Tapes
       │
       ▼
 Farthest from CPU
@@ -52,7 +52,11 @@ Farthest from CPU
 
 ### Secondary Storage
 
-- Includes HDD (Hard Disk Drive), SSD (Solid State Drive)
+- Includes:
+  - **Electronic Disk** (e.g., SSD)
+  - **Magnetic Disk** (e.g., HDD)
+  - **Optical Disk** (e.g., CD/DVD)
+  - **Magnetic Tapes**
 - Stores programs, files, media, documents, projects — persistent data.
 - Programs sit here until they are executed (at which point they are loaded into RAM).
 - Capacity: in TBs.

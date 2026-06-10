@@ -4,7 +4,7 @@
 
 ## Two Major Components of an OS
 
-```
+```css
 Operating System
 ├── User Space
 └── Kernel Space
@@ -43,14 +43,17 @@ Operating System
 
 ## Kernel
 
-*The kernel is the heart of the OS.*
+*The kernel is the heart of the OS / core component.*
 
 - Has **direct, privileged access to hardware**.
 - User space does NOT access hardware directly — it requests the kernel to do so.
 - The kernel receives requests from user space, interprets them, and performs the corresponding hardware operations.
+- **Very first part of the OS to load on start-up.**
+
+A **shell**, also known as a **command interpreter**, is that part of the OS that receives commands from the users and gets them executed.
 
 **Architecture:**
-```
+```css
 User Space  ←→  Kernel  ←→  Hardware
 ```
 
@@ -59,10 +62,10 @@ User Space  ←→  Kernel  ←→  Hardware
 ## Functions of the Kernel
 
 **1. Process Management**
-- Creating and terminating processes
-- Scheduling processes and threads (context switching, time-sharing)
-- Synchronizing processes
-- Inter-Process Communication (IPC)
+- Scheduling processes and threads on the CPUs
+- Creating and deleting both user and system processes
+- Suspending and resuming processes
+- Providing mechanisms for process synchronization and process communication (IPC)
 
 **2. Memory Management**
 - Allocating and deallocating RAM to processes
@@ -70,10 +73,13 @@ User Space  ←→  Kernel  ←→  Hardware
 - Ensuring isolation between processes (separate memory blocks)
 
 **3. File Management**
-- Creating, deleting, opening, closing files and directories
+- Creating and deleting files
+- Creating and deleting directories to organize files
+- Mapping files into secondary storage
+- Backup support onto a stable storage media
 - Maintaining the **directory structure** as a tree:
 
-```
+```css
 / (root)
 ├── lakshya/
 │   ├── OS/
@@ -121,7 +127,7 @@ User Space  ←→  Kernel  ←→  Hardware
 - All four functions (Process Mgmt, Memory Mgmt, File Mgmt, I/O Mgmt) are inside the kernel.
 - Everything is centralized and tightly coupled.
 
-```
+```css
 User Space
 ──────────────────
 Kernel Space
@@ -134,10 +140,11 @@ Hardware
 ```
 
 **Advantages:**
-- *Fast communication* between components — all in the same space, no mode-switch overhead between subsystems.
+- *Fast communication* between components — all in the same space, no mode-switch overhead between subsystems (less user mode/kernel mode overheads).
 
 **Disadvantages:**
 - *Bulky kernel* — all code in one place.
+- *Memory required to run is high.*
 - *Less reliable* — if one component crashes, the entire kernel crashes (highly coupled).
 
 **Examples:** Linux, Unix, MS-DOS
@@ -149,7 +156,7 @@ Hardware
 - Only the most critical functions (Process Management and Memory Management) remain in the kernel.
 - File Management and I/O Management are moved to **User Space**.
 
-```
+```css
 User Space
   ├── File Management
   └── I/O Management
@@ -173,7 +180,7 @@ Hardware
 - A process running in User Mode that needs memory allocation (kernel) → switches to Kernel Mode → gets memory → switches back → then needs to write a file (file mgmt in User Mode) → switches back to User Mode → then needs memory again → switches to Kernel Mode again...
 - *Constant back-and-forth User Mode ↔ Kernel Mode switching* is expensive.
 
-**Examples:** L4 Linux, Minix OS
+**Examples:** L4 Linux, Minix OS, Symbian OS
 
 ---
 
@@ -202,11 +209,14 @@ Since two processes run in isolated, separate memory spaces, they cannot directl
 
 ### 3. Hybrid Kernel
 
-- Combines the best of both Monolithic and Microkernel.
+- Combines the best of both Monolithic and Microkernel — combined approach.
+- Speed and design of monolithic kernel.
+- Modularity and stability of microkernel.
 - Keeps the most performance-critical parts in kernel space (Process Mgmt, Memory Mgmt, I/O Mgmt).
 - Moves only File Management to user space (or keeps selective components in user space).
+- IPC also happens but with lesser overheads than pure microkernel.
 
-```
+```css
 User Space
   └── File Management
 ──────────────────
@@ -236,7 +246,7 @@ Hardware
 
 ## Summary Diagram
 
-```
+```css
 User
  │
  ▼

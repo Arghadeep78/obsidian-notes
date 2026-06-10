@@ -22,35 +22,35 @@ The OS maintains a **free list** — a **linked list** where each node represent
 
 **Initial state:**
 
-```
+```css
 RAM:       [OS: 0–4KB][          free: 4KB–16KB          ]
 Free List: [ Start=4KB, Size=12KB ] → NULL
 ```
 
 **P1 (2KB) allocated:**
 
-```
+```css
 RAM:       [OS][P1: 4–6KB][       free: 6–16KB       ]
 Free List: [ Start=6KB, Size=10KB ] → NULL
 ```
 
 **P2 (8KB) allocated:**
 
-```
+```css
 RAM:       [OS][P1][P2: 6–14KB][ free: 14–16KB ]
 Free List: [ Start=14KB, Size=2KB ] → NULL
 ```
 
 **P3 (2KB) allocated:**
 
-```
+```css
 RAM:       [OS][P1][P2][P3: 14–16KB]
 Free List: NULL   ← nothing free; RAM is fully occupied
 ```
 
 **P1 and P3 exit (P2 remains):**
 
-```
+```css
 RAM:       [OS][ FREE: 4–6KB ][P2: 6–14KB][ FREE: 14–16KB ]
 Free List: [ Start=4KB, Size=2KB ] → [ Start=14KB, Size=2KB ] → NULL
 ```
@@ -66,7 +66,7 @@ Free List: [ Start=4KB, Size=2KB ] → [ Start=14KB, Size=2KB ] → NULL
 
 **Scenario:** P3 is still in memory (8KB). P1 and P2 have exited, leaving two 2KB free chunks.
 
-```
+```css
 RAM:       [OS][ FREE 2KB ][ P3 (8KB) ][ FREE 2KB ]
 Free List: [ 2KB ] → [ 2KB ] → NULL
 ```
@@ -91,7 +91,7 @@ To resolve external fragmentation, the OS applies **compaction** (also called **
 
 **State before compaction:**
 
-```
+```css
 RAM:       [OS][ FREE 2KB ][ P3 (8KB) ][ FREE 2KB ]
            ↑              ↑            ↑
          addr 4          addr 6      addr 14
@@ -101,7 +101,7 @@ P3 currently starts at physical address 6. The OS shifts P3's physical data 2KB 
 
 **State after compaction:**
 
-```
+```css
 RAM:       [OS][ P3 (8KB) ][ FREE 4KB ]
            ↑   ↑           ↑
          addr 4 addr 4    addr 12
@@ -118,13 +118,13 @@ RAM:       [OS][ P3 (8KB) ][ FREE 4KB ]
 
 **Free list after compaction:**
 
-```
+```css
 Free List: [ Start=12KB, Size=4KB ] → NULL
 ```
 
 Now P4 (3KB) can be allocated from this 4KB hole:
 
-```
+```css
 RAM:       [OS][ P3 (8KB) ][ P4 (3KB) ][ FREE 1KB ]
 Free List: [ Start=15KB, Size=1KB ] → NULL
 ```
@@ -146,7 +146,7 @@ Once the OS has a free list, when a new process arrives requesting n KB, the OS 
 
 **Example free list (used for all four algorithms below):**
 
-```
+```css
 [ 100KB ] → [ 90KB ] → [ 50KB ] → [ 200KB ] → NULL
 ```
 
@@ -163,13 +163,13 @@ Once the OS has a free list, when a new process arrives requesting n KB, the OS 
 
 **Trace (request = 90KB):**
 
-```
+```css
 Check 100KB → 100 ≥ 90 → YES → allocate here
 ```
 
 **Result:**
 
-```
+```css
 Free list after: [ 10KB ] → [ 90KB ] → [ 50KB ] → [ 200KB ] → NULL
 ```
 
@@ -211,7 +211,7 @@ Free list after: [ 10KB ] → [ 90KB ] → [ 50KB ] → [ 200KB ] → NULL
 
 **Trace (request = 90KB):**
 
-```
+```css
 Check 100KB → fits, remainder = 10KB
 Check  90KB → fits, remainder =  0KB  ← smallest remainder so far
 Check  50KB → does not fit
@@ -221,7 +221,7 @@ Best choice: 90KB hole (smallest remainder = 0)
 
 **Result:**
 
-```
+```css
 Free list after: [ 100KB ] → [ 50KB ] → [ 200KB ] → NULL
 (90KB hole is fully consumed — removed from list)
 ```
@@ -249,7 +249,7 @@ Free list after: [ 100KB ] → [ 50KB ] → [ 200KB ] → NULL
 
 **Trace (request = 90KB):**
 
-```
+```css
 Check 100KB → fits, remainder = 10KB
 Check  90KB → fits, remainder =  0KB
 Check  50KB → does not fit
@@ -259,7 +259,7 @@ Best choice: 200KB hole (largest hole)
 
 **Result:**
 
-```
+```css
 Free list after: [ 100KB ] → [ 90KB ] → [ 50KB ] → [ 110KB ] → NULL
 ```
 

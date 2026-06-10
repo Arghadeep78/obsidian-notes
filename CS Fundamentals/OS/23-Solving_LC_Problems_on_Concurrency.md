@@ -13,7 +13,7 @@
 - **`turn` variable:** A shared integer (or bool) that explicitly controls *which thread's turn it is* to proceed.
 
 **Pattern in every solution:**
-```
+```css
 lock(mtx)
 while (turn != my_expected_turn):
     cv.wait(lock)   // releases lock, sleeps; re-acquires lock on wake
@@ -41,7 +41,7 @@ unlock(mtx)
 
 **Execution trace (t=0: all three threads launched):**
 
-```
+```css
 T2 (second): locks → sees turn=0, turn≠1 → cv.wait() → releases lock
 T3 (third):  locks → sees turn=0, turn≠2 → cv.wait() → releases lock
 T1 (first):  locks → sees turn=0, turn==0 → condition false → prints "first"
@@ -80,7 +80,7 @@ T3 wakes: checks turn=2 → turn==2 → exits while → prints "third"
 // fizz thread: active when i%3==0 && i%5!=0  →  condition value = (i%3==0 && i%5!=0)
 // wait while condition == 0
 while ((i%3==0 && i%5!=0) == 0) cv.wait(lock);
-```
+```css
 
 **Execution trace for i=1:**
 - fizz: `1%3 != 0` → condition=0 → waits
@@ -160,7 +160,7 @@ void wantsToEat(int philosopher,
     putRightFork();
     forks[right].signal();
 }
-```
+```css
 
 **Why deadlock cannot occur:**
 - Only one philosopher at a time is in the critical section attempting to pick up forks.

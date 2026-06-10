@@ -6,7 +6,7 @@
 
 When a thread is waiting for a lock to become available, it loops continuously checking the lock variable:
 
-```
+```css
 while (lock is held) {
     // spinning — checking over and over
 }
@@ -26,11 +26,13 @@ It internally uses a lock (mutex) and provides two operations:
 
 *No busy waiting: the blocked thread releases the CPU entirely. It only wakes when explicitly notified.*
 
+*No contention: since the waiting thread fully releases the CPU, there is no resource contention while waiting.*
+
 ---
 
 ### How It Works (Conceptually)
 
-```
+```css
 Thread T1 (waiter):                   Thread T2 (signaler):
   acquire internal lock                  do work
   check condition                        call signal/notify_all
@@ -67,7 +69,7 @@ def task_t2():
         print("T2 is signaling")
         condition.notify_all()      # T2 wakes up T1
         print("T2 notification done")
-```
+```css
 
 **Output sequence:**
 1. T1 is launched first but immediately blocks on `wait()`.
@@ -97,21 +99,21 @@ Semaphore `S` is initialized to the number of available resource instances:
 
 ```
 S = 3   (3 instances available)
-```
+```css
 
 **`wait(S)` — to acquire a resource:**
 ```
 S = S - 1
 if S < 0:
     block this thread (add to waiting queue)
-```
+```css
 
 **`signal(S)` — to release a resource:**
 ```
 S = S + 1
 if any thread is blocked:
     wake one up (send it a wakeup signal)
-```
+```css
 
 **Walkthrough with 3 instances (S=3) and 5 threads:**
 
@@ -124,7 +126,7 @@ T5 arrives: wait() → S = -2, T5 BLOCKED
 
 T1 exits: signal() → S = -1, T4 wakes up → T4 enters
 T2 exits: signal() → S = 0, T5 wakes up → T5 enters
-```
+```css
 
 *At any point, at most 3 threads are in the critical section.*
 
@@ -145,7 +147,7 @@ signal(S):
     S++
     if S <= 0:
         wake up one blocked thread
-```
+```css
 
 ---
 

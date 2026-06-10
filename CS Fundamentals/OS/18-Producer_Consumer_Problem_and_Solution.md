@@ -10,7 +10,7 @@ There are two types of threads:
 - **Producer thread** — produces data and puts it into a buffer.
 - **Consumer thread** — consumes (removes) data from the buffer.
 
-```
+```css
 Producer ──► [ Slot 1 | Slot 2 | Slot 3 | ... | Slot N ] ──► Consumer
                            Shared Buffer (Critical Section)
 ```
@@ -64,7 +64,7 @@ Three semaphore/mutex variables are used:
 
 ### Solution Code
 
-```
+```css
 Producer:
     wait(empty)      // wait if no empty slot available
     wait(mutex)      // lock the buffer

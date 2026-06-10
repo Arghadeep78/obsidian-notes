@@ -33,12 +33,13 @@ Every process, throughout its entire lifecycle — from generation (new state) t
 - The process has finished execution.
 - It no longer exists in memory.
 - All resources held by the process are released.
+- PCB entry is removed from the process table.
 
 ---
 
 ## Process Lifecycle Diagram
 
-```
+```css
 [DISK]
   |  LTS picks process
   v
@@ -80,7 +81,7 @@ Every process, throughout its entire lifecycle — from generation (new state) t
 - Contains processes waiting for I/O completion.
 - Multiple processes can be waiting simultaneously (e.g., P2 and P3 both doing I/O while P1 runs).
 
-```
+```css
 [Job Queue]     [Ready Queue]     [CPU / Running]
 (Secondary  --> (Main Memory) --> (Executes)
  Storage)
@@ -120,12 +121,12 @@ Every process, throughout its entire lifecycle — from generation (new state) t
 - **Swap In:** The saved process is later loaded back into memory and restored to the Ready Queue.
 - *Swapping is performed by the Medium-Term Scheduler (MTS).*
 
-```
+```css
 [Ready Queue]  --swap out-->  [Swap Space / Secondary Storage]
               <--swap in---
 ```
 
-**Why swapping is needed:** If many memory-intensive processes are loaded simultaneously, the available RAM becomes exhausted and the Ready Queue can no longer be maintained. Swapping temporarily removes some processes to free memory.
+**Why swapping is needed:** Swapping is necessary to improve process mix or because a change in memory requirements has overcommitted available memory, requiring memory to be freed up. Swapping temporarily removes some processes to free memory.
 
 **Real-world analogy:** On Android/iOS, apps you opened a while ago seem to still be "open" but reload when you tap them — because they were swapped out to storage.
 

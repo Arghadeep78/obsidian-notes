@@ -6,7 +6,7 @@ A classic synchronization problem that also introduces the concept of **deadlock
 
 ## Problem Setup
 
-```
+```css
          PH0
         /    \
      fork0   fork4
@@ -28,6 +28,8 @@ A classic synchronization problem that also introduces the concept of **deadlock
 - They do not interact with each other — no communication between philosophers.
 - To eat, a philosopher needs **exactly 2 forks** (left and right).
 - A philosopher picks up forks **one at a time** — first left, then right.
+- A philosopher cannot pick up a fork that is already taken by a neighbor.
+- When a philosopher has both forks, he eats **without releasing the forks** until he is done.
 - After eating, both forks are put back down.
 
 ---
@@ -47,12 +49,12 @@ The challenge: design a synchronization mechanism that:
 
 Create an array of 5 binary semaphores — one per fork:
 
-```
+```css
 semaphore fork[5] = {1, 1, 1, 1, 1}
 ```
 
 **Philosopher i's code:**
-```
+```css
 pick_up(i):
     wait(fork[i])          // acquire left fork
     wait(fork[(i+1) % 5])  // acquire right fork (modulo for circular table)
@@ -72,7 +74,7 @@ pick_up(i):
 
 *If all 5 philosophers pick up their left fork simultaneously:*
 
-```
+```css
 PH0 picks up fork0 → waiting for fork1
 PH1 picks up fork1 → waiting for fork2
 PH2 picks up fork2 → waiting for fork3
@@ -107,7 +109,7 @@ Every philosopher holds one fork and waits for their neighbor's fork — which w
 
 Make the **fork pickup section itself a critical section**:
 
-```
+```css
 // wrap both wait() calls inside a mutex:
 wait(table_mutex)
     wait(fork[i])
@@ -136,7 +138,7 @@ Assign different fork pickup orders based on philosopher index:
 - **Even-numbered philosophers** (PH0, PH2, PH4): pick up **right fork first**, then left.
 
 **Fork layout (each philosopher's forks):**
-```
+```css
 PH0: left = fork0, right = fork4
 PH1: left = fork1, right = fork0
 PH2: left = fork2, right = fork1
@@ -148,7 +150,7 @@ PH4: left = fork4, right = fork3
 
 In the original deadlock scenario, all philosophers picked up their left fork first — creating a circular chain where each holds one fork and waits for their neighbor's. With the asymmetric rule, not all philosophers go in the same direction:
 
-```
+```css
 PH0 (even): picks up fork4 (right) first, then fork0 (left)
 PH1 (odd):  picks up fork1 (left) first, then fork0 (right)
 PH2 (even): picks up fork1 (right) first, then fork2 (left)

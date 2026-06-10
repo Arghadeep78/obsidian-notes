@@ -2,7 +2,7 @@
 
 ## Recap: Short-Term and Long-Term Schedulers
 
-```
+```css
 [Job Queue]     --LTS-->    [Ready Queue]    --STS/Dispatcher-->    [CPU]
 (Secondary                  (Main Memory)
  Storage)
@@ -15,13 +15,13 @@
 
 ## Medium-Term Scheduler (MTS) & Swapping
 
-When the degree of multiprogramming is increased too aggressively, some processes may consume excessive memory, leaving no room for others.
+Swapping is necessary to improve process mix or because a change in memory requirements has overcommitted available memory, requiring memory to be freed up.
 
 **Solution — Swapping:**
 - *Swap Out:* Remove partially executed processes from the Ready Queue, save their complete state (program counter, register values, etc.) to *swap space* in secondary storage.
 - *Swap In:* Once memory is freed (e.g., a memory-intensive process terminates), restore the saved state of swapped-out processes back into the Ready Queue.
 
-```
+```css
 [Ready Queue]  ---(swap out)-->  [Swap Space / Secondary Storage]
               <--(swap in)---
 ```
@@ -55,7 +55,7 @@ Say P1 was executing at instruction address 1, and the next instruction is at ad
 4. It then loads P2's saved program counter, registers, and file descriptors back into the CPU.
 5. The CPU now runs P2 from exactly where P2 was last paused.
 
-```
+```css
 CPU running P1
      |
      | (interrupt / time quantum expires / I/O request)
@@ -103,7 +103,7 @@ An *orphan process* is a process whose *parent has terminated before it*.
 - The OS *re-parents* the orphan to the `init` process (PID 1).
 - This keeps the process tree intact so the OS can continue tracking and managing all processes.
 
-```
+```css
 Before:   init --> P1 --> P2
 After P1 exits:   init --> P2  (re-parented)
 ```
@@ -135,7 +135,7 @@ Because the parent has not yet called `wait()` to read the child's exit status. 
 
 ### How a Zombie is Created:
 
-```
+```css
 Parent (P1) forks child (P2)
      |
 P2 executes --> P2 calls exit()

@@ -24,7 +24,7 @@ In demand paging (virtual memory), RAM is shared among multiple processes. Each 
 A *reference string* is the sequence of page numbers requested by the CPU over time. It is used to evaluate and compare page replacement algorithms by counting how many page faults each algorithm produces for the same sequence.
 
 **Reference string used in all examples below:**
-```
+```css
 7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1
 ```
 
@@ -45,7 +45,7 @@ When all frames are full and a new page must be loaded, **evict the page that ha
 
 Starting state: all 3 frames empty.
 
-```
+```css
 Step  | Page | Frame 1 | Frame 2 | Frame 3 | Event
 ------|------|---------|---------|---------|------------------
   1   |  7   |   7     |   -     |   -     | Page fault #1  (7 loaded, frame was empty)
@@ -99,7 +99,7 @@ In FIFO, this expectation is **violated for certain reference strings**: adding 
 | 5 | 5 |
 | 6 | 5 |
 
-```
+```css
 Expected (normal behavior):          FIFO (with Bélády's Anomaly):
 
 Page faults                           Page faults
@@ -113,7 +113,7 @@ Page faults                           Page faults
 ```
 
 - Bélády's Anomaly is a **known weakness of FIFO**
-- It does **not** affect LRU or Optimal Page Replacement
+- In LRU and Optimal Page Replacement, increasing the number of frames **always reduces or maintains** the page fault count — it does **not** exhibit Bélády's Anomaly
 
 ---
 
@@ -138,7 +138,7 @@ If no such "never used again" page exists, replace the page whose *next referenc
 
 At each page fault, look ahead in the reference string to find which of the currently loaded pages will be referenced furthest in the future (or not at all), and evict that one.
 
-```
+```css
 Step  | Page | Frames (after action) | Event & Reasoning
 ------|------|-----------------------|------------------------------------------
   1   |  7   | [7, -, -]             | PF#1 — empty frame
@@ -195,7 +195,7 @@ This is justified by the *locality of reference* principle: programs tend to reu
 
 At each step, track *when each page was last used*. On a page fault, evict the page with the oldest last-use time.
 
-```
+```css
 Step  | Page | Frames (after) | Event & LRU reasoning
 ------|------|----------------|------------------------------------------
   1   |  7   | [7, -, -]      | PF#1 — empty frame; last used: 7@1
@@ -222,7 +222,7 @@ Step  | Page | Frames (after) | Event & LRU reasoning
 
 *Corrected clean walkthrough from beginning — tracking last-used step numbers:*
 
-```
+```css
 Ref:  7   0   1   2   0   3   0   4   2   3   0   3   2   1   2   0   1   7   0   1
 Step: 1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20
 
@@ -283,7 +283,7 @@ Step 20: page 1, HIT → update 1. Tracking: {7:18, 0:19, 1:20}
 
 **Walkthrough (partial — same reference string):**
 
-```
+```css
 Counter starts at 0, increments each step.
 
 Step 1: access page 7 → load into frame. Page 7's time field = 1. Counter = 1.
@@ -335,7 +335,7 @@ Step 6: access page 3 → PAGE FAULT.
 
 **Walkthrough:**
 
-```
+```css
 Step 1: load page 7.  Stack (top→bottom): [7]
 Step 2: load page 0.  Stack: [0, 7]   (0 most recent)
 Step 3: load page 1.  Stack: [1, 0, 7]  (1 most recent)

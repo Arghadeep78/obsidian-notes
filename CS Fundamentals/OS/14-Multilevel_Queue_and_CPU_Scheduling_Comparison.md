@@ -36,7 +36,7 @@ Before understanding multilevel queues, recognize that processes fall into three
 
 Instead of one single Ready Queue, *divide the Ready Queue into multiple sub-queues*, one per type of process.
 
-```
+```css
             Priority
   Highest │  [System Process Queue (SP-Q)]       ← highest priority
           │       ↓
@@ -57,7 +57,7 @@ Instead of one single Ready Queue, *divide the Ready Queue into multiple sub-que
 - *Within a queue:* scheduled by that queue's own algorithm.
 - *Across queues:* higher-priority queues are always served before lower-priority ones.
 
-```
+```css
 New process → [classified by OS] → assigned to SP-Q / IP-Q / BP-Q (permanently)
                                           ↓
                               Scheduled within its queue
@@ -103,7 +103,7 @@ If a user launches an application and the OS gives more CPU time to background p
 
 *One possible design (configurable):*
 
-```
+```css
 Queue Q0: Round Robin (TQ = 2)   ← highest priority
      ↓ (demote if not done in TQ)
 Queue Q1: Round Robin (TQ = 4)
@@ -192,7 +192,7 @@ When designing an MLFQ for a specific OS, the following must be decided:
 
 ## Key Relationships
 
-```
+```css
 FCFS  ──────────────────────────► Round Robin
 (non-preemptive)          (preemptive version of FCFS)
 

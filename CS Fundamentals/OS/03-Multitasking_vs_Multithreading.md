@@ -2,6 +2,12 @@
 
 ---
 
+## What is a Program?
+
+- A **program** is an executable file which contains a certain set of instructions written to complete a specific job or operation on your computer.
+- It is compiled code — ready to be executed.
+- Stored in Disk.
+
 ## What is a Process?
 
 - When you write code (e.g., C++) in a `.cpp` file, it is plain text — a collection of characters.
@@ -23,6 +29,7 @@
 - A **thread** is also called a *lightweight process*.
 - Every software is composed of many smaller, independent tasks.
 - A **thread** is the *smallest unit of independent execution within a process* — a single sequential stream that does not depend on other parts of the process.
+- Used to achieve parallelism by dividing a process's tasks which are independent paths of execution.
 
 **Example — App syncing to cloud:**
 - A user-facing app takes input, processes it, and displays output (main flow).
@@ -32,7 +39,7 @@
 
 **Example — JPG to PNG Converter:**
 
-```
+```css
 Input image: 100×200 pixels
 Logic handles: 100×100 at a time
 
@@ -70,16 +77,19 @@ Multithreaded approach:
 
 ## Multitasking vs Multithreading — Key Differences
 
+- **Multitasking:** The execution of more than one task simultaneously; concept of more than 1 process being context switched. No. of CPUs = 1.
+- **Multithreading:** A process is divided into several different sub-tasks called threads, each with its own path of execution; concept of more than 1 thread being context switched. No. of CPUs >= 1 (better to have more than 1).
+
 | Feature | Multitasking | Multithreading |
 |---|---|---|
 | **Unit** | Multiple processes | Multiple threads of one process |
-| **Isolation & Memory Protection** | Yes — each process has separate memory | No — threads share the same memory block of their parent process |
+| **Isolation & Memory Protection** | Yes — OS must allocate separate memory and resources to each program the CPU is executing | No — resources are shared among threads of that process; OS allocates memory to a process and all its threads share it |
 | **Scheduling** | Processes are scheduled by OS | Threads are scheduled by OS (within a process) |
 | **Context Switch Cost** | Higher — includes switching memory address space | Lower — same address space, no memory space switch |
 | **CPU cache state** | Flushed on switch (different process may not use same data) | Preserved on switch (threads share same memory area) |
 
 **Memory layout:**
-```
+```css
 RAM
 ├── P1's memory block
 │   ├── T1 (thread 1 of P1)

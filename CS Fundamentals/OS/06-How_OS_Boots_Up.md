@@ -10,7 +10,7 @@
 
 ## The 5 Steps of the Boot Process
 
-```
+```css
 Step 1: Power On
      ↓
 Step 2: CPU loads BIOS/UEFI
@@ -127,7 +127,7 @@ Once BIOS/UEFI finds the boot loader, it hands over full control — *BIOS's res
 
 ## Summary
 
-```
+```css
 Power On
   → PSU powers all hardware
   → CPU initializes, loads BIOS/UEFI from non-volatile chip

@@ -27,7 +27,7 @@
 | P4 | 3 | 5 |
 
 **Gantt Chart:**
-```
+```css
 | P1 (0→8) | P2 (8→12) | P4 (12→17) | P3 (17→26) |
 ```
 
@@ -67,7 +67,7 @@
 - t=17: P1 finishes. Only P3 left → P3 runs.
 - t=26: P3 finishes.
 
-```
+```css
 | P1(0→1) | P2(1→5) | P4(5→10) | P1(10→17) | P3(17→26) |
 ```
 
@@ -164,7 +164,7 @@
 - t=22: P3 completes. Only P1 remains (priority=2, BT=3) → P1 runs.
 - t=25: P1 completes. All processes done.
 
-```
+```css
 | P1(0→1) | P2(1→3) | P4(3→5) | P6(5→9) | P7(9→15) | P4(15→18) | P5(18→19) | P3(19→22) | P1(22→25) |
 ```
 
@@ -201,7 +201,7 @@
 
 *Aging:* Gradually increase the priority of processes that have been waiting for a long time.
 
-- Example: Every 15 seconds (configurable), increment the priority of all waiting processes by 1.
+- Example: Every 15 minutes (configurable), increment the priority of all waiting processes by 1.
 - After enough time, even the lowest-priority process will accumulate enough priority to be scheduled.
 - Prevents any process from waiting indefinitely.
 
@@ -245,7 +245,7 @@
 
 **Queue tracking and Gantt Chart:**
 
-```
+```css
 t=0:  Queue=[P1]. Run P1 for 2. P1 remaining=2.
 t=2:  Queue=[P2,P3,P1]. Run P2 for 2. P2 remaining=1.
 t=4:  Queue=[P3,P1,P4,P5,P2]. Run P3 for 2. P3 done (BT=2). 
