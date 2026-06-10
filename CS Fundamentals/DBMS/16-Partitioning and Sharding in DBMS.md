@@ -86,7 +86,7 @@ Clustering is a good method, but **one level above** there is a better method �
 - We do NOT increase a single node's CPU/capacity. Instead, we **partition the data itself** and **add new nodes**.
 - (Clustering is also horizontal scaling — you add nodes; but there you copy data, here you divide data.)
 
-```
+```css
         Clustering (Copy data)            Partitioning (Divide data)
         ┌────────┐  ┌────────┐            ┌────────┐  ┌────────┐
         │Server 1│  │Server 2│            │Server 1│  │Server 2│
@@ -200,7 +200,7 @@ In these cases, we partition things horizontally or vertically.
 5. **Reduced Cost**
    - Instead of vertical scaling (expensive — increasing CPU/HDD/RAM of one node), you can bring in **another smaller-capacity CPU/node** because requests get divided across nodes.
 
-```
+```css
         Without Partitioning               With Partitioning
         ┌──────────────────┐               ┌───────────┐  ┌───────────┐
         │  ONE Big Server  │               │  Server 1 │  │  Server 2 │
@@ -378,7 +378,7 @@ The server in sharding is just called a Shard.
    - But since the Shard Key (e.g. Customer ID) is not the primary key, one customer (Customer ID 2) might have placed 10,000 orders → that portion grows → **information becomes more on one side, less on the other** → non-uniform.
    - **Solution:** **Re-shard** the table/system from time to time — change the partition key / re-shard based on the partition key. **Re-sharding is necessary.**
 
-```
+```css
         Ideal (Uniform)                   Reality (Non-Uniform — Hot Shard)
         ┌──────────┐  ┌──────────┐        ┌──────────────────┐  ┌───────┐
         │  Shard 1 │  │  Shard 2 │        │     Shard 1      │  │Shard 2│
@@ -394,7 +394,7 @@ The server in sharding is just called a Shard.
    - On a **single node**, you'd simply run an **aggregation function** and SQL returns the sigma/answer from one node.
    - With sharding, data is spread across multiple nodes → SQL/DBMS (or you) must: go to node 1 → get its sum, go to node 2 → get its sum, then **add both sums** → return answer. This introduces complexity.
 
-```
+```css
         Single Node (Simple Aggregation)
         ┌──────────────────┐
         │  SELECT SUM(amt) │  → one query, one answer ✓

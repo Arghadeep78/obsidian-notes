@@ -65,7 +65,7 @@
 - **Real-life parallel:** changing your username (a **WRITE** goes through), but the change shows in **order history only an hour later** (the **READ** doesn't reflect it yet — explained later in CQRS).
 - Symptoms: API latency ↑, transactions / **deadlocks / starvation**, frequent **failures**, many transactions **time out**, system **hangs**, late responses → **customers complain**.
 
-```
+```css
         The Bottleneck Situation
         ┌──────────────────────────────────────────────────────────┐
         │                                                          │
@@ -121,7 +121,7 @@ This pattern bundles several performance-optimization measures:
 - **Fix → Denormalization:** introduce **some controlled redundancy** — bring the two tables you had broken down back into one table (go a bit "up" from full normalization).
 - Result: **fewer JOINs** → **query latency reduces / performance improves.**
 
-```
+```css
         Normalized (Good for storage, Bad for speed):
         ┌──────────────┐    ┌─────────────┐    ┌──────────────┐
         │   Bookings   │    │  Customers  │    │   Drivers    │
@@ -150,7 +150,7 @@ This pattern bundles several performance-optimization measures:
 - Benefit: the **latency/performance hit of repeatedly creating connections disappears.**
 - Implemented via your framework (e.g. **Spring / Spring Boot**) connection-pool support — a very famous, commonly-used option.
 
-```
+```css
         Without Connection Pooling            With Connection Pooling
         ┌──────────────────────────┐          ┌───────────────────────────┐
         │  Req 1: Connect → Query  │          │  Pre-created pool:        │
@@ -316,7 +316,7 @@ This pattern bundles several performance-optimization measures:
 - Put these separate DBs into **separate machines**, and each separate DB can itself have **Primary–Replica and Multi-Primary configuration** (since each can get heavy request load). e.g. the location DB on a separate machine, given Primary–Replica setup.
 - **"Different DBs host data category by different functionality."** We divide the DB schema **logically, functionality-wise.**
 
-```
+```css
         Before (One big DB — all tables together):
         ┌──────────────────────────────────────────────────────────┐
         │               One Monolithic DB                          │
@@ -376,7 +376,7 @@ This pattern bundles several performance-optimization measures:
 - Example: take the database and **establish ~50 machines**. Configure them with the **same DB schema** (like the Student-table example in the Sharding notes), **but each machine holds just a part of the data.**
 - Initially one machine had **N rows**; now across 50 machines you put, e.g., **50 rows per machine** — i.e. you **divide the rows across many machines.** *"Each machine holds just a part of the data."*
 
-```
+```css
         Sharding — 50 Machines, Same Schema, Different Data
 
         Before (1 machine, N rows):
@@ -423,7 +423,7 @@ This pattern bundles several performance-optimization measures:
   - USA requests → **American data center**
 - You can add more data centers similarly. So data is **distributed across countries**, and requests are **divided across continents**.
 
-```
+```css
         Pattern 7: Data-Center-wise Partition (Global View)
 
         Europe Users        Asia Users          USA Users
@@ -480,7 +480,7 @@ This pattern bundles several performance-optimization measures:
 | 6 | expand to other countries | **Sharding** | Horizontal partition — ~50 machines, **same schema, each holds part of data**; locality + per-machine replicas for failure recovery |
 | 7 | global / cross-continent | **Data-Center-wise Partition** | Data centers per region; route requests continent-wise; **cross-DC replication** for high availability |
 
-```
+```css
         The Full Journey at a Glance:
 
         10 users         → Single Machine

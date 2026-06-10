@@ -6,7 +6,7 @@
 
 > **What a FK relation means in practice:** The `dept_id` column in the Student table does not store the full department name — it stores a reference (key) to the Dept table. The actual department name lives in the Dept table. To get "Alice's department name", you must JOIN both tables at query time. This is the core trade-off of normalization: no redundancy, but joins are required to reassemble meaning.
 
-```
+```css
 RELATIONAL MODEL — EXAMPLE:
 
   Student Table:              Dept Table:

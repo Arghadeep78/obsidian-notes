@@ -20,7 +20,7 @@ Multiple users access the **same database**, but each needs a **personalized vie
 - **Logistics Department** needs only **Name, Phone Number, Address** (to deliver). It has no business knowing credit card / UPI / payment details.
 - **Customer Service Department** needs **Name, Phone, Address + Products previously ordered** (for refund/replace).
 
-```
+```css
            ┌─────────────────────────────────────────┐
            │           Amazon Database               │
            │  Name | Phone | Address | Credit Card   │
@@ -49,7 +49,7 @@ Multiple users access the **same database**, but each needs a **personalized vie
 
 The DBMS is divided into **three abstract levels** to provide abstraction:
 
-```
+```css
   ┌──────────────────────────────────────────┐
   │         VIEW LEVEL (External)            │  ← end users see this
   │   View 1 (Logistics) | View 2 (CS) ...   │
@@ -80,7 +80,7 @@ The DBMS is divided into **three abstract levels** to provide abstraction:
 - This **physical-to-logical mapping** is done by the **Logical Schema (Conceptual Schema)**.
 - **Goal of the logical level:** ease of use. The DBA, who decides what information to keep, works at this level.
 
-```
+```css
   Physical file (raw):         Logical view (after mapping):
   ─────────────────────        ──────────────────────────────────────
   Ram,88123,w526,batch201  →   Name | Phone    | Address | Batch
@@ -107,7 +107,7 @@ The DBMS is divided into **three abstract levels** to provide abstraction:
 - Example: split a single file (`Name, Phone, Address, Batch`) into **four separate files** (all names in one, all phones in another, etc.). The mapping changes, but **Student still looks the same** at the logical level.
 - The logical level only talks about **which data is stored** and **its relationships**, never *how* it is stored.
 
-```
+```css
   Physical change (e.g., HDD → SSD, or 1 file → 4 files):
 
   Before:                         After:
@@ -130,7 +130,7 @@ The DBMS is divided into **three abstract levels** to provide abstraction:
 - **Instance = the collection of information stored in the DB at a particular point in time.**
 - Example: Student DB just created → 1st student enrolls, 2nd enrolls. At 12 PM the instance = 2 rows. Next day it might be 3 students; after a year, thousands. If a student withdraws, the instance reflects 2 students again. The **table stays the same**; data inside keeps filling/changing.
 
-```
+```css
   Schema (structure, rarely changes):
   Student: [ID | Name | Phone | Address | Batch]
                      ↑ fixed blueprint
@@ -211,7 +211,7 @@ To interact with the DBMS you need a language. Two kinds of statements:
 - **SQL (Structured Query Language)** provides **both**: DDL mechanisms (define/modify schema) and DML mechanisms (manipulate/retrieve data).
 - **How a query runs:** you write a query → it's sent to the DBMS/DB → the DBMS runs it, understands it, fetches information, and returns the result.
 
-```
+```css
   DDL (define structure):          DML (work with data):
   CREATE TABLE, ALTER TABLE        SELECT, INSERT, UPDATE, DELETE
   DROP TABLE, CREATE INDEX         ...
@@ -237,7 +237,7 @@ To interact with the DBMS you need a language. Two kinds of statements:
 3. JDBC **transforms** it into an actual SQL query; the SQL server understands and runs it.
 4. The reply comes back; JDBC **converts** the result into a Java construct/data structure; Java receives it.
 
-```
+```css
   Java App (Spring Boot)
        │  writes SQL string: "INSERT INTO Candidate ..."
        ▼
@@ -275,7 +275,7 @@ To interact with the DBMS you need a language. Two kinds of statements:
    - **Security patches** — apply latest patches so hackers can't exploit vulnerabilities.
    - **Upgrades** — e.g., changing the physical schema/design to make data access faster.
 
-```
+```css
   DBA's role at a glance:
 
   ┌─────────────────────────────────────────────┐
@@ -308,7 +308,7 @@ The architecture is defined by **how these machines are arranged** (where the DB
 - Example: building a web app — you run a **localhost** server inside your own computer. You are the client, the localhost server is yours, and the DB files are on your PC → all three on one PC.
 - Example: learning SQL — the end user, the DBMS server, and the DB files are all on your own PC.
 
-```
+```css
   Tier-1:  [Your PC]
            ┌─────────────────────────┐
            │  Client (browser/app)   │
@@ -325,7 +325,7 @@ The architecture is defined by **how these machines are arranged** (where the DB
 - → System split into **two parts**: Client and Server, communicating via SQL queries.
 - Suitable for, e.g., a home/LAN system used by a few family devices (security isn't a big concern).
 
-```
+```css
   Tier-2:
   [Client Machine]  ──── SQL query (JDBC/ODBC) ────►  [Server Machine]
   App (Java/C++)                                        DBMS + Database
@@ -340,7 +340,7 @@ The architecture is defined by **how these machines are arranged** (where the DB
   3. **Database System**
 - **No direct DB call from the client.** Flow: **Client → Application Server → DB → Application Server → (beautified) → Client.** The client communicates with the app server (via an interface); the app server then calls the DB, retrieves data, modifies/beautifies it, and returns it.
 
-```
+```css
   Tier-3:
   [Client]  ──request──►  [App Server]  ──SQL──►  [DB Server]
   Browser                  (business logic,         DBMS +

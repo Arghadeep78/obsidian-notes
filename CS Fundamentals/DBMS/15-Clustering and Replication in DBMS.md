@@ -44,7 +44,7 @@ THE SINGLE DATABASE PROBLEM:
 **Terminology note (server / node / host):**
 - Think of a **server** as just a **capable computer** connected to the internet whose main job is to **store data**; requests come to it, it **processes and returns** the data.
 
-```
+```css
 CLUSTERING / REPLICA SETS ARCHITECTURE:
 
   Before (single DB):           After (cluster of replicas):
@@ -98,7 +98,7 @@ TWO KINDS OF REDUNDANCY — DON'T CONFUSE THEM:
 - → System becomes **robust and highly available** by introducing redundancy.
 - **Formally:** If S1 is down, S2 & S3 are available as a **backup**, so at any point of time some server executes the request — and since all servers store the **same info**, the user always gets the **same data.**
 
-```
+```css
 HIGH AVAILABILITY — S1 GOES DOWN:
 
   Normal operation:                  S1 crashes:

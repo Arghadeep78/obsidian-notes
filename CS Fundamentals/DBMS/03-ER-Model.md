@@ -5,7 +5,7 @@
 
 > The ER Model is used to **visualize** the logical design of the data.
 
-```
+```css
   Real World  ──[ER Modelling]──►  ER Diagram (blueprint)  ──[conversion]──►  Tables (Relational Model)
 
   e.g., a university         Student──enrolls──Course        Student table
@@ -28,7 +28,7 @@
 - Example: one particular student = an **entity**; the whole `Student` schema/collection = an **entity set**.
 - Examples of entity sets: `Student`, `Customer of a Bank`.
 
-```
+```css
   Entity Set: Student
   ┌──────────────────────────────────────────┐
   │  { Student1, Student2, Student3, ... }   │
@@ -60,7 +60,7 @@
 - Examples: `Customer Name` cannot be numeric; `Loan` may have a domain {Car Loan, Home Loan, Education Loan} → a "Personal Loan" entry is not allowed.
 - **Why constraints help:** they keep the database **consistent**. A badly designed DB without constraints could store a numeric name; on retrieval you'd get an illegal/inconsistent entry.
 
-```
+```css
   Attribute: Loan Type
   Domain = { Car Loan, Home Loan, Education Loan }
 
@@ -84,7 +84,7 @@
 - `Citizen` **has** `Vehicle`
 - `Parent` **has** `Child`
 
-```
+```css
   Entity          Relationship       Entity
   ──────────      ────────────       ──────────
   Customer   ──── borrows     ────── Loan
@@ -109,7 +109,7 @@
 
 **Example:** `Customer` (rectangle) — `Borrow` (diamond) — `Loan` (rectangle), connected with lines.
 
-```
+```css
   ER Diagram notation:
 
   ┌──────────┐         ◇             ┌──────────┐
@@ -144,7 +144,7 @@
 - **Why divide:** lets you reference a part independently — e.g., fetch all customers whose **Last Name = Mukherjee**, or all citizens in a particular **PIN/ZIP code**. Sub-parts are referable individually **and** together.
 - **Interview tip:** When storing `Address`, always make it **composite** — the more composite, the better managed.
 
-```
+```css
   Composite Attribute: Address
                 Address
                ╱   │   ╲
@@ -161,7 +161,7 @@
 - **ER notation:** drawn with **double (concentric) ellipses**.
 - You can put **limit constraints** (upper/lower bound) — e.g., at most 2 nominees, or at least 1 nominee.
 
-```
+```css
   Single-valued:   (Student_ID)      ← one value only
   Multi-valued:   ((Phone_Number))   ← double ellipse; can store multiple values
                     e.g., 9876543210, 9123456789
@@ -172,7 +172,7 @@
 - Example: `Age` derived from `Date of Birth` (current date − DOB); `Loan Age` / membership period derived from loan disbursal date.
 - **ER notation:** drawn with a **dotted ellipse**.
 
-```
+```css
   Stored:   (DOB)           ← stored in DB
   Derived:  ·····Age·····   ← dotted ellipse; calculated = today − DOB; not stored
 ```
@@ -186,7 +186,7 @@ A NULL value of an attribute can mean:
 2. **Unknown / Missing** — a value should exist but the entry is missing. Example: `Customer Name` is NULL even though the constraint says name must exist → entry missing (an inconsistency/problem).
 3. **Not Known (yet)** — value exists but isn't known yet. Example: a new employee whose `Salary` isn't decided yet → salary NULL = not known yet.
 
-```
+```css
   NULL can mean three different things:
 
   Attribute        NULL means...
@@ -212,7 +212,7 @@ A NULL value of an attribute can mean:
 - A weak entity has a **partial / discriminator key** (e.g., **Payment Number** — a sequential counter 1, 2, 3, …). "Payment Number 1" only uniquely identifies a payment *within* a particular loan.
 - **Notation:** Weak entity → double rectangle. Weak relationship → double diamond. The partial/discriminator key of a weak entity → **dotted underline** (vs the solid underline for a primary key of a strong entity).
 
-```
+```css
   Strong Entity:          Weak Entity:
   ┌──────────┐            ╔══════════╗
   │  Loan    │            ║ Payment  ║   ← double rectangle
@@ -235,7 +235,7 @@ A NULL value of an attribute can mean:
 - **Strong relationship:** both participating entities have independent existence (own primary keys). Examples: `Customer places Order` (Customer ID + Order ID), `Professor teaches Course` (Professor ID + Course ID).
 - **Weak relationship:** connects a weak entity to its strong entity (e.g., Loan ↔ Payment); drawn with a **concentric (double) diamond**.
 
-```
+```css
   Strong Relationship:          Weak Relationship:
   ┌──────────┐       ◇◇         ╔═════════╗
   │ Customer │───── Loan  ══════╣ Payment ║
@@ -258,7 +258,7 @@ A NULL value of an attribute can mean:
 ### Ternary Relationship (3 participants) — rare
 - Example: `Employee` **works-on** relating **Employee + Branch + Job**. An employee works on a branch; the employee has a job role; the job role exists in that branch → all three are related in one relationship.
 
-```
+```css
   Unary (degree 1):              Binary (degree 2):        Ternary (degree 3):
                                                               ┌──────────┐
   ┌──────────┐                  ┌─────────┐                  │ Employee │
@@ -289,7 +289,7 @@ A NULL value of an attribute can mean:
 - One entity in A associates with **at most one** entity in B, and vice versa.
 - Example: `Citizen has Aadhaar Card` (one citizen → one Aadhaar).
 
-```
+```css
   1:1  Citizen ────────────── Aadhaar
        C1  ─────────────────  A1
        C2  ─────────────────  A2
@@ -300,7 +300,7 @@ A NULL value of an attribute can mean:
 - One entity in A associates with **many** entities in B; but each entity in B associates with **at most one** entity in A.
 - Example: `Citizen has Car` (one citizen can own multiple cars; each car is owned by exactly one citizen).
 
-```
+```css
   1:N  Citizen ────────────── Car
        C1  ──┬──────────────  Car1
              ├──────────────  Car2
@@ -313,7 +313,7 @@ A NULL value of an attribute can mean:
 - This is the mirror of 1:N — depends on which side you label A and which you label B.
 - Example: `Course taught by Professor` — many courses map to one professor; one professor can teach many courses.
 
-```
+```css
   N:1  Course ────────────── Professor
        Course1  ──┐
        Course2  ──┼──────── Professor1
@@ -325,7 +325,7 @@ A NULL value of an attribute can mean:
 - One entity in A associates with many in B, **and** one entity in B associates with many in A.
 - Examples: `Customer buys Product`; `Student attends Courses`.
 
-```
+```css
   M:N  Student ────────────── Course
        S1  ──┬───────────────  C1
              └───────────────  C2
@@ -350,7 +350,7 @@ A NULL value of an attribute can mean:
 - **Not all** entities in the set need participate in the relationship.
 - Example: In `Customer borrows Loan`, the **Customer side is partial** — there can be customers who haven't taken any loan.
 
-```
+```css
   Participation in "Customer borrows Loan":
   
   Customer ────────────────── ◇ borrows ══════════════ Loan

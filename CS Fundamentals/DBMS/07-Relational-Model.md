@@ -32,7 +32,7 @@ Attributes: `Customer ID`, `Name`, `Address`, `Contact`.
 
 > Difference from ER model: in ER, *cardinality* meant mapping cardinality; here **cardinality = number of tuples**.
 
-```
+```css
   Customer Table — labelled:
 
   +-------------+--------+---------+---------+

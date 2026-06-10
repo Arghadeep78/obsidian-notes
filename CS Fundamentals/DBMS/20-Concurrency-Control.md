@@ -59,7 +59,7 @@ A protocol that **guarantees serializability** (transactions produce the same re
 
 **Two phases:**
 
-```
+```css
 Phase 1 — Growing phase:
   Transaction can ACQUIRE locks (S or X).
   Cannot release any lock yet.

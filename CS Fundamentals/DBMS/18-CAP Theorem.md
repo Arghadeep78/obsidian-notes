@@ -3,7 +3,7 @@
 - We scale up only to a level, then **scale out** (Horizontal Scaling) → make multiple nodes / replicas.
 - When replicas are made / a cloud system / distributed storage is built, one theorem is very useful **to design efficient distributed storages** → the **CAP Theorem**.
 
-```
+```css
         Single Node             Scale Out (Distributed)
         ┌──────────┐            ┌──────────┐   ┌──────────┐   ┌──────────┐
         │  DB      │  grows →   │  Node A  │   │  Node B  │   │  Node C  │
@@ -23,7 +23,7 @@
 - If value of `x` is 10 on Node A, it should be 10 on Node B too. **Data across the nodes must be consistent.**
 - **How:** When data is written on a single node, *it should be replicated / broadcasted to other nodes in the system.*
 
-```
+```css
         Consistent State:
         ┌──────────┐    ┌──────────┐    ┌──────────┐
         │  Node A  │    │  Node B  │    │  Node C  │
@@ -45,7 +45,7 @@
 - *Every request will get a response regardless of the individual state of the node.*
 - Unlike a consistent system, there is **no guarantee that the response will be the most recent write operation.**
 
-```
+```css
         High Availability:
         ┌──────────┐    ┌──────────┐    ┌──────────┐
         │  Node A  │    │  Node B  │    │  Node C  │
@@ -66,7 +66,7 @@
   - There may be **delays in messages / inconsistency**, but the system stays up.
 - *"To have partition tolerance, the system must replicate records across combinations of nodes and network"* — when the node comes back up and communication is re-established, you must replicate.
 
-```
+```css
         What is a Network Partition?
 
         Normal (No Partition):
@@ -92,7 +92,7 @@
 > **Consistency, Availability, and Partition Tolerance — all three cannot be achieved simultaneously.**
 > Whenever you build a distributed system, **only two of these three** properties can simultaneously exist.
 
-```
+```css
         The CAP Triangle — Pick any 2, sacrifice the 3rd
 
                            Consistency (C)
@@ -130,7 +130,7 @@
 
 Setup: a single DB grows large → scaled out → divided into **Node A (Primary — handles all WRITE operations)** and **Node B (Secondary/Replica — handles READ operations)**. Now a **partition occurs** (communication break).
 
-```
+```css
         Setup Before Partition:
         ┌──────────────┐  replication  ┌──────────────┐
         │   Node A     │ ────────────► │   Node B     │
@@ -157,7 +157,7 @@ Setup: a single DB grows large → scaled out → divided into **Node A (Primary
 - A READ comes → Node B responds → returns the **stale value x = 10** (the old value, before the write).
 - The **latest write is not reflected on the read** → **Consistency is lost** (system stays available).
 
-```
+```css
         Choose Availability (AP):
         ┌──────────────┐  ✗ BROKEN ✗  ┌──────────────┐
         │   Node A     │               │   Node B     │
@@ -175,7 +175,7 @@ Setup: a single DB grows large → scaled out → divided into **Node A (Primary
 - So you **turn off / reject reads from Node B** → return **"Failed" / Bad Request** to the client.
 - Failing the request means **Availability is lost** (system stays consistent — no wrong data is ever served).
 
-```
+```css
         Choose Consistency (CP):
         ┌──────────────┐  ✗ BROKEN ✗  ┌──────────────┐
         │   Node A     │               │   Node B     │
@@ -199,7 +199,7 @@ Setup: a single DB grows large → scaled out → divided into **Node A (Primary
 
 The three properties intersect pairwise: you can pick **CA**, **CP**, or **AP**.
 
-```
+```css
         CAP — The Three Pairwise Choices
 
                           C (Consistency)
@@ -231,7 +231,7 @@ The three properties intersect pairwise: you can pick **CA**, **CP**, or **AP**.
 - **Examples:** relational databases like **MySQL, PostgreSQL** are often called "CA" — but this is a simplified classification. What it really means is that they are **designed for single-node or small-cluster use** where the designer assumes partitions won't happen. Once they are deployed as a distributed system (with replication across data centers), they face the same C-vs-A trade-off as any other distributed DB. The "CA" label reflects their default design goal, not an absolute guarantee in distributed deployments.
 - Possible at small scale; **not practical at large scale**.
 
-```
+```css
         CA (MySQL, PostgreSQL)
         ┌─────────────────────────────────────────────────────┐
         │  Single Node or Small Cluster                       │
@@ -255,7 +255,7 @@ The three properties intersect pairwise: you can pick **CA**, **CP**, or **AP**.
   - Banks go down at night / for maintenance → availability matters less.
   - Data must be consistent (an account must not show ₹1 lakh on one node and ₹2 lakh on another).
 
-```
+```css
         CP (MongoDB — Banking Use Case)
         ┌──────────────────────────────────────────────────────────┐
         │  Partition Occurs:                                       │
@@ -286,7 +286,7 @@ The three properties intersect pairwise: you can pick **CA**, **CP**, or **AP**.
 - **Examples:** **Cassandra, DynamoDB**. (Apache **Cassandra** is a NoSQL database with **no primary node**, meaning all of the nodes remain available; it allows for eventual consistency because users can **re-sync their data right after a partition is resolved**.)
 - **Use case:** **Facebook / social media** — we **value Availability more than Consistency**.
 
-```
+```css
         AP (Cassandra, DynamoDB — Social Media Use Case)
         ┌─────────────────────────────────────────────────────────┐
         │  Partition Occurs:                                      │
@@ -322,7 +322,7 @@ The three properties intersect pairwise: you can pick **CA**, **CP**, or **AP**.
 - **Social media / Facebook** → **AP** (availability matters; Cassandra, DynamoDB).
 - **CA** → mostly only when you claim a partition will never happen → basically **single-node / impractical for distributed systems** (because partitions are inevitable in distributed systems).
 
-```
+```css
         Decision Guide — Which DB to Choose?
 
         Ask: "What is more critical for my application?"

@@ -105,7 +105,7 @@ SQL vs NoSQL — DATA MODEL COMPARISON:
 ### 4.1 Flexible Schema
 - No need to store everything. If an entry has no hobbies/city/cell, in **SQL you'd store NULL, NULL, NULL** (wastes space). In NoSQL you simply **omit those fields** in the JSON object → no wasted space, no predefined schema.
 
-```
+```css
 FLEXIBLE SCHEMA — NoSQL advantage:
 
   SQL: User with no hobbies or city

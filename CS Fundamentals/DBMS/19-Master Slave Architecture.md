@@ -20,7 +20,7 @@
 - **This is a Single Point of Failure (SPOF).**
   - If this DB server crashes or is hacked → **the whole system is blocked**, availability becomes **zero**, all requests return as Bad Request / failure.
 
-```
+```css
         Normal Architecture with Single DB — The SPOF Problem
 
         Users → Many Requests
@@ -61,7 +61,7 @@
 - One DB = **Master**
 - Other DB(s) = **Slave**
 
-```
+```css
         Master Slave Architecture — Solving SPOF
 
         Users → Many Requests
@@ -108,7 +108,7 @@
   - Slaves **replicate** data from the Master (via DB replication) to get the latest updates.
 - (This is the same as **Note 17, Pattern 3** — the cab-booking app scaling example: a Primary + Replicas, all WRITE requests go to Primary because it carries the latest updates, then we replicate to the slaves which only READ. That note didn't use the name "Master Slave".)
 
-```
+```css
         Roles in Master Slave — Clear Separation
 
         ┌─────────────────────────────────────────────────────────┐
@@ -151,7 +151,7 @@ There are **two ways** replication can happen:
   - So between `t = 0` and `t = 10`, a READ on the slaves returns the **OLD value** of x (e.g. 20).
 - Acceptable when the application **tolerates a small delay** in reads (like the cab-booking system). The delay is only a **few seconds** — not hours/days. After a short while, replicas must be updated.
 
-```
+```css
         Asynchronous Replication Timeline:
 
         t=0:  WRITE x=10 → Master (updated immediately)
@@ -186,7 +186,7 @@ There are **two ways** replication can happen:
   - The Master applies the write (e.g. `balance = 9000`), then **propagates the change** to the replicas (either by forwarding the write operation or a log entry — the exact mechanism is called statement-based or row-based replication). Only after the replicas **acknowledge** that they have applied the change does the Master return success to the client.
 - This guarantees **no stale reads** immediately after a write — required for banking-type applications. Trade-off: write latency is higher because the Master must wait for replica ACKs before responding.
 
-```
+```css
         Synchronous Replication Flow:
 
         Client: WRITE balance = balance - 1000
@@ -235,7 +235,7 @@ There are **two ways** replication can happen:
 - This relates to **Note 17, Pattern 4 — Multi-Primary configuration** (multiple masters arranged in a circular way, propagating writes among each other). You must figure out a way to propagate Master-to-Master.
 - *If you allow a slave to take WRITE operations → it becomes Master-Master → it will no longer be Master Slave.*
 
-```
+```css
         Option 1: Never Allow (True Master-Slave)
 
         ┌────────────┐     ┌────────────┐
@@ -282,7 +282,7 @@ There are **two ways** replication can happen:
 5. **Parallelism**
    - READ requests **execute in parallel** — some reads sent to one slave, some to another → parallel execution.
 
-```
+```css
         Advantages Illustrated:
 
         ┌──────────────────────────────────────────────────────────┐
@@ -323,7 +323,7 @@ There are **two ways** replication can happen:
 - Depending on your application, you choose **synchronous updates** or not.
 - Example referenced: Facebook scaling.
 
-```
+```css
         Master-Slave with Different Data Models (Advanced):
 
         ┌──────────────────┐  replication  ┌──────────────────┐

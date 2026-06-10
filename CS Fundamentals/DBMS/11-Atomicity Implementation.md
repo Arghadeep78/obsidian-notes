@@ -36,7 +36,7 @@ Core components (both on **disk**):
 
 > **Critical point:** The transaction *is said to have committed* exactly at the point where the updated DB pointer on disk is switched from the old location to the new location.
 
-```
+```css
 BEFORE TRANSACTION:
   ┌─────────────────────────────────────────────────────┐
   │  DISK                                               │
@@ -85,7 +85,7 @@ AFTER COMMIT (step 5 — DB Pointer flips atomically):
   - Result: **either all updates are reflected, or none** → this is atomicity.
 - Transaction abort = just delete the new copy.
 
-```
+```css
 ABORT SCENARIO (at any point before the pointer flips):
 
   DISK:
@@ -215,7 +215,7 @@ Accounts:
 - **B** = 1000 (initial)
 
 Transaction T0 (send 50 from A to B):
-```
+```css
 read(A)
 A = A - 50
 write(A)
@@ -228,7 +228,7 @@ write(B)
 
 As the transaction runs, logs are generated. A log record contains the **transaction identifier**, the **variable** changed, and the **new value**:
 
-```
+```css
 <T0, start>
 <T0, A, 950>     # T0 wrote new value 950 to variable A  (1000 - 50)
 <T0, B, 1050>    # T0 wrote new value 1050 to variable B (1000 + 50)
@@ -243,7 +243,7 @@ As the transaction runs, logs are generated. A log record contains the **transac
 - You **first write the log** (what you intend to do), **then perform** the actual operation on the DB.
 - **Why:** If you wrote the log *after* the actual operation, on failure you wouldn't know what was happening. Recording intent first lets you **recover** correctly afterward.
 
-```
+```css
 WRITE-AHEAD RULE (for every operation):
 
   ✅ CORRECT ORDER:
@@ -306,7 +306,7 @@ DEFERRED MODIFICATION TIMELINE:
 
 **Summary:** If system crashes before transaction complete (or user aborts), the information written in the logs is **simply ignored** — nothing else.
 
-```
+```css
 CRASH BEFORE COMMIT:
   Stable Storage: <T0,start>, <T0,A,950>, <T0,B,1050>   ← no <commit> record!
   DB State:       A=1000, B=1000                         ← untouched (deferred)
@@ -360,7 +360,7 @@ The **second type / implementation method** of log-based recovery — the opposi
 
 - Because the real DB is changed before commit, recovery may need to **undo** those changes. So each log record stores **both the old value and the new value** of the changed variable:
 
-```
+```css
 <T0, start>
 <T0, A, 1000, 950>     # variable A: old value 1000, new value 950
 <T0, B, 1000, 1050>    # variable B: old value 1000, new value 1050

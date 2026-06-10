@@ -68,7 +68,7 @@ Model only **basic Facebook functionality** (not pages, reels, ads, etc.):
 | Date of Birth | simple |
 | Age | **Derived** (derived from DOB) |
 
-```
+```css
   ER diagram notation reminder for attribute types:
 
   Oval with underline        --> Primary Key attribute  (User Name)
@@ -116,7 +116,7 @@ Six relationships are established:
 ### Relationship Justification
 #### 1. Friendship (M:N)
 A user can have many friends, and a friend can be connected to many users. Since both participants are **User Profile**, this is a **unary (self) relationship**.
-```
+```css
 User Profile ── Friendship ── User Profile        (M)                     (N)
 ```
 #### 2. Posts (1:N)

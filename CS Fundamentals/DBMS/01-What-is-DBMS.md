@@ -4,7 +4,7 @@
 - **Data = a collection of raw bytes** (an unorganized collection of raw facts/details).
 - **Example (image):** an image is a grid of pixels; each pixel has a value. An 8-bit image has 2⁸ = 256 color shades. An image is a collection of bytes. Integers (1, 2, 3, 4, 5) are also a collection of bytes.
 
-```
+```css
 Everything on a computer, at its core:
 
   Text    →  bits & bytes
@@ -17,7 +17,7 @@ Everything on a computer, at its core:
   - A column of numbers like `2.16, 2.79, 112, 135, 61, 66, ...` means nothing on its own.
   - Labelling the columns — **Height, Weight, BMI** — interprets/processes the data and extracts meaning.
 
-```
+```css
 Without labels (just raw data):
   2.16   112   61
   2.79   135   66
@@ -43,7 +43,7 @@ With labels (processed):
 
 - **Information = processed data.** Data → (process / interpret) → Information.
 
-```
+```css
   RAW DATA  ──── [Processing / Analysis] ────►  INFORMATION  ────►  DECISION
 ```
 
@@ -51,7 +51,7 @@ With labels (processed):
 - Raw like counts (e.g., Facebook = 200, Instagram = 800, LinkedIn = 2) are **data** (4-byte integers stored in a file).
 - After **processing** → conclusion: *"maximum engagement is on Instagram → focus on Instagram."* That conclusion is **information**.
 
-```
+```css
   Platform     Likes (Data)
   ----------   ------------
   Facebook     200
@@ -94,7 +94,7 @@ With labels (processed):
 - Person B also learns *momos* became famous → markets them heavily.
 - Result: Person B's profitability and sales go far ahead; Person A may fail.
 
-```
+```css
 Person A (no data):          Person B (collects data):
   10 dishes, no feedback       10 dishes, collects feedback
   orders same raw material     learns: only 5 dishes sell
@@ -115,7 +115,7 @@ Person A (no data):          Person B (collects data):
 - A **database** is an electronic place/system where data (in bits & bytes) is stored **so it can be easily accessed, managed, and updated**.
 - It should NOT be encrypted/complicated such that accessing it takes a long time or needs advanced decryption each time.
 
-```
+```css
   Database = Organized, electronic storage of data
 
   [Data on disk]
@@ -143,7 +143,7 @@ Person A (no data):          Person B (collects data):
 
 **Where it sits:** DBMS acts as an **interface** between the database (on disk) and the application programs / users. In modern systems (MySQL, Oracle), both storage method and access method are provided together.
 
-```
+```css
   [User / Application]
           │
           ▼
@@ -171,7 +171,7 @@ Person A (no data):          Person B (collects data):
 - Each new account / debit-credit / balance is stored in separate files → many files generated.
 - Later the bank wants a **Current Account** feature. A new programmer must write **new files & new programs** (current account has no interest; saving account credits quarterly interest). Every change requires hiring a programmer and writing new code.
 
-```
+```css
 File System approach (early banks):
 
   saving_account.dat   current_account.dat   transactions.dat
@@ -187,7 +187,7 @@ File System approach (early banks):
 
 1. **Data Redundancy & Inconsistency** — Same person opens a Current Account years after a Saving Account. A new file stores the same person's details in **two places** = **Redundancy** (disk wasted). If the person updates address in the Saving Account file but not the Current Account file → two different addresses = **Inconsistency**. Fixing this requires extra programs every time.
 
-```
+```css
   saving_account.dat         current_account.dat
   ┌─────────────────┐        ┌─────────────────┐
   │ Rahul           │        │ Rahul           │
@@ -205,7 +205,7 @@ File System approach (early banks):
 
 5. **Atomicity Problems** — A transaction must be **atomic** (all-or-nothing, no break in the middle): if money is debited from one account it **must** be credited to the other. If debit happened but credit didn't → money is lost. Difficult to maintain in a file system; DBMS provides atomicity.
 
-```
+```css
   Transfer ₹500 from A → B
 
   File System risk:
@@ -220,7 +220,7 @@ File System approach (early banks):
 
 6. **Concurrent-Access Anomalies** — Multiple simultaneous operations on the same account (phone + debit card withdrawing at the same time) need **locks** so one request runs at a time. Managing concurrency in a file system is entirely manual.
 
-```
+```css
   Account balance: ₹1000
 
   Request 1 (phone app):   reads ₹1000, decides to withdraw ₹800
@@ -239,7 +239,7 @@ File System approach (early banks):
 
 > **Summary:** Everything *can* be done with a file system, but it requires huge manual effort (writing programs and checks for every case). The **DBMS** provides (a) **methods to create the database** (store raw bytes) and (b) **methods to manage/access** it (e.g., "give me the first 20 students" or "show students with marks above 90%") — constrained, efficient access.
 
-```
+```css
 File System vs DBMS — quick comparison:
 
   Problem               File System                        DBMS

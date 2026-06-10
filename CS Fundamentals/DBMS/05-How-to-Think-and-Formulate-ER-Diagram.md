@@ -5,7 +5,7 @@
 - Previous topics: Entities, Relationships, Mapping Cardinality, Participation Constraints, ER Notations.
 - This topic: **Systematic steps for building an ER Diagram** for any application (university, school, banking, etc.).
 
-```
+```css
 ER Diagram (Conceptual Schema)
             ↓
 Relational Tables(MySQL, PostgreSQL, etc.)
@@ -26,7 +26,7 @@ For each entity, decide *attributes* and their **types** (single-valued, multi-v
 Before building the ER model, **collect DB requirements** — what the DB user/stakeholders want (separate customer data, a loan DB, an accounts DB, etc.). This is **Requirement Engineering**: interview the DB user and stakeholders to remove ambiguity.
 > **In an interview** you don't have time for full requirement engineering, so you **assume** many requirements yourself and build the diagram with those assumptions.
 
-```
+```css
   Real world:   Requirement Engineering  →  clear requirements  →  ER Design
   Interview:    State your assumptions upfront  →  then design directly
                 ("I'm assuming a customer can hold multiple accounts ...")
@@ -58,7 +58,7 @@ Before building the ER model, **collect DB requirements** — what the DB user/s
 
 > **Bottom-up thinking (Generalization):** `Saving Account` and `Current Account` each have special attributes but are both an *account type* → *generalize* them into a single `Account` entity.
 
-```
+```css
   Generalization applied (Step 1 → refined entity list):
 
   Saving Account  ──┐
@@ -84,7 +84,7 @@ Before building the ER model, **collect DB requirements** — what the DB user/s
 | **Loan** | **Loan Number / Loan ID (PK)**, Amount | — |
 | **Payment** (weak) | **Payment Number** (partial/weak key) | uses Loan's PK (Loan Number) for identification |
 
-```
+```css
   Customer attributes illustrated:
 
   ┌─────────────────────────────────────────────┐
@@ -117,7 +117,7 @@ Before building the ER model, **collect DB requirements** — what the DB user/s
 | 5 | **Customer – Banker** | **N : 1** | N customers can be handled by one relationship manager (an Employee); a customer has one banker |
 | 6 | **Employee managed-by Employee** | **N : 1** | **Unary relationship** (Lecture 03): one employee (manager) manages N employees |
 
-```
+```css
   Key relationships at a glance:
 
   Customer ═══M:N borrows══════════════ Loan

@@ -1,7 +1,7 @@
 ## 0. Why Extended ER?
 Basic ER (Lecture 03) covers entities, attributes, cardinality, participation constraints, weak entities, etc. As a system grows **large and complex** (many entities, relations, multi-valued/composite attributes), basic ER alone can't build a clean, **refined** DB. EER adds concepts to refine the ER model.
 
-```
+```css
   Basic ER  ──────────────────────────────────────────► handles simple systems
             + Specialization / Generalization (IS-A)  ┐
             + Inheritance (attribute + participation)  ├── EER = handles large,
@@ -17,7 +17,7 @@ Basic ER (Lecture 03) covers entities, attributes, cardinality, participation co
 - Result: `Person` becomes bloated with **redundancy** — salary, profile picture, customer ID, contact, address, name all mixed → `Person` is no longer clean.
 - **Solution:** Break the `Person` entity set into specialized sub-entities → `Customer`, `Student`, `Employee`. Keep **common attributes** (Name, Address, Contact) in `Person`; move `Customer ID`, `Profile Picture` to `Customer`; move `Salary` (and e.g. `Job Role`) to `Employee`.
 
-```
+```css
   Before specialization (bloated Person):
   ┌────────────────────────────────────────────────────┐
   │ Person                                             │
@@ -47,7 +47,7 @@ Basic ER (Lecture 03) covers entities, attributes, cardinality, participation co
 
 **Multi-level example:** Further specialize `Employee` → `HR Manager IS-A Employee`, `Developer IS-A Employee`, `Housekeeping IS-A Employee`. Each child inherits Employee's attributes **plus** its own distinctive attributes (HR → Working Hours; Developer → Tech Stack; Housekeeping → Building/Block Number).
 
-```
+```css
   Multi-level specialization:
                 ┌──────────┐
                 │  Person  │
@@ -86,7 +86,7 @@ Basic ER (Lecture 03) covers entities, attributes, cardinality, participation co
 - The designer notices **overlapping/common attributes** across all three (e.g., `Mileage`, or `Vehicle Type` / BS6 engine emission info).
 - So the designer decides to **generalize**: create a **super class `Vehicle`**, remove the common attributes from the children, and put them in `Vehicle`.
 
-```
+```css
   Generalization: Bottom-Up thinking
 
   BEFORE (separate entities, overlapping attrs):
@@ -119,7 +119,7 @@ Basic ER (Lecture 03) covers entities, attributes, cardinality, participation co
 
 > **Specialization vs Generalization in the ER Model:** Conceptually/logically they are the **SAME** in the ER diagram — both are drawn as an **IS-A relationship**, and the resulting diagram looks identical. **The only difference is the direction of thinking** (top-down = specialization, bottom-up = generalization).
 
-```
+```css
   Both produce the same ER diagram shape:
 
       [SuperEntity]
@@ -147,7 +147,7 @@ When generalization/specialization is applied, **inheritance** must happen (else
 - If the **parent entity** participates in a relationship, the **child entities automatically participate** in the same relationship.
 - Example: `Person HAS Vehicle` — the `HAS` relation applied to Person **automatically applies** to its children (Customer, Employee).
 
-```
+```css
   Participation Inheritance:
 
   ┌──────────┐     HAS     ┌─────────┐
@@ -175,7 +175,7 @@ Customer   Employee
 The wrong (*redundant*) approach:
 - Add a `Manager` entity and a `Manages` relation linked to all three (a **quaternary** relation). This wrongly implies the manager manages a particular Branch, a particular Job, and a particular Employee individually — **redundant information**, and not the actual requirement (manage the *combination*).
 
-```
+```css
   Wrong approach — quaternary relationship (4 entities, 1 diamond):
                       |--------------------------- 
   ┌──────────┐      ┌─|───┐    ┌────────┐        |
@@ -212,7 +212,7 @@ The wrong (*redundant*) approach:
 - Then create the `Manages` relationship: **Manager manages the (aggregated works-on) entity.**
 - This hides the internal complexity (Employee, works-on, Branch, Job become an **abstract entity**), removing the redundant links.
 
-```
+```css
   Aggregation (correct approach):
 
   ╔══════════════════════════════════════════════════╗
@@ -250,7 +250,7 @@ The wrong (*redundant*) approach:
 - Requirement: the **combination** of (Student + Semester they attended) **HAS Subjects** — not "Student directly has subjects" and not "Semester has subjects" directly.
 - So **aggregate** `Student attends Semester` into a higher-level unit, then add a `HAS` relationship from that aggregated unit to `Subject`.
 
-```
+```css
   Student–Semester–Subject via Aggregation:
           Aggregated Entity
   ┌───────────────────────────--─────┐
@@ -279,7 +279,7 @@ The wrong (*redundant*) approach:
 | **Participation Inheritance** | Children inherit parent's relationship participation | — |
 | **Aggregation** | Treat a relationship as a higher-level entity | Show relationship-among-relationships; avoid redundancy |
 
-```
+```css
   EER Quick Recall:
 
   Specialization   → top-down, IS-A, split for clean design
