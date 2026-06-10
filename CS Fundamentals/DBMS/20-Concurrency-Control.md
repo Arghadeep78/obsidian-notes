@@ -1,14 +1,16 @@
-# Lecture 20 — Concurrency Control & Locking
-
----
-
 ## 1. Why Concurrency Control?
 
-When multiple transactions run **simultaneously**, problems arise if they access the same data without coordination:
+When multiple transactions run **simultaneously** on the same data without coordination, three problems arise:
 
-- **Lost Update** — T1 and T2 both read A=100, both add 50, both write 150 → one update is lost (should be 200).
-- **Dirty Read** — T1 reads data written by T2 that hasn't committed yet. If T2 rolls back, T1 read garbage.
-- **Unrepeatable Read** — T1 reads A twice; T2 updates A in between → T1 gets different values for the same read.
+| Problem | What happens |
+|---|---|
+| **Lost Update** | T1 and T2 both read A=100, both add 50, both write 150 → should be 200, one update is lost |
+| **Dirty Read** | T1 reads data written by T2 before T2 commits → if T2 rolls back, T1 read garbage |
+| **Unrepeatable Read** | T1 reads A twice; T2 updates A in between → T1 gets different values for the same read |
+
+**Lost Update** is a write-write conflict — two transactions both think their write is the final one.
+**Dirty Read** is a read-write conflict across transaction boundaries — you're reading work-in-progress that may never actually commit.
+**Unrepeatable Read** is also read-write, but within a single transaction — the same query returns different results because someone else changed the row mid-transaction.
 
 **Solution:** Locks — force transactions to take turns on shared data.
 
@@ -16,35 +18,33 @@ When multiple transactions run **simultaneously**, problems arise if they access
 
 ## 2. Shared Lock (S-Lock) vs Exclusive Lock (X-Lock)
 
-### Exclusive Lock
-- Valid on a **single transaction** — locks either a **row or a page** depending on the data.
-- Is a **read + write lock** (not just write — the transaction holding it can also read).
-- **Only one** exclusive lock can exist on the same resource at a time.
-- Any transaction that needs an X-lock must **wait** if another task currently owns an **X-lock OR an S-lock** on that resource.
+The core idea: readers shouldn't block each other, but a writer must have the resource to itself.
 
-### Shared Lock
-- A **read-only lock** at the row level — ensures a record is not being updated during a read-only request.
-- Also prevents updates between the time a record is read and the next sync point.
-- **Many transactions** can hold an S-lock on the same resource simultaneously.
-- A shared lock request must **wait** if:
-  - Another task currently owns an **X-lock** on the resource.
-  - Another task is **waiting for an X-lock** on a resource that already has an S-lock (to avoid X-lock starvation).
-- An X-lock request must wait if **other tasks currently own S-locks** on the resource.
+### Exclusive Lock (X-Lock)
+- **Read + write lock** — the holder can both read and write.
+- Only **one** X-lock can exist on a resource at a time.
+- Must **wait** if any S-lock or X-lock already exists on the resource.
+- Analogy: like taking a pen out of a shared jar to write — nobody else can touch it until you put it back.
 
-### Side-by-side comparison
+### Shared Lock (S-Lock)
+- **Read-only lock** — ensures a record isn't being updated while you're reading it.
+- **Many transactions** can hold an S-lock on the same resource simultaneously — reads don't interfere with each other.
+- Must **wait** if an X-lock exists on the resource, or if another transaction is already waiting for an X-lock (to prevent X-lock starvation).
+- Starvation risk: if reads keep arriving continuously, a write request could wait forever. So once a write is queued, new reads also wait behind it.
+
+### Comparison
 
 | | Exclusive Lock (X) | Shared Lock (S) |
 |---|---|---|
 | **Also called** | Write lock | Read lock |
 | **Used for** | Read + Write | Read only |
-| **Granularity** | Row or page | Row level |
 | **How many at once?** | Only one per resource | Many simultaneously |
 | **Blocks others?** | Blocks all (S and X) | Blocks X-locks only |
-| **When must it wait?** | If any S or X lock exists on the resource | If an X-lock exists, or an X-lock is pending |
+| **When must it wait?** | If any S or X lock exists | If an X-lock exists or is pending |
 
 ### Lock Compatibility Matrix
 
-|  | S | X |
+| | S | X |
 |---|---|---|
 | **S** | ✅ Compatible | ❌ Not compatible |
 | **X** | ❌ Not compatible | ❌ Not compatible |
@@ -55,75 +55,69 @@ When multiple transactions run **simultaneously**, problems arise if they access
 
 ## 3. Two-Phase Locking (2PL)
 
-A protocol that **guarantees serializability** (transactions produce the same result as if they ran one after another).
+Having locks alone isn't enough — you also need a **discipline for when to acquire and release them**. Without a protocol, a transaction could release a lock early and let another transaction sneak in, breaking the illusion that transactions ran alone.
 
-**Two phases:**
+2PL is that discipline. It **guarantees serializability** — the interleaved execution produces the same result as some serial (one-after-another) order of those transactions.
 
-```css
-Phase 1 — Growing phase:
-  Transaction can ACQUIRE locks (S or X).
-  Cannot release any lock yet.
+**Phase 1 — Growing:** The transaction acquires locks (S or X). No locks are released yet.
 
-Phase 2 — Shrinking phase:
-  Transaction can RELEASE locks.
-  Cannot acquire any new lock.
+**Phase 2 — Shrinking:** The transaction releases locks. No new locks can be acquired.
+
+```
+Lock count
+    │         /\
+    │        /  \
+    │       /    \
+    │──────/      \──────▶ time
+           ↑      ↑
+        lock     first
+        point    release
+        (peak)
 ```
 
-```css
-2PL Timeline:
+- The **lock point** = the peak = end of the growing phase = maximum locks held.
+- The moment you release even one lock → shrinking phase begins → no new locks allowed.
+- Transactions can be ordered by their lock points → this ordering is equivalent to a serial schedule → **serializability guaranteed**.
 
-  Lock count
-      │         /\
-      │        /  \
-      │       /    \
-      │──────/      \──────▶ time
-             ↑      ↑
-           lock    first
-           point   release
-           (peak)
-```
-
-- The **lock point** = moment the transaction holds its maximum locks = end of growing phase.
-- Once you release even one lock → shrinking phase begins → no new locks allowed.
-
-**Why it guarantees serializability:** transactions can be ordered by their lock points → equivalent serial schedule.
+Why does releasing a lock early break serializability? Because once you release a lock on X, another transaction can read or modify X. If your transaction later reads X again, you might see a different value — your transaction is no longer isolated, and the execution can't be mapped to any serial order.
 
 ### Strict 2PL (most common in practice)
-- All **X-locks held until commit/abort** (prevents dirty reads).
-- Most real DBs (MySQL InnoDB, PostgreSQL) implement this variant.
+Basic 2PL still allows dirty reads — a transaction could release an X-lock before it commits, letting another transaction read that uncommitted data. **Strict 2PL fixes this** by holding all X-locks until commit or abort. Only then are locks released. This is what MySQL InnoDB and PostgreSQL implement.
 
 ---
 
 ## 4. Deadlock
 
-Occurs when two or more transactions are each **waiting for the other to release a lock** → circular wait → neither can proceed.
+Occurs when two or more transactions are each **waiting for a lock held by the other** — neither can proceed, and they'll wait forever without intervention.
 
-```css
-Deadlock example:
+```
+T1 holds X-lock on A, waiting for X-lock on B
+T2 holds X-lock on B, waiting for X-lock on A
 
-  T1 holds X-lock on A, wants X-lock on B
-  T2 holds X-lock on B, wants X-lock on A
-
-  T1 ──waiting──▶ B (held by T2)
-  T2 ──waiting──▶ A (held by T1)
-        ↑________________________|
-              circular wait = deadlock
+T1 ──waiting──▶ B (held by T2)
+T2 ──waiting──▶ A (held by T1)
+      ↑________________________|
+            circular wait = deadlock
 ```
 
+The reason this happens: transactions acquire locks one at a time as they need them, not all upfront. So T1 grabs A first, T2 grabs B first — then both try to grab the other's resource and freeze.
+
 ### Detection & Resolution
-- DB periodically checks for cycles in the **wait-for graph**.
-- If cycle found → pick a **victim** transaction → **abort it** → release its locks → other transaction proceeds.
-- Victim is usually the one that has done the least work (cheapest to restart).
+The DB maintains a **wait-for graph** where each node is a transaction and a directed edge T1 → T2 means "T1 is waiting for a lock held by T2." A **cycle** in this graph = deadlock. The DB periodically checks for cycles, picks a **victim** (usually the transaction that has done the least work, so it's cheapest to restart), **aborts it**, and releases its locks so the others can proceed.
 
-### Prevention (instead of detecting after the fact)
-- **Wait-Die:** older transaction waits, younger one dies (aborts).
-- **Wound-Wait:** older transaction wounds (forces abort) the younger one, younger waits.
+### Prevention
+Rather than letting deadlocks form and then resolving them, prevention schemes assign priorities (usually by timestamp — older = higher priority) and abort one transaction upfront when a conflict is detected:
 
-> Most production DBs use **detection + abort** rather than prevention.
+- **Wait-Die:** if the requesting transaction is **older**, it waits; if it's **younger**, it dies (aborts and retries later). Older always gets priority.
+- **Wound-Wait:** if the requesting transaction is **older**, it wounds (forces abort of) the younger holder; if it's **younger**, it waits. Again, older wins, but the older transaction acts aggressively rather than waiting.
+
+The key difference: in Wait-Die the older transaction is passive (waits); in Wound-Wait the older transaction is aggressive (kicks out the younger). Both are deadlock-free because the priority is consistent — no circular dependency can form.
+
+> Most production DBs use **detection + abort** rather than prevention, since prevention aborts transactions that might never have actually deadlocked.
 
 ---
 
-## 5. Quick Interview Summary
+## 5. Quick Revision
 
 | Concept | One-liner |
 |---|---|

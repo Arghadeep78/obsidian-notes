@@ -313,7 +313,66 @@ There are **two ways** replication can happen:
 
 ---
 
-## 8. Notes / Implementation Detail
+## 8. Slave Promotion (Failover)
+
+- What if the **Master itself goes down**? Slaves can still serve READs, but **WRITEs are completely blocked** — this is a partial failure and needs to be resolved.
+- The solution: **promote one of the slaves to become the new Master**. This is called **slave promotion** (or failover).
+
+### How it works:
+1. Master goes down (crash, network partition, hardware failure, etc.).
+2. A **failover mechanism** (either automatic or manual) detects the Master is unreachable.
+3. One slave is **elected/chosen** as the new Master — it is promoted.
+4. The remaining slaves now replicate from the **new Master**.
+5. The system resumes accepting both READ and WRITE operations.
+
+### Which slave gets promoted?
+- In **synchronous replication**: any slave is fine — all slaves are fully up-to-date.
+- In **asynchronous replication**: the slave with the **least replication lag** (most up-to-date) is preferred, to minimize data loss.
+
+### What happens to the old Master when it recovers?
+- It comes back online but is **no longer the Master**.
+- It must be **re-added as a slave** — it replicates from the new Master to catch up on any writes it missed while it was down.
+
+```css
+        Slave Promotion — Failover Flow:
+
+        BEFORE (Normal):
+        ┌──────────────────┐   replication   ┌──────────────────┐
+        │   MASTER (M)     │ ──────────────► │    SLAVE 1 (S1)  │
+        │  WRITEs + READs  │ ──────────────► │    SLAVE 2 (S2)  │
+        └──────────────────┘                 └──────────────────┘
+
+        FAILURE: Master goes down ⚠
+        ┌──────────────────┐                 ┌──────────────────┐
+        │   MASTER (M) ✗   │  (unreachable)  │    SLAVE 1 (S1)  │
+        │   DOWN!          │                 │    SLAVE 2 (S2)  │
+        └──────────────────┘                 └──────────────────┘
+        WRITEs blocked! READs still work via S1, S2.
+
+        FAILOVER: S1 promoted to new Master
+        ┌──────────────────┐   replication   ┌──────────────────┐
+        │  NEW MASTER (S1) │ ──────────────► │    SLAVE 2 (S2)  │
+        │  WRITEs + READs  │                 └──────────────────┘
+        └──────────────────┘
+        System fully restored! WRITEs resume on new Master.
+
+        RECOVERY: Old Master (M) comes back
+        ┌──────────────────┐   replication   ┌──────────────────┐
+        │  NEW MASTER (S1) │ ──────────────► │    SLAVE 2 (S2)  │
+        │                  │ ──────────────► │  OLD M (now S3)  │
+        └──────────────────┘                 └──────────────────┘
+        Old Master rejoins as a Slave, catches up on missed writes.
+```
+
+### Automatic vs Manual Failover:
+- **Manual:** A human admin detects the failure and manually promotes a slave. Slower but more controlled.
+- **Automatic:** A consensus-based mechanism (e.g. **Raft**, **Paxos**, or a dedicated sentinel process like **Redis Sentinel** or **MySQL Orchestrator**) automatically detects failure and promotes a slave. Faster but requires careful setup to avoid **split-brain** (two nodes both thinking they're Master).
+
+> **Split-brain problem:** If the Master is slow (not dead) and a slave gets promoted, you can briefly have two Masters — both accepting writes → data divergence. Proper failover systems use quorum/majority voting to prevent this.
+
+---
+
+## 9. Notes / Implementation Detail
 
 - This is the **CQRS (Command Query Responsibility Segregation)** technique discussed in Note 17 (Pattern 3): when a single server can't handle efficiently, add **replicas**.
 - Example used: **MongoDB** replicas (MongoDB replica set).
@@ -355,5 +414,6 @@ There are **two ways** replication can happen:
 - **Slaves** = **READ only**; they **replicate** from the Master.
 - **Replication:** **Async** (small delay OK, e.g. cab booking) vs **Sync** (no delay, return success only after replicas updated, e.g. banking).
 - WRITE on a slave → **never allow** (keeps it Master-Slave); allowing it → becomes **Master-Master** (Multi-Primary, Pattern 4).
+- **Slave Promotion (Failover):** If Master goes down → promote the most up-to-date slave to new Master; old Master rejoins as a slave when it recovers. Auto-failover uses Raft/Paxos/Sentinel; watch out for **split-brain**.
 - **Advantages:** Backup, multiple masters, scale-out reads, ↑availability/reliability + ↓latency, parallelism.
 - Tied to **CQRS / Note 17 Pattern 3**; Master & Slave can be different data models (needs interfaces).
