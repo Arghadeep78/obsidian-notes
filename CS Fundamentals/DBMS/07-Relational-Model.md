@@ -21,13 +21,14 @@ Attributes: `Customer ID`, `Name`, `Address`, `Contact`.
 ---
 ## 2. Terminology
 
-| Term                   | Meaning                            | In the example           |
-| ---------------------- | ---------------------------------- | ------------------------ |
-| **Relation**           | The table itself                   | Customer table           |
-| **Tuple**              | A single row / one data point      | One customer             |
-| **Attribute**          | A column                           | Customer ID, Name, ...   |
-| **Degree of Relation** | **Number of attributes (columns)** | 4                        |
-| **Cardinality**        | **Total number of rows (tuples)**  | 2 (two unique customers) |
+| Term                   | Meaning                                        | In the example           |
+| ---------------------- | ---------------------------------------------- | ------------------------ |
+| **Relation**           | The table itself                               | Customer table           |
+| **Tuple**              | A single row / one data point                  | One customer             |
+| **Attribute**          | A column                                       | Customer ID, Name, ...   |
+| **Degree of Relation** | **Number of attributes (columns)**             | 4                        |
+| *Cardinality*          | number of tuples (rows) in a relation (table). | 2 (two unique customers) |
+|                        |                                                |                          |
 
 > Difference from ER model: in ER, *cardinality* meant mapping cardinality; here **cardinality = number of tuples**.
 
@@ -55,8 +56,10 @@ From an ER diagram, build tables:
 
 **Customer table** (PK = Cust ID)
 | Cust ID | Name | Address | Contact Number |
+| ------- | ---- | ------- | -------------- |
 **Order table** (PK = Order ID)
 | Order ID | Time Stamp (when order placed) | Delivery Date |
+| -------- | ------------------------------ | ------------- |
 - **Each entity → a separate table (relation).**
 - **Each attribute of that entity → a column** of the relation.
 > A third step exists: implement the relational model in an **RDBMS software** (the software implementation of the relational model).>
@@ -74,7 +77,6 @@ The relational model = data organized as a **collection of tables**. Each table 
 4. **Each tuple must be unique** — no redundant/duplicate rows. (Don't store the same customer twice.)
 5. **Sequence of rows and columns has no significance** — order of attributes/rows doesn't matter, as long as all attributes are defined.
 6. **Tables must follow integrity constraints** — helps maintain data consistency across the table.
-
 ---
 ## 5. Relational Keys
 A **relational key** = a set of attributes that can uniquely identify a tuple.
@@ -82,7 +84,6 @@ A **relational key** = a set of attributes that can uniquely identify a tuple.
 - **Any permutation/combination of attributes that can uniquely identify a tuple.**
 - Examples (for Customer): `{Cust ID}`, `{Cust ID, Email}`, `{Name, Contact}`, etc.
 - A super key **can contain redundant attributes** — i.e., it may include attributes beyond the minimal set needed for unique identification (a superset, in set-theory terms). A super key still uniquely identifies every tuple; the redundant attributes are just "extra."
-
 ### Candidate Key
 - **The minimal subset of a super key** that can uniquely identify each tuple **and contains NO redundant attribute.**
 - Two separate reasons disqualify an attribute or set from being a candidate key:
@@ -90,17 +91,30 @@ A **relational key** = a set of attributes that can uniquely identify a tuple.
   2. **Not minimal** — `{Cust_ID, Contact}` is disqualified because it contains a redundant attribute: either `Cust_ID` alone or `Contact` alone already uniquely identifies a tuple. A candidate key must be irreducible.
 - Examples (minimal, unique keys): `{Cust ID}`, `{Contact}`.
 - **A candidate key's attribute(s) cannot hold NULL values** — a NULL value cannot uniquely identify a tuple.
-
 ### Primary Key
 - **One candidate key chosen by the database designer** to be the table's official unique identifier.
 - Convention: choose the candidate key with the **fewest attributes** (simpler PKs are easier to index and use as foreign keys). Any candidate key is valid, but single-attribute keys are preferred.
 - Example: both `{Cust ID}` and `{Contact}` are candidate keys; we choose `{Cust ID}` as the primary key.
-
 ### Alternate Key
 - The **candidate keys NOT chosen as the primary key.**
 - Formula: **Alternate Key = (set of Candidate Keys) − Primary Key**
 
+### Prime & Non-Prime Attributes
+- **Prime attribute** — an attribute that is part of **any candidate key** of the relation.
+- **Non-prime attribute** — an attribute that is **not** part of any candidate key.
+
+```c
+  Example: Student_Project table
+  Attributes: Student_ID, Project_ID, Student_Name, Grade
+  Candidate key: {Student_ID, Project_ID}
+
+  Prime attributes:     Student_ID, Project_ID  (part of the candidate key)
+  Non-prime attributes: Student_Name, Grade      (not part of any candidate key)
 ```
+
+> This distinction is central to normalization: 2NF and 3NF rules are defined in terms of what non-prime attributes depend on.
+
+```c
   Key hierarchy — worked example:
   Table: Customer (Cust_ID, Name, Contact, Email)
   Assumption: Cust_ID is unique, Contact is unique, Name is NOT unique.
@@ -142,16 +156,17 @@ A **relational key** = a set of attributes that can uniquely identify a tuple.
 **Example:** Add `Cust ID` into the **Order** table.
 
 **Order table**
-| Order ID | Time Stamp | Delivery Date | Cust ID (FK) |
-|----------|-----------|---------------|--------------|
-| 21 | ... | ... | 1 |
-| 22 | ... | ... | 2 |
-| 23 | ... | ... | 3 |
+
+| Order ID | Time Stamp \| Delivery Date | Cust ID (FK) |
+| -------- | --------------------------- | ------------ |
+| 21       | ....                        | 1            |
+| 22       | ....                        | 2            |
+| 23       | ....                        | 3            |
 
 - `Cust ID` is the **PK of Customer** but appears as a **FK in Order**.
 - This establishes the cross-reference: to find which customer placed order 21 → look at its `Cust ID = 1` → go to Customer table → retrieve full info for customer 1.
 
-```
+```c
   How the FK cross-reference works:
 
   Customer Table (Parent / Referenced)     Order Table (Child / Referencing)
@@ -177,16 +192,16 @@ A **relational key** = a set of attributes that can uniquely identify a tuple.
 |-------------------------|------------------------|
 | **Child Table** / **Referencing Relation** (Order) | **Parent Table** / **Referenced Relation** (Customer) |
 
-> The foreign key provides a **cross-reference** between two relations (establishes a parent–child relationship).
+> The foreign key provides a *cross-reference* between two relations (establishes a parent–child relationship).
 
 ---
 
 ## 7. Composite, Compound & Surrogate Keys
 
-| Key | Definition |
-|-----|------------|
-| **Composite Key** | A primary key formed using **at least two attributes**. |
-| **Compound Key** | A primary key formed using **two foreign keys**. |
+| Key               | Definition                                                                                                                                                     |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Composite Key** | A primary key formed using **at least two attributes**.                                                                                                        |
+| **Compound Key**  | A primary key formed using **two foreign keys**.                                                                                                               |
 | **Surrogate Key** | A system-generated synthetic key (an auto-generated **integer** value) assigned to each tuple. Auto-increments (1, 2, 3, ...). Can be used as the primary key. |
 
 ### Surrogate key example (school merge)
@@ -195,7 +210,7 @@ A **relational key** = a set of attributes that can uniquely identify a tuple.
 - When **merging** the two school tables, the registration number **cannot be the PK** (formats differ / collide).
 - Solution: ask the DB to assign a **self-generated integer** (surrogate key) to each tuple, then merge. This synthetic integer PK uniquely identifies each row in the merged table.
 
-```
+```c
   Why a surrogate key is needed for the school merge:
 
   School A rows:         School B rows:
@@ -224,43 +239,34 @@ A **relational key** = a set of attributes that can uniquely identify a tuple.
 
 **Create, Read, Update, Delete** — the operations performed on a table:
 
-| Operation | Meaning |
-|-----------|---------|
-| **Create** | Add a new entry/tuple |
-| **Read** | Read data (e.g., look up order 21; nothing modified) |
+| Operation  | Meaning                                                      |
+| ---------- | ------------------------------------------------------------ |
+| **Create** | Add a new entry/tuple                                        |
+| **Read**   | Read data (e.g., look up order 21; nothing modified)         |
 | **Update** | Modify an existing entry (e.g., change a customer's address) |
-| **Delete** | Remove an entry |
+| **Delete** | Remove an entry                                              |
 
 > On every CRUD operation, the DB applies **integrity policies / consistency checks**. If they're violated, the DB becomes **inconsistent/corrupt**, so the operation must be rejected.
-
 ---
-
 ## 9. Integrity Constraints
-
 ### How inconsistent data arises (example)
 Inserting a Student with `Roll No = z` (a string), `Name = 1812` (a number), `Contact = ABC` → this is **not consistent**. To prevent it, the DBMS provides **integrity constraints**.
-
 ### (a) Domain Constraint
 - Restricts the **domain** (allowed data type / value range) of an attribute.
 - Example: `Roll No` domain = integer; `Name` = characters; `Contact` = integer.
 - Can also restrict value ranges: e.g., `Age >= 18` for college admission, or DOB earlier than 2002 for a job.
 - On a CRUD operation (e.g., inserting `z` into an integer `Roll No`), the DB **throws an error** and the operation fails.
-
 ### (b) Entity Constraint
 - **Every table must have a Primary Key**, and that **Primary Key cannot be NULL** (`PK ≠ NULL`). Otherwise you can't uniquely identify rows.
-
 ### (c) Referential Constraint (very important for interviews)
 Constraints between **parent (referenced)** and **child (referencing)** tables, using the foreign key.
-
-**Insert Constraint**
+*Insert Constraint*
 > A value **cannot be inserted into the child table** if the value is **not lying in the parent table**.
 - Example: cannot add an Order with `Cust ID = 4` if customer 4 does not exist in Customer. The DBMS throws a **foreign-key constraint violation** error.
-
-**Delete Constraint**
+*Delete Constraint*
 > A value **cannot be deleted from the parent table** if that value is **lying in the child table**.
 - Example: cannot delete `Cust ID = 3` from Customer while order 23 (`Cust ID = 3`) still references it — otherwise the FK reference would dangle, creating inconsistency.
-
-```
+```c
   Referential Constraint — both rules illustrated:
 
   Customer (Parent):  Cust_ID = {1, 2, 3}
@@ -278,13 +284,9 @@ Constraints between **parent (referenced)** and **child (referencing)** tables, 
 
   Both rules protect the FK link from becoming a "dangling pointer".
 ```
-
 ---
-
 ## 10. Handling Delete — ON DELETE Options (Interview Favorite)
-
 How to delete from the parent even when the child references it, **without violating** the delete constraint:
-
 ### ON DELETE CASCADE
 - When deleting a value from the **parent** table, **also delete the corresponding entry from the child** table.
 - Deleting `Cust ID = 3` from Customer → its corresponding Order entry is also deleted. Both gone → no inconsistency → delete constraint satisfied.
@@ -303,7 +305,7 @@ CREATE TABLE Order (
 - Deleting `Cust ID = 3` from Customer → the order's `Cust ID` becomes **NULL** (an "orphan" order, not pointing to any customer). Delete constraint not violated.
 - The correct SQL clause is **`ON DELETE SET NULL`** (not "ON DELETE NULL" — that is not valid SQL syntax).
 
-```
+```c
   ON DELETE CASCADE vs ON DELETE SET NULL:
 
   Before:

@@ -1,14 +1,8 @@
-# 13 — NoSQL vs SQL Databases
-
-> Scope: a **feel for NoSQL**, **when to use NoSQL**, and the **SQL vs NoSQL** comparison (not a MongoDB tutorial).
-
----
-
 ## 1. What is NoSQL?
 
 - **NoSQL ≠ "No SQL".** Full form = **"Not Only SQL"**. Queries *can* run on it (MongoDB is an example). It means **something beyond SQL**.
 - **Definition:** NoSQL databases are **non-tabular databases** that **store data differently than relational tables.** Data is the same, but it's **not stored in relational tables** (not "hobbies in one table, person in another") — it's stored together in non-tabular form.
-- **Recap of what came before:** Relational Model → tables, joins, goal of **no duplicacy/redundancy** → Normalization → ACID properties. NoSQL is a **non-relational** way to store data.
+- **Recap of what came before:** Relational Model → tables, joins, goal of **no duplicacy/redundancy** → Normalization → ACID properties. NoSQL is a *non-relational model* to store data.
 
 ### Structured vs Unstructured vs Semi-Structured Data
 - **SQL requires structured data** — a **fixed schema** (e.g., Student: name, age, address, roll_no with roll_no as PK), plus **integrity constraints** (e.g., age ≥ 13 to admit).
@@ -18,7 +12,7 @@
   - **Structured** — student/employee databases with fixed schema.
 - NoSQL's key requirement: **flexible schema** — you don't need all columns; some columns may be absent.
 
-```
+```css
 DATA TYPES SPECTRUM:
 
   Structured           Semi-Structured         Unstructured
@@ -41,7 +35,7 @@ DATA TYPES SPECTRUM:
 - **Shift:** Over time, **storage cost dropped** and **cloud systems** rose. Business need changed to: **fast access, serve many users within seconds** — redundancy is acceptable. Store data **multiple times / together** (e.g., store branch + HOD info inside student data) — "no problem, I have TB of space, I want fast access."
 - **Trigger:** Cloud computing, faster internet (4G/5G), multiple servers serving many users → **NoSQL databases were born.** Storing/structuring unstructured data (emails, scientific/survey data, CCTV data for 30–40 days dumped into DB) in advance became **costly**.
 
-```
+```css
 EVOLUTION TIMELINE:
 
   Past (1970s–2000s)              Present (2010s–now)
@@ -80,17 +74,17 @@ EVOLUTION TIMELINE:
 - All related data stored **together** → **no join** needed to fetch user + hobbies.
 - **Downside:** Even for a small piece of info, you must **load the entire object** from DB into the application.
 
-```
+```css
 SQL vs NoSQL — DATA MODEL COMPARISON:
 
   SQL (Normalized — 2 tables):
   ┌────────────────────────────┐   ┌──────────────────────┐
   │ User Table                 │   │ Hobbies Table        │
   │ id | first_name | city     │   │ user_id | hobby      │
-  │  1 │ Alice      │ Delhi    │   │    1    │ reading     │
-  │  2 │ Bob        │ Mumbai   │   │    1    │ music       │
-  └────────────────────────────┘   │    1    │ coding      │
-                                   │    2    │ gaming      │
+  │  1 │ Alice      │ Delhi    │   │    1    │ reading    │
+  │  2 │ Bob        │ Mumbai   │   │    1    │ music      │
+  └────────────────────────────┘   │    1    │ coding     │
+                                   │    2    │ gaming     │
                                    └──────────────────────┘
   To get Alice's hobbies: JOIN User + Hobbies on id=1 (extra step!)
 
@@ -145,7 +139,7 @@ FLEXIBLE SCHEMA — NoSQL advantage:
 **Why horizontal scaling is easy in NoSQL:**
 - Collections are **self-contained** (all info in one JSON object), **not coupled** by relations → can be **distributed across nodes** freely because **no join is needed.**
 
-```
+```css
 HORIZONTAL SCALING — SQL vs NoSQL:
 
   SQL (bad for horizontal scaling):
@@ -176,7 +170,7 @@ HORIZONTAL SCALING — SQL vs NoSQL:
 - "If a server fails, we can access the data from another server, as in NoSQL it's stored in multiple servers."
 
 ### 4.4 Read & Insert Operations are Easy/Fast
-- No normalization → data **not split** across tables → **no joins** needed (joins are very costly in time complexity when data is huge).
+- *No normalization* → data **not split** across tables → **no joins** needed (joins are very costly in time complexity when data is huge).
 - All related data is stored at the **same location** → fast access.
 - **MongoDB rule of thumb:** *"Data that is accessed together should be stored together."*
 
@@ -187,7 +181,7 @@ HORIZONTAL SCALING — SQL vs NoSQL:
 - In SQL, to change hobbies you just refer to the `Hobbies` table and update.
 - In NoSQL you must **load the whole object** into memory, iterate to the hobbies array, then add/delete/update → **costly in time** for update/delete; but **read is very fast.**
 
-```
+```css
 READ vs UPDATE COST:
 
   READ (NoSQL wins):
@@ -203,7 +197,7 @@ READ vs UPDATE COST:
 
 ## 5. When to Use NoSQL (Use Cases)
 
-1. **Fast-paced development** — rapid app development. (Example: developing a feature like **Reels** quickly; with SQL you must model data, avoid redundancy, design composite/multi-value tables → slower. NoSQL doesn't require worrying about duplicacy/redundancy → faster.)
+1. **Fast-paced agile development** — rapid app development. (Example: developing a feature like **Reels** quickly; with SQL you must model data, avoid redundancy, design composite/multi-value tables → slower. NoSQL doesn't require worrying about duplicacy/redundancy → faster.)
 2. **Storage of structured, semi-structured AND unstructured data** — all three types. (Counter-example: **banking systems** use structured data (credit cards etc.) on a single instance → SQL is fine there.)
 3. **Huge volume of data** — web apps storing & quickly retrieving lots of (often unstructured) data.
 4. **Requirement of scale-out** (horizontal scaling) — multiple servers. (SQL struggles because spread-out tables make joins hard.)
@@ -211,7 +205,7 @@ READ vs UPDATE COST:
 
 > For a cloud application → **NoSQL.**
 
-```
+```css
 WHEN TO USE — QUICK DECISION GUIDE:
 
   Is it a cloud/web app with millions of users?        → NoSQL
@@ -226,7 +220,7 @@ WHEN TO USE — QUICK DECISION GUIDE:
 
 ## 6. Misconceptions about NoSQL
 
-1. **"NoSQL doesn't support ACID properties."** — Misconception. Early NoSQL DBs didn't focus on ACID, but **MongoDB supports ACID transactions.** (That's why banking systems still mostly use SQL, but it's not a hard rule.)
+1. **"NoSQL doesn't support ACID properties."** — Misconception. Early NoSQL DBs didn't focus on ACID, but *MongoDB* *supports* *ACID* transactions. (That's why banking systems still mostly use SQL, but it's not a hard rule.)
 2. **"Relational data must use SQL / NoSQL can't store relationships."** — Misconception. NoSQL **can store relationships, just in a different way**:
    - Store related data together in one JSON object (user + hobbies), OR
    - Reference another document's `id` inside a JSON object (like a **foreign key** between two documents).
@@ -258,7 +252,7 @@ WHEN TO USE — QUICK DECISION GUIDE:
 - **Use case:** Heavy **analytics/aggregation** (e.g., industrial machine data, average age, peak time, repeated aggregate functions). Read fast; insert slow.
 - **Examples:** **Cassandra** (a good industry example), **RedShift**, **Snowflake**.
 
-```
+```css
 ROW-WISE vs COLUMN-WISE STORAGE:
 
   Data: (name, city, age)
@@ -292,7 +286,7 @@ ROW-WISE vs COLUMN-WISE STORAGE:
 
 > Across all types, the difference is mainly *how data/connections are stored*: key-value (single pair), columnar (analytics), document (JSON fields), graph (direct connections).
 
-```
+```css
 4 TYPES OF NoSQL — VISUAL SUMMARY:
 
   1. KEY-VALUE (Redis):          2. COLUMNAR (Cassandra):
@@ -325,23 +319,23 @@ ROW-WISE vs COLUMN-WISE STORAGE:
 
 ## 9. SQL vs NoSQL — Comparison Table (the main interview answer)
 
-| Aspect | SQL | NoSQL |
-|---|---|---|
-| **Storage Model** | Tables: fixed rows, fixed columns (missing entry → NULL) | JSON documents / key-value / columnar / nodes-edges (graph); dynamic columns |
-| **Schema** | **Fixed** schema | **Flexible** schema |
-| **Scaling** | Primarily **vertical**; horizontal is possible but difficult because JOINs across shards require expensive cross-node network transfers | Primarily **horizontal** (scale-out); self-contained documents/records distribute naturally with no cross-node JOINs needed |
-| **ACID** | **Supported** (primary goal) | Generally **not** supported (MongoDB: supported) |
-| **Joins** | **Needed** to get meaningful data from related tables | **Not needed** — related data stored together |
-| **Development History** | Storage was costly → minimize duplicacy/redundancy | Focus on **scaling + fast access + rapid application change (agile)** |
-| **Data→Object Mapping** | **Required** (manually map DB rows to app objects; Java **DAO pattern** — Data Access Object) | **Not required** — MongoDB documents map **directly** to data structures in language (e.g., Python class) |
-| **Examples** | Oracle, MySQL, Microsoft SQL Server, PostgreSQL | Document: MongoDB, CouchDB; Key-value: Redis, DynamoDB; Wide-column: Cassandra, HBase; Graph: Neo4j, Amazon Neptune |
-| **Primary Use** | General-purpose | Document: general; Key-value: large data store; Wide-column: fast querying/analytics; Graph: retrieve relationships |
+| Aspect                  | SQL                                                                                                                                     | NoSQL                                                                                                                       |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Storage Model**       | Tables: fixed rows, fixed columns (missing entry → NULL)                                                                                | JSON documents / key-value / columnar / nodes-edges (graph); dynamic columns                                                |
+| **Schema**              | **Fixed** schema                                                                                                                        | **Flexible** schema                                                                                                         |
+| **Scaling**             | Primarily **vertical**; horizontal is possible but difficult because JOINs across shards require expensive cross-node network transfers | Primarily **horizontal** (scale-out); self-contained documents/records distribute naturally with no cross-node JOINs needed |
+| **ACID**                | **Supported** (primary goal)                                                                                                            | Generally **not** supported (MongoDB: supported)                                                                            |
+| **Joins**               | **Needed** to get meaningful data from related tables                                                                                   | **Not needed** — related data stored together                                                                               |
+| **Development History** | Storage was costly → minimize duplicacy/redundancy                                                                                      | Focus on **scaling + fast access + rapid application change (agile)**                                                       |
+| **Data→Object Mapping** | **Required** (manually map DB rows to app objects; Java **DAO pattern** — Data Access Object)                                           | Many do not require ORMs — MongoDB documents map **directly** to data structures in language (e.g., Python class)           |
+| **Examples**            | Oracle, MySQL, Microsoft SQL Server, PostgreSQL                                                                                         | Document: MongoDB, CouchDB; Key-value: Redis, DynamoDB; Wide-column: Cassandra, HBase; Graph: Neo4j, Amazon Neptune         |
+| **Primary Use**         | General-purpose                                                                                                                         | Document: general; Key-value: large data store; Wide-column: fast querying/analytics; Graph: retrieve relationships         |
 
 ### Data → Object Mapping (detail)
 - **SQL:** App (e.g., front-end `Student` class) retrieves rows from DB server; you must **explicitly map** each field: `student.name = serverStudentName`, etc. → use the **DAO (Data Access Object) pattern** in Java.
 - **NoSQL (MongoDB):** Documents **map directly** to language data structures (e.g., a Python `Student` class) → `student = <whatever came from server>` auto-spreads; **no explicit field-by-field mapping** needed.
 
-```
+```css
 DATA → OBJECT MAPPING:
 
   SQL (requires DAO pattern):
@@ -357,7 +351,22 @@ DATA → OBJECT MAPPING:
 ```
 
 ---
+## DAO (Data Access Object)
 
+A **DAO** is a design pattern that provides an abstraction layer between the application and the database.
+
+- Handles all database operations (CRUD: Create, Read, Update, Delete).
+- Hides SQL queries and database details from business logic.
+- Improves code maintainability, reusability, and modularity.
+- Makes it easier to switch databases without changing application logic.
+
+**Flow:**  
+Application → DAO → Database
+
+**Example:**  
+`StudentDAO.getStudent(id)` retrieves student data without the application directly writing SQL queries.
+
+---
 ## Key Takeaways
 - **NoSQL = "Not Only SQL"** — non-tabular, flexible schema, stores structured/semi/unstructured data.
 - Emerged due to **cheap storage + cloud + need for fast, scalable access.**

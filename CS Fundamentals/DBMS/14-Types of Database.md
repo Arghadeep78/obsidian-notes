@@ -1,9 +1,3 @@
-# 14 — Types of Databases
-
-> The different database types, their use cases, and advantages/disadvantages. (Relational and NoSQL were covered in earlier lectures.)
-
----
-
 ## 1. Relational Databases (RDBMS)
 
 ### Concept & Logic
@@ -30,7 +24,7 @@ RELATIONAL MODEL — EXAMPLE:
 ### Properties
 - **Most popular and most mature** DBMS; very old → **excellent community support** (Stack Overflow, courses, easy help when stuck).
 - Stores **structured data** in **discrete tables**; **highly optimized.**
-- Guarantees data is **normalized** (you design ER diagram → convert to tables → apply normalization → remove redundancy) → **no data redundancy.**
+- Provides a stronger guarantee that data is **normalized** (you design ER diagram → convert to tables → apply normalization → remove redundancy) → **no data redundancy.**
 - Usable in **almost all use cases** *except* where **horizontal scalability** is required (the cloud use case from the NoSQL lecture).
 
 ### Disadvantages
@@ -61,25 +55,32 @@ RELATIONAL MODEL — EXAMPLE:
 - **Object Identity:** The object itself represents a data point (a `Student` object represents that it's a student).
 - Stores **structured data** (needs a structure to bundle into the class/object).
 
-```
+```css
 OODB — CLASS HIERARCHY & OBJECT INTERACTION:
 
-             ┌──────────────────────────┐
+             ┌──────────────────────────┐  
              │  Person (superclass)     │
-             │  - name, phone, email    │
-             │  - address (Address obj) │
-             │  + livesAt()            │
-             └───────────┬──────────────┘
-                         │ inherits
-          ┌──────────────┴──────────────┐
+             │  - name, phone, email    │------------------------
+             │  - address (Address obj) │                       | 
+             │  + livesAt()             │
+             └───────────┬──────────────┘                       |
+                         │ inherits 
+          ┌───ofType()───┴──────────────┐                       |  
           │                             │
-  ┌───────┴──────────┐       ┌──────────┴────────┐
-  │ Student          │       │ Professor          │
-  │ - roll_no, marks │       │ - faculty_id       │
-  │ + isPassed()     │◄──────│ can call           │
-  │   (checks        │       │ student.isPassed() │
-  │    past records) │       └───────────────────┘
-  └──────────────────┘
+  ┌───────┴──────────┐                 ┌──────────┴──────-──┐
+  │ Student          │                 │ Professor          │   |
+  │ - roll_no, marks │                 │ - faculty_id       │
+  │ + isPassed()     │◄──----------────│ can call           │   |
+  │   (checks        │ isPassed access │ student.isPassed() │
+  │    past records) │      given      └──────────────────-─┘   |
+  └──────────────────┘                                       looksAt()
+
+             ┌──────────────────────────┐                       |
+             │  Address                 |------------------------
+             │  - street, city,...      │
+             │  - address (Address obj) │
+             │  + livesAt()             │
+             └───────────┬──────────────┘
 
   - Data = objects stored directly on disk
   - Objects talk via methods (isPassed, livesAt)
@@ -134,7 +135,7 @@ OODB — CLASS HIERARCHY & OBJECT INTERACTION:
 - **Organization management** — CEO → VPs/President → CTO → Senior Directors → Directors → Managers (marketing/HR/CA departments); store who reports to whom, which department under which.
 - **Use when** information must be retrieved **top-to-bottom** via traversal (e.g., "list all my TVs" in an electronics shop: Electronics → Phones/TVs/Washing-Machines → TV → LED/LCD nodes).
 
-```
+```css
 HIERARCHICAL DATABASE — ELECTRONICS SHOP EXAMPLE:
 
                     [Electronics]         ← ROOT
@@ -168,7 +169,7 @@ HIERARCHICAL DATABASE — ELECTRONICS SHOP EXAMPLE:
 - **Tree-like organization requires top-to-bottom sequential search** → **time-consuming** for very large trees (must always start search from the **root**) → costly traversal.
 - Requires **repetitive storage of data** in multiple different entities, which can be **redundant.**
 
-```
+```css
 HIERARCHICAL — LIMITATION EXAMPLE:
 
   Student is in CSE dept AND in Chess Club.
@@ -196,7 +197,7 @@ HIERARCHICAL — LIMITATION EXAMPLE:
 - Because of multiple parents → it's a **graph-like structure** (graph organization). Child records have the **freedom to associate with multiple parent records.**
 - → **Handles complex relationships** that hierarchical DBs cannot.
 
-```
+```css
 NETWORK DATABASE — MULTIPLE PARENTS (graph structure):
 
   The key difference from hierarchical: a child can have MORE THAN ONE parent.
@@ -228,6 +229,7 @@ NETWORK DATABASE — MULTIPLE PARENTS (graph structure):
 ### Disadvantages
 - Supports **many-to-many (m:n) links** → traversal becomes even **slower** than hierarchical (graph traversal is costly), especially with large data.
 - **Poor web/community support; not very famous** → very **specific use cases**, rarely used (past or future).
+- Maintainance is tedious: as changes to data structure require updating many explicit pointer-based relationships between records.
 
 ### Examples
 - **IDS** (Integrated Data Store), **IDMS** (Integrated Database Management System), **Raima Database Manager**, **TurboIMAGE** — old **legacy** systems.
@@ -244,7 +246,7 @@ NETWORK DATABASE — MULTIPLE PARENTS (graph structure):
 | **Hierarchical** | Tree (one-to-many, single parent) | Easy traversal top→bottom; inflexible | Folder systems, dropdown menus, org charts | IBM IMS |
 | **Network** | Graph (multiple parents, m:n) | Handles complex relations; slow, rare | Multiple-parent structures | IDS, IDMS, TurboIMAGE |
 
-```
+```css
 ALL 5 TYPES — QUICK VISUAL REFERENCE:
 
   RELATIONAL:     OBJECT-ORIENTED:    NoSQL:

@@ -13,7 +13,7 @@
 - **User perspective:** a **single operation** ("send ₹50").
 - **DB perspective:** NOT single — it is **six logical steps**:
 
-```
+```css
 Transaction T:
 1. Read(A)            -- read A's balance
 2. A = A - 50         -- temporary update in buffer
@@ -56,7 +56,7 @@ Transaction T:
 - The final **`Commit`** operation is when changes are **actually persisted** to the physical DB.
 - SQL has a `COMMIT` command. Transaction commands include **`BEGIN TRANSACTION`** and **`END TRANSACTION`**.
 
-```
+```css
   Read / Write / Commit — data flow between layers:
 
   [Disk / DB Storage]  <----Write----  [RAM Buffer]  <----Read----  [Program / CPU]
@@ -97,7 +97,7 @@ The transaction used throughout: the 6-step A→B transfer above.
 - The DB **maintains the old state** (and intermediate state). On failure before commit, **roll back to the old state**:
   - Old state: A = 1000, B = 2000 (total ₹3000) → DB stays **consistent**.
 
-```
+```css
   Atomicity — only two valid outcomes:
 
   SUCCESS path (all 6 steps execute without error):
@@ -126,7 +126,7 @@ The transaction used throughout: the 6-step A→B transfer above.
 - "Money could not be created or destroyed."
 - **If atomicity is implemented correctly, consistency is maintained.** (The properties are interrelated.)
 
-```
+```css
   Consistency — the invariant that must hold before and after:
 
   Before transaction: A=1000, B=2000  --> Total = 3000
@@ -146,7 +146,7 @@ The transaction used throughout: the 6-step A→B transfer above.
 
 ### 3.3 Isolation
 - The system may have many concurrent transactions: `T1, T2, T3, ... Tn`.
-- Multiple transactions can run **concurrently**, but each must stay **isolated** — and the system **guarantees the result is as if they ran sequentially**.
+- Multiple transactions can run *concurrently*, but each must stay **isolated** — and the system guarantees the result is as if they ran *sequentially*.
 
 **Concurrency problem example (without isolation):**
 - `T1` (GPay) and `T2` (Net Banking) both start near the same time and both `Read(A) = 1000`.
@@ -154,7 +154,7 @@ The transaction used throughout: the 6-step A→B transfer above.
 - Both transfer ₹50 to B → B gets ₹50 twice → B = 2100, but A = 950.
 - Result: **extra ₹100 introduced** into the system → not allowed.
 
-```
+```css
   Isolation violation — the "dirty read" / race condition problem:
 
   Timeline (no isolation, T1 and T2 run concurrently):
@@ -203,7 +203,7 @@ The transaction used throughout: the 6-step A→B transfer above.
 - Main memory gets flushed (lost) on crash → the change might be lost.
 - The DB must have the **capability to recover**: on restart, **re-generate** this state and re-apply the write so the DB reflects A = 950, B = 2050.
 
-```
+```css
   Durability — the problem and the solution:
 
   Problem scenario:
@@ -236,19 +236,7 @@ The transaction used throughout: the 6-step A→B transfer above.
 ---
 
 ## 4. States of a Transaction (Life Cycle)
-
-```
-                         (read/write ok)
-   [Active] ───────────────────────────► [Partially Committed] ──(commit)──► [Committed]
-       │                                          │                              │
-       │ (error during read/write)                │ (failure)                    │
-       ▼                                          ▼                              ▼
-    [Failed] ◄────────────────────────────────────┘                       [Terminated]
-       │ (rollback / undo)
-       ▼
-    [Aborted] ──► back to State 1 (prior state) ──► [Terminated]
-```
-
+![[Pasted image 20260610002655.png]]
 ### 4.1 Active State
 - The **very first state** of the life cycle.
 - **Read and Write operations** happen here.
@@ -281,7 +269,7 @@ The transaction used throughout: the 6-step A→B transfer above.
 - A transaction is **terminated** if it is **either Committed or Aborted** — i.e., it ended (successfully or not).
 - In SQL: between **`BEGIN TRANSACTION`** and **`END TRANSACTION`**, the partially-committed work happens; on a problem → Failed → roll back to a **checkpoint / state**; exiting the block → **Terminated** (terminated via either abort or commit).
 
-```
+```css
   Transaction Life Cycle — reading the state diagram:
 
   Every transaction starts at Active.

@@ -1,9 +1,3 @@
-# 18 — CAP Theorem
-
-> Relates to **Distributed Storage** — used when building cloud systems / large distributed databases.
-
----
-
 ## 1. Context — Why CAP Theorem?
 
 - We scale up only to a level, then **scale out** (Horizontal Scaling) → make multiple nodes / replicas.
@@ -286,7 +280,7 @@ The three properties intersect pairwise: you can pick **CA**, **CP**, or **AP**.
 - Provide **Availability** and **Partition Tolerance**, but **NOT Consistency**.
 - **When a partition occurs:** do nothing special — let **both nodes keep working**. If the business logic allows temporary inconsistency, both READ and WRITE execute.
   - System is **inconsistent for a short while**; that's acceptable.
-- When recovery happens (link re-established), **data replication occurs** and both nodes become consistent → this is called **Eventually Consistent**.
+- When recovery happens (link re-established), **data replication occurs** and both nodes become consistent → this is called *Eventually Consistent*.
   - *"If a user tries to access data from a bad node, they won't receive the most updated version of data"* (e.g. a write changed `x` from 10 to 20 on Node A, but Node B was partitioned and still has `x = 10`; a read from Node B returns the stale `x = 10`) — but in AP databases this **doesn't matter** for a short period (not their target).
   - When the partition is resolved, *"AP data will sync the node to ensure consistency."*
 - **Examples:** **Cassandra, DynamoDB**. (Apache **Cassandra** is a NoSQL database with **no primary node**, meaning all of the nodes remain available; it allows for eventual consistency because users can **re-sync their data right after a partition is resolved**.)
@@ -294,24 +288,24 @@ The three properties intersect pairwise: you can pick **CA**, **CP**, or **AP**.
 
 ```
         AP (Cassandra, DynamoDB — Social Media Use Case)
-        ┌──────────────────────────────────────────────────────────┐
-        │  Partition Occurs:                                       │
-        │                                                          │
-        │  ┌──────────────┐  ✗ BROKEN ✗  ┌──────────────┐        │
+        ┌─────────────────────────────────────────────────────────┐
+        │  Partition Occurs:                                      │
+        │                                                         │
+        │  ┌──────────────┐  ✗ BROKEN ✗   ┌──────────────┐        │
         │  │   Node A     │               │   Node B     │        │
         │  │ likes = 500  │               │ likes = 499  │← stale │
         │  │  (updated)   │               │  (still up!) │        │
         │  └──────────────┘               └──────────────┘        │
         │           Both nodes keep running ✓                     │
-        │                                                          │
+        │                                                         │
         │  User sees 499 likes instead of 500 → Who cares?        │
         │  A 1-like difference on a FB post is acceptable!        │
-        │                                                          │
-        │  AVAILABLE ✓  NOT CONSISTENT (for now) ✗               │
-        │                                                          │
+        │                                                         │
+        │  AVAILABLE ✓  NOT CONSISTENT (for now) ✗                │
+        │                                                         │
         │  Partition heals → Nodes sync → 500 everywhere ✓        │
-        │  This is called EVENTUAL CONSISTENCY                     │
-        └──────────────────────────────────────────────────────────┘
+        │  This is called EVENTUAL CONSISTENCY                    │
+        └─────────────────────────────────────────────────────────┘
 
         Eventually Consistent Timeline:
         t=0:  Partition occurs. Node A = 500 likes, Node B = 499.
@@ -357,33 +351,24 @@ The three properties intersect pairwise: you can pick **CA**, **CP**, or **AP**.
 
 ## 7. ACID vs BASE
 
+**BASE** properties are a *more relaxed* version of ACID that *trade of*f some *consistency* guarantees for greater *scalability* and *availability*.
+- **Basically Available:** The system remains operational and responds to requests even during partial network partitions or node failures. You might get stale data, but you will get a response.
+- **Soft State:** The state of the data can change over time without user interaction due to background replica synchronization. The data is not permanently locked into a single consistent state across all nodes.
+- **Eventual Consistency:** The system guarantees that if no new updates are made to a specific data item, all replicas will eventually synchronize and become consistent over time.
+
 - Banking systems follow **ACID** properties (must).
 - Social networking systems should have **BASE** properties.
-- **BASE** full form:
-  - **BA** = **Basically Available**
-  - **S** = **Soft State**
-  - **E** = **Eventually Consistent**
+#### Comparison Matrix
 
-```
-        ACID vs BASE (Quick Overview):
-
-        ACID (Strong guarantees — Banking)      BASE (Flexible — Social Media)
-        ┌──────────────────────────┐            ┌──────────────────────────┐
-        │ Atomicity   — all or     │            │ Basically Available      │
-        │              nothing     │            │ — system always responds │
-        │ Consistency — DB stays   │            │                          │
-        │              valid       │            │ Soft State               │
-        │ Isolation   — concurrent │            │ — state may change over  │
-        │              safe        │            │   time without input     │
-        │ Durability  — committed  │            │                          │
-        │              data stays  │            │ Eventually Consistent    │
-        └──────────────────────────┘            │ — consistency after some │
-                                                │   time (not immediate)   │
-                                                └──────────────────────────┘
-```
+|**Feature**|**ACID**|**BASE**|
+|---|---|---|
+|**Database Type**|Primarily Relational (RDBMS).|Primarily Non-Relational (NoSQL) / Distributed.|
+|**Focus**|Data integrity and absolute correctness.|High availability and horizontal scalability.|
+|**Consistency**|**Immediate Consistency:** Data is synchronized across the system instantly.|**Eventual Consistency:** Data synchronizes across nodes over time.|
+|**Performance**|Slower under high loads due to locking mechanisms and synchronization.|Faster read/write operations because it avoids strict locking.|
+|**Handling Failures**|Prioritizes correctness over availability (rejects operations if unsafe).|Prioritizes availability over correctness (accepts operations, resolves later).|
 
 ---
-
 ## Quick Revision
 
 - **C** = same data on all nodes; **A** = system always operational; **P** = tolerant of communication break between nodes.

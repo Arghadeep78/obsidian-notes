@@ -1,9 +1,3 @@
-# 17 — Database Scaling Patterns
-
-> Approach: take a **real-life Cab Booking app** and **scale it step by step, pattern by pattern (7 patterns total)**, as the user base grows.
-
----
-
 ## 0. Context & Setup
 
 - This builds on earlier topics (Indexing, SQL/NoSQL, Sharding, Clustering, Partitioning, the Relational database) and moves to **Design** — how you **scale a database**.
@@ -18,7 +12,7 @@
 - So you **start small** and scale **only as the requirement grows**.
 - (Prerequisite: **Normalization** etc. well understood.)
 
-```
+```css
         The Golden Rule of Scaling:
         ┌─────────────────────────────────────────────────────────────┐
         │  DON'T over-engineer at the start.                         │
@@ -41,7 +35,7 @@
 - Few drivers, ~**10 customers** (friends / referral basis). Few trips (e.g. one trip in ~5 minutes). **Works fine.**
 - App becomes famous via referrals → bookings rise to **~10 bookings per minute.**
 
-```
+```css
         Initial Setup (Works Fine)
         ┌───────────────────────────────────────────────────────┐
         │                                                       │
@@ -107,7 +101,7 @@ This pattern bundles several performance-optimization measures:
 - Cache **non-dynamic data** (data that won't change), e.g. **payment history / booking history of the last month, user profiles** — past bookings are fixed, so they're non-dynamic.
 - **Dynamic data** must come from the DBMS/server, e.g. **driver's current location, current cost A→B, best route A→B, traffic status, which driver is where** — all dynamic, cannot be cached.
 
-```
+```css
         Without Cache                     With Cache
         ┌──────────────────────┐          ┌─────────────────────────────┐
         │ Request: Past trips? │          │ Request: Past trips?        │
@@ -182,7 +176,7 @@ This pattern bundles several performance-optimization measures:
 - **Scale Up = increase the machine's capacity** — buy a good machine, increase **CPU / RAM / hardware**.
 - You replace the **tiny old machine** with a much better one.
 
-```
+```css
         Pattern 2: Vertical Scaling (Scale Up)
         ┌────────────────┐                ┌────────────────────┐
         │  Old Machine   │                │    New Machine     │
@@ -216,7 +210,7 @@ This pattern bundles several performance-optimization measures:
   - **Replicas** → handle **all READ operations**.
 - This separation is called **CQRS (Command Query Responsibility Segregation)** — the write **Command** and the read **Query** responsibilities are segregated.
 
-```
+```css
         CQRS — Separating READ and WRITE
         ┌──────────────────────────────────────────────────────────┐
         │                                                          │
@@ -254,7 +248,7 @@ This pattern bundles several performance-optimization measures:
 - **Example:** food delivery / cab booking — the driver's car moves **slowly/gradually**; a small delay before the read reflects the latest position is fine.
 - So the **read requests (N)** are divided across the read replicas (e.g. **N/3** across 3 read nodes), and writes go to the single Primary.
 
-```
+```css
         Replication Lag — Acceptable in Cab Booking
 
         t=0:  Driver moves → WRITE x=NewLocation → Primary updated
@@ -277,25 +271,25 @@ This pattern bundles several performance-optimization measures:
 - Idea: just as we made multiple replicas for reads, **make multiple Primaries** for writes → **Multi-Primary Replication** (with **multiple replicas also**).
 - Create several nodes (e.g. **A, B, C, D**) where there is effectively **no fixed Primary/Secondary** — **every node can READ and WRITE**. All are **replicas of each other** in a cluster, each holding the **same full data**: same DB schema, same data, same indexes, same set of tables → **DB-A = DB-B = DB-C = DB-D** (copies of each other).
 
-```
+```css
         Multi-Primary (Multi-Master) Architecture
         ┌──────────────────────────────────────────────────────────┐
         │                                                          │
-        │  Incoming Writes (distributed)                          │
-        │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐               │
-        │  │ W-1  │  │ W-2  │  │ W-3  │  │ W-4  │               │
-        │  └──┬───┘  └──┬───┘  └──┬───┘  └──┬───┘               │
-        │     │         │         │          │                    │
-        │     ▼         ▼         ▼          ▼                    │
-        │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐               │
-        │  │ DB-A │→ │ DB-B │→ │ DB-C │→ │ DB-D │→ (back to A)  │
-        │  │ R+W  │  │ R+W  │  │ R+W  │  │ R+W  │               │
-        │  └──────┘  └──────┘  └──────┘  └──────┘               │
-        │      ↑_______circular replication___________↑           │
+        │  Incoming Writes (distributed)                           │
+        │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐                  │
+        │  │ W-1  │  │ W-2  │  │ W-3  │  │ W-4  │                  │
+        │  └──┬───┘  └──┬───┘  └──┬───┘  └──┬───┘                  │
+        │     │         │         │          │                     │
+        │     ▼         ▼         ▼          ▼                     │
+        │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐                  │
+        │  │ DB-A │→ │ DB-B │→ │ DB-C │→ │ DB-D │→ (back to A)     │
+        │  │ R+W  │  │ R+W  │  │ R+W  │  │ R+W  │                  │
+        │  └──────┘  └──────┘  └──────┘  └──────┘                  │
+        │      ↑_circular replication_______↑                      │
         │                                                          │
-        │  Every node = same data = can READ and WRITE            │
+        │  Every node = same data = can READ and WRITE             │
         │  Writes distributed → no single overloaded master        │
-        │  Reads: broadcast → whoever replies first wins          │
+        │  Reads: broadcast → whoever replies first wins           │
         └──────────────────────────────────────────────────────────┘
 ```
 
@@ -326,23 +320,23 @@ This pattern bundles several performance-optimization measures:
         Before (One big DB — all tables together):
         ┌──────────────────────────────────────────────────────────┐
         │               One Monolithic DB                          │
-        │  ┌────────────┐ ┌────────────┐ ┌───────────────────┐    │
-        │  │  Location  │ │  Bookings  │ │  Customer/Trips   │    │
-        │  │  Tables    │ │  Tables    │ │  Tables           │    │
-        │  │ (lat/long) │ │            │ │                   │    │
-        │  └────────────┘ └────────────┘ └───────────────────┘    │
+        │  ┌────────────┐ ┌────────────┐ ┌───────────────────┐     │
+        │  │  Location  │ │  Bookings  │ │  Customer/Trips   │     │
+        │  │  Tables    │ │  Tables    │ │  Tables           │     │
+        │  │ (lat/long) │ │            │ │                   │     │
+        │  └────────────┘ └────────────┘ └───────────────────┘     │
         └──────────────────────────────────────────────────────────┘
         All requests compete for the same DB → slow
 
         After (Split by Functionality — each on its own machine):
         ┌───────────────────────────────────────────────────────────┐
         │  Location DB           Bookings DB       Customer DB      │
-        │  ┌──────────────┐    ┌──────────────┐  ┌─────────────┐   │
-        │  │ lat/long     │    │ booking_id   │  │ customer_id │   │
-        │  │ driver_pos   │    │ trip_details │  │ trip_history│   │
-        │  │ routes       │    │ fare info    │  │ payments    │   │
-        │  │ (P+Replicas) │    │ (P+Replicas) │  │(P+Replicas) │   │
-        │  └──────────────┘    └──────────────┘  └─────────────┘   │
+        │  ┌──────────────┐    ┌──────────────┐  ┌─────────────┐    │
+        │  │ lat/long     │    │ booking_id   │  │ customer_id │    │
+        │  │ driver_pos   │    │ trip_details │  │ trip_history│    │
+        │  │ routes       │    │ fare info    │  │ payments    │    │
+        │  │ (P+Replicas) │    │ (P+Replicas) │  │(P+Replicas) │    │
+        │  └──────────────┘    └──────────────┘  └─────────────┘    │
         │      Machine 1           Machine 2          Machine 3     │
         └───────────────────────────────────────────────────────────┘
         Each DB is independently scalable! ✓
@@ -353,9 +347,9 @@ This pattern bundles several performance-optimization measures:
 - Earlier the client got the full answer from one DB. Now **some information is in one DB and some in another.**
 - The **client application (or a back-end layer)** must now do a **logical JOIN / merge**: send some requests here, some there, **handle both, merge the data logically, then output** (e.g. build a JSON from the merged results and return it).
   - Example: a location-specific query needs **customer info from one DB** and **location info from another DB** → run queries in both places → **logically join the results** → output.
-- This is a **complex problem** done on the server / application layer. **Cost:** responsibility of joining results shifts to your application/back-end layer (slightly more work).
+- This is a **complex problem** done on the *backend server* / *application layer*. **Cost:** responsibility of joining results shifts to your application/back-end layer (slightly more work).
 
-```
+```css
         How the App Layer Handles Cross-DB Queries:
 
         Client: "Show me trip summary with driver location"
@@ -453,11 +447,12 @@ This pattern bundles several performance-optimization measures:
 ```
 
 **The availability problem & fix (cross-DC replication):**
+- If we keep only Europe Data in Europe Server then if it goes down we cannot redirect requests.
 - Suppose the **Europe data center fails** (down for an hour or two). Then your famous cab-booking app's **availability becomes zero** for that region — but we want **high availability** (studied earlier).
 - **Fix:** keep **cross-data-center replication** — data centers **replicate among themselves time-to-time.**
 - So if the **Europe DC goes down** for some reason, you can **redirect all of Europe's requests to (e.g.) India** → **availability stays high.** When the **Europe DC revives**, you **redirect those requests back to Europe.**
 
-```
+```css
         Cross-DC Failover (Availability Guarantee):
 
         Normal:    Europe Users → Europe DC ✓

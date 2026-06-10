@@ -1,7 +1,3 @@
-# 11 — How to Implement Atomicity & Durability
-
----
-
 ## 0. Recap
 
 The two ACID properties implemented here:
@@ -118,7 +114,7 @@ The transaction is considered successful/committed **only when the DB pointer is
   - On **restart**, the pointer points to the **new copy**, all pages of the new copy were already written to disk before failure.
   - The committed data **persists** → durability maintained.
 
-```
+```css
 DURABILITY CASES:
 
   Case A — Crash BEFORE pointer flip (0x01 never changed to 0x02):
@@ -188,7 +184,7 @@ A **better** approach than shadow copy — **no need to make a full copy** of th
 - It is **robust**: it can **recover from power failure and hardware failure.**
 - **Why a separate, expensive storage?** If logs were kept in the **same storage as the DB**, then when the DB storage fails, the **logs would vanish too** — defeating the purpose. So logs go to a **separate, expensive, stable storage.**
 
-```
+```css
 ARCHITECTURE:
 
   ┌──────────────────┐       ┌────────────────────────────┐
@@ -243,7 +239,7 @@ As the transaction runs, logs are generated. A log record contains the **transac
 
 ### Write-Ahead Rule (very important)
 
-- **The log must be stored BEFORE the actual database operation happens.**
+- The log must be stored *BEFORE* the actual database operation happens.
 - You **first write the log** (what you intend to do), **then perform** the actual operation on the DB.
 - **Why:** If you wrote the log *after* the actual operation, on failure you wouldn't know what was happening. Recording intent first lets you **recover** correctly afterward.
 
@@ -281,7 +277,7 @@ The **first type / implementation method** of log-based recovery.
 
 > Up to commit, you were **only writing logs**. After commit, you go to the DB and apply the deferred modifications.
 
-```
+```css
 DEFERRED MODIFICATION TIMELINE:
 
   T0 running:
@@ -331,7 +327,7 @@ CRASH BEFORE COMMIT:
 
 > Durability if the system crashes **after** `commit` is written but **before/during** the deferred writes are applied: because the committed log records exist in stable storage, on restart the system **redoes** the writes from the log to ensure persistence.
 
-```
+```css
 CRASH AFTER COMMIT (during deferred writes):
   Stable Storage: <T0,start>, <T0,A,950>, <T0,B,1050>, <T0,commit>
                                                          ↑ commit exists!
@@ -350,13 +346,15 @@ CRASH AFTER COMMIT (during deferred writes):
 
 ## 4. Immediate Database Modification
 
-The **second type / implementation method** of log-based recovery — the opposite of deferred.
 
+The **second type / implementation method** of log-based recovery — the opposite of deferred.
 ### Concept & Logic
 
 - DB modifications are **output to the actual DB while the transaction is still in the active state** (i.e., the real DB is updated *during* the transaction, not delayed until after commit).
 - These DB modifications written by an **active (not-yet-committed)** transaction are called **uncommitted modifications.**
 - The write-ahead rule still applies: an **update takes place only after its log record has been written to stable storage** (log first, then DB).
+
+> **Difference from Deferred:** In deferred, DB is unchanged until commit. In immediate, DB is changed live during the transaction — which means if you abort, you must undo what you already wrote.
 
 ### Log Record Format (needs the old value too)
 
@@ -372,31 +370,65 @@ The **second type / implementation method** of log-based recovery — the opposi
 ### Failure Handling (uses old value & new value fields)
 
 In the event of a **crash or transaction failure**, the system uses the log records to restore correctness:
+**Failure handling:**
+- **System failure / transaction abort BEFORE commit:**
+  - Use the **old-value field** to **UNDO** the modification (restore A back to 1000, B back to 1000 — the values before T0 started).
+  - → **Atomicity** maintained.
+- **Transaction complete (commit written) then system crash:**
+  - On restart, the log has `commit` → use the **new-value field** to **REDO** the transaction (replace old field with new field).
+  - Only redo transactions that **have a `commit` log record**; if no `commit`, assume the transaction failed.
+  - → **Durability** maintained.
+- **Golden rule:** Update takes place **only after the log record is in stable storage** (write log first, then actual update — else recovery is impossible).
 
-- **System failure BEFORE the transaction completes (or the transaction is aborted):**
-  - Use the **old value** field of the log records to **UNDO** the transaction (revert the DB to the pre-transaction values).
-- **Transaction completes and THEN the system crashes:**
-  - Use the **new value** field to **REDO** the transaction — provided the **commit log** is present in the logs.
+```css
+IMMEDIATE MODIFICATION — RECOVERY DECISION TREE:
+  System restarts after crash
+           │
+           ▼
+  Is <T0, commit> in the log?
+     │                       │
+    YES                      NO
+     │                       │
+     ▼                       ▼
+  REDO                     UNDO
+  (use NEW values           (use OLD values from log
+   from log to restore       to reverse any writes
+   committed state)          already made to the DB)
+  → Durability ✅           → Atomicity ✅
 
-```
-IMMEDIATE MODIFICATION — UNDO vs REDO:
-
-  Crash BEFORE <T0,commit>  (uncommitted changes already in DB):
-    Log: <T0,start>, <T0,A,1000,950>, <T0,B,1000,1050>   ← no <commit>
-    → UNDO using OLD values: A ← 1000, B ← 1000
-    DB restored to original state. Atomicity preserved.
-
-  Crash AFTER <T0,commit>:
-    Log: <T0,start>, <T0,A,1000,950>, <T0,B,1000,1050>, <T0,commit>
-    → REDO using NEW values: A ← 950, B ← 1050
-    Committed changes persist. Durability preserved.
+  Example (T0: A 1000→950, B 1000→1050, transferring 50 from A to B):
+  Log had commit  → REDO: write A=950, B=1050 into DB
+  Log had NO commit → UNDO: write A=1000 back, B=1000 back into DB
 ```
 
 > **Deferred vs Immediate:** Deferred only ever needs **REDO** (DB untouched before commit, so nothing to undo). Immediate may need **UNDO** *and* **REDO** because the DB is modified while the transaction is still active — hence each log record must keep the **old value** as well.
 
 ---
+## 5. Checkpoint Log Based Recovery Method
+ Logs keep accumulating as thousands/lakhs of transactions run → **stable storage fills up** and **cost increases**. Real-time systems can't store unlimited old information.
+- A **checkpoint** is basically an **announcement.** At a point where the **DB state is consistent** (all prior transactions are in **commit** state), create a checkpoint (e.g., `C1`, `C2`).
+- A specific `<checkpoint>` marker is appended directly into the active transaction log file on stable storage (disk).
+- If a later transaction fails, you **recover to that checkpoint position** — you don't need to scan all logs from the beginning.
+- It builds on the base methods above.
+
+```css
+CHECKPOINT CONCEPT:
+
+  Log timeline:
+  ──────────────────────────────────────────────────────────►
+  T1,T2,T3      [C1]      T4,T5,T6      [C2]      T7,T8 ← CRASH
+  (committed)            (committed)              (active)
+
+  Without checkpoints: On crash, scan ALL logs from T1 onwards.
+  With checkpoints:    On crash, only scan logs from [C2] onwards.
+                       T1–T6 already confirmed consistent at C2.
+
+  Benefit: Less log scanning → faster recovery → lower storage cost.
+```
 
 ## Summary Table
+
+> **Log-based recovery is better than shadow copy.** If the system fails between the `0x01` and `0x02` pointer write: the disk system performs **atomic operations on a particular block/sector**, so the DB pointer update is atomic.
 
 | Scheme | Idea | Atomicity | Durability | Cost |
 |---|---|---|---|---|

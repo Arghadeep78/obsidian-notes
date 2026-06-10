@@ -1,9 +1,3 @@
-# 16 — Partitioning and Sharding in DBMS
-
-> **Database Optimization Techniques** — heavily used in System Design and real systems.
-
----
-
 ## 1. The Core Problem (Why we need DB Optimization)
 
 When you build a system, DBMS makes storing data easy. But two problems arise as the system grows:
@@ -17,7 +11,7 @@ To solve this, we **apply Database Optimization Techniques**, which:
 - Make data **easily manageable** (because data is huge).
 - **Reduce the response time** for the large number of incoming requests.
 
-```
+```css
         Small System (Works Fine)           Large System (Problems Arise)
         ┌──────────────────────┐            ┌──────────────────────────────┐
         │   Single DB Server   │            │      Single DB Server        │
@@ -38,7 +32,7 @@ To solve this, we **apply Database Optimization Techniques**, which:
 - **Scale Up** = increase the hardware (increase HDD, CPU, RAM) of a single node.
 - Example: a system has 1 TB HDD, some CPU (XYZ), some RAM (X). When data and requests double (2x data, 2n requests), the instinct is to double everything → 2 TB, 2x CPU, 2x RAM.
 
-```
+```css
         Before Scale-Up                  After Scale-Up
         ┌────────────────┐               ┌────────────────┐
         │  Server Node   │               │  Server Node   │
@@ -52,17 +46,16 @@ To solve this, we **apply Database Optimization Techniques**, which:
 
 **Problems with Scale Up:**
 1. **Response time does NOT become half** even if you double everything (practically observed — it doesn't scale linearly).
-2. **Cost increases a lot** — increasing TB, CPU, RAM is **expensive**.
+2. **Cost increases a lot** — increasing TB, CPU, RAM is *expensive*.
 - Therefore, scaling up is **not very logical in terms of money**. Ultimately everything comes down to money, and you want minimum cost.
 
 ---
-
 ## 3. Approach 2 — Clustering (Replica Sets)
 
-- Clustering (covered last lecture) = make **copies of the same database instance**.
+- Clustering (covered last lecture) = make *copies* **of the same database instance**.
 - All data is **replicated** → redundancy is included.
 
-```
+```css
         ┌──────────────────────────────────────────────────────┐
         │                  Clustering Setup                    │
         │                                                      │
@@ -123,7 +116,7 @@ Columns: `Name`, `ID`, `Class`, `Address`, `Phone Number` (with many students).
 - **Need to access different servers to get complete tuple information.**
 - Example: first 2 columns in S1, next 2 columns in S2. To get a complete tuple, you must **access both servers** (some data from S1, some from S2).
 
-```
+```css
         Original Student Table
         ┌────────┬────────┬───────┬──────────┬──────────────┐
         │  Name  │   ID   │ Class │ Address  │ Phone Number │
@@ -150,7 +143,7 @@ Columns: `Name`, `ID`, `Class`, `Address`, `Phone Number` (with many students).
 - This gives **independent chunks of data tuples stored in different servers**.
 - Example: if you need students 1–10000, you fetch only from S1; S1 is **independent of** S2 (you don't access S2).
 
-```
+```css
         Original Student Table (100k rows)
         ┌────────┬────────┬───────┬──────────┐
         │  Name  │   ID   │ Class │ Address  │
@@ -228,7 +221,7 @@ After partitioning, you divided your database into different servers — some da
 **Definition:**
 > A **Distributed Database** is a **single logical database that is spread across multiple locations / servers, logically interconnected together by a network.**
 
-```
+```css
         ┌─────────────────────────────────────────────────────────────┐
         │               University Database (Logical)                 │
         │  ← This is ONE database in the user's/application's view    │
@@ -253,7 +246,7 @@ Whenever you apply **Clustering, Partitioning, and Sharding**, you ultimately **
 **Fundamental idea:**
 > *"Sharding is the idea that instead of having all the data set on one instance, we split it up and introduce a routing layer so that we can forward the request to the right instance that actually contains the data."*
 
-```
+```css
         Without Sharding (Horizontal Partition only)
         ┌─────────────────────────────────────────────────┐
         │  Application / Client                           │
@@ -298,18 +291,40 @@ Whenever you apply **Clustering, Partitioning, and Sharding**, you ultimately **
 - The **Shard Key (Partition Key)** here = **Customer ID** (the key on which you partition).
 - The **Primary Key** is `Invoice ID`, but the **Shard Key can be something different** (here Customer ID).
 
-```
-        Invoice Table
-        ┌───────────┬─────────────┬────────┐
-        │ Invoice ID│ Customer ID │ Amount │
-        ├───────────┼─────────────┼────────┤  ← Shard Key = Customer ID
-        │    001    │    C01      │  500   │  → Shard 1 (C01–C50)
-        │    002    │    C75      │  200   │  → Shard 2 (C51–C100)
-        │    003    │    C02      │  800   │  → Shard 1 (C01–C50)
-        └───────────┴─────────────┴────────┘
+```css
+                    LOGICAL TABLE: Invoices
+┌────────────┬─────────────┬────────┐
+│ Invoice ID │ Customer ID │ Amount │
+├────────────┼─────────────┼────────┤
+│ INV001     │ C01         │ 500    │
+│ INV002     │ C75         │ 200    │
+│ INV003     │ C02         │ 800    │
+│ INV004     │ C88         │ 350    │
+└────────────┴─────────────┴────────┘
+Primary Key = Invoice ID  (uniquely identifies a row)
+Shard Key   = Customer ID (decides which shard stores the row)
 
-        Primary Key = Invoice ID  (unique identifier)
-        Shard Key   = Customer ID (routing decision key) ← CAN BE DIFFERENT!
+                 Sharding Logic
+        Route using Customer ID range
+
+                Customer ID
+                      │
+          ┌───────────┴───────────┐
+          │                       │
+      C01 – C50              C51 – C100
+          │                       │
+          ▼                       ▼
+
+      SHARD 1                  SHARD 2
+┌────────────┐           ┌────────────┐
+│ INV001 C01 │           │ INV002 C75 │
+│ INV003 C02 │           │ INV004 C88 │
+└────────────┘           └────────────┘
+
+Key Point:
+Primary Key identifies the record.
+Shard Key decides where the record is stored.
+They may be the same or different.
 ```
 
 The server in sharding is just called a Shard.
@@ -322,7 +337,7 @@ The server in sharding is just called a Shard.
 - Strictly, they are **not** exact synonyms, but normally used interchangeably in industry.
 - **By theory:** **Sharding is a way of doing Horizontal Partitioning.**
 
-```
+```css
         ┌──────────────────────────────────────────────┐
         │              Partitioning                    │
         │  ┌─────────────────┐  ┌─────────────────┐   │
