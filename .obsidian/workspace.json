@@ -190,6 +190,20 @@
             }
           },
           {
+            "id": "ba6afc095d48f9eb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "CS Fundamentals/OS/01-What_is_an_operating_system.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "01-What_is_an_operating_system"
+            }
+          },
+          {
             "id": "d2f7f57d2372b1ef",
             "type": "leaf",
             "state": {
@@ -260,7 +274,7 @@
             }
           }
         ],
-        "currentTab": 12
+        "currentTab": 13
       }
     ],
     "direction": "vertical"
@@ -448,13 +462,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "CS Fundamentals/DBMS/02-DBMS-Architecture-and-DBA.md",
+                "file": "CS Fundamentals/OS/01-What_is_an_operating_system.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 02-DBMS-Architecture-and-DBA"
+              "title": "Outline of 01-What_is_an_operating_system"
             }
           },
           {
@@ -505,43 +519,44 @@
       "realclaudian:Open Claudian": false
     }
   },
-  "active": "b3b4dc1d1de9d502",
+  "active": "ba6afc095d48f9eb",
   "lastOpenFiles": [
-    "CS Fundamentals/DBMS/03-ER-Model.md",
-    "CS Fundamentals/DBMS/07-Relational-Model.md",
-    "CS Fundamentals/DBMS/13-NoSQL vs SQL DB.md",
-    "CS Fundamentals/DBMS/12-Indexing in DBMS.md",
-    "CS Fundamentals/DBMS/20-Concurrency-Control.md",
-    "CS Fundamentals/DBMS/15-Clustering and Replication in DBMS.md",
-    "CS Fundamentals/DBMS/16-Partitioning and Sharding in DBMS.md",
-    "CS Fundamentals/DBMS/09-Normalisation.md",
-    "CS Fundamentals/DBMS/10-ACID-Properties-and-Transactions.md",
-    "CS Fundamentals/DBMS/11-Atomicity Implementation.md",
-    "CS Fundamentals/DBMS/14-Types of Database.md",
     "CS Fundamentals/DBMS/02-DBMS-Architecture-and-DBA.md",
-    "CS Fundamentals/DBMS/01-What-is-DBMS.md",
-    "CS Fundamentals/DBMS/19-Master Slave Architecture.md",
+    "CS Fundamentals/OS/31-Solving_LC_Problems_on_Concurrency_II.md",
+    "CS Fundamentals/OS/30-What_is_thrashing.md",
+    "CS Fundamentals/OS/29-Page_replacement_algo.md",
+    "CS Fundamentals/OS/28-What_is_virtual_memory.md",
+    "CS Fundamentals/OS/27-What_is_Segmentation.md",
+    "CS Fundamentals/OS/26-What_is_Paging.md",
+    "CS Fundamentals/OS/25-How_OS_manages_free_space.md",
+    "CS Fundamentals/OS/24-Memory_Management_in_OS.md",
+    "CS Fundamentals/OS/23-Solving_LC_Problems_on_Concurrency.md",
+    "CS Fundamentals/OS/22-Deadlock_Avoidance_Detection_and_Recovery.md",
+    "CS Fundamentals/OS/21-What_is_Deadlock.md",
+    "CS Fundamentals/OS/20-Dining_Philosophers_Problem_and_Solution.md",
+    "CS Fundamentals/OS/19-Reader_Writer_Problem_and_Solution.md",
+    "CS Fundamentals/OS/18-Producer_Consumer_Problem_and_Solution.md",
+    "CS Fundamentals/OS/17-Critical_Section_Problem.md",
+    "CS Fundamentals/OS/16-Conditional_Variable_and_Semaphore.md",
+    "CS Fundamentals/OS/15-What_is_Concurrency.md",
+    "CS Fundamentals/OS/14-Multilevel_Queue_and_CPU_Scheduling_Comparison.md",
+    "CS Fundamentals/OS/13-SJF_Priority_RoundRobin_CPU_Scheduling.md",
+    "CS Fundamentals/OS/12-CPU_Scheduling_Basics_and_Convoy_Effect.md",
+    "CS Fundamentals/OS/11-Process_States_in_OS.md",
+    "CS Fundamentals/OS/10-Context_Switching_in_OS.md",
+    "CS Fundamentals/OS/09-How_OS_Creates_a_Process.md",
+    "CS Fundamentals/OS/08-Comparison_Between_Storage_Types.md",
+    "CS Fundamentals/OS/07-32bit_vs_64bit_OS.md",
     "CS Fundamentals/DBMS/Pasted image 20260610153118.png",
-    "CS Fundamentals/DBMS/08-ER-Model-to-Relational-Model.md",
-    "CS Fundamentals/DBMS/06-Designing-ER-Model-of-Facebook.md",
-    "CS Fundamentals/DBMS/05-How-to-Think-and-Formulate-ER-Diagram.md",
     "CS Fundamentals/DBMS/01-What-is-DBMS.md.tmp.16493.ddd7f8ff2aea",
-    "CS Fundamentals/DBMS/18-CAP Theorem.md",
-    "CS Fundamentals/DBMS/17-Database Scaling Patterns.md",
     "CS Fundamentals/DBMS/Pasted image 20260610102430.png",
     "CS Fundamentals/DBMS/Pasted image 20260610002655.png",
     "CS Fundamentals/DBMS/Pasted image 20260610002230.png",
-    "CS Fundamentals/DBMS/Untitled.md",
-    "CS Fundamentals/DBMS/04-Extended-ER-Features.md",
     "CS Fundamentals/DBMS/Pasted image 20260608154154.png",
     "CS Fundamentals/DBMS/Pasted image 20260606155546.png",
     "CS Fundamentals/DBMS/Pasted image 20260606154853.png",
     "CS Fundamentals/DBMS/Pasted image 20260606151620.png",
     "CS Fundamentals/DBMS/Pasted image 20260606150623.png",
-    "CS Fundamentals/DBMS/08-ER to RM.md",
-    "CS Fundamentals/DBMS/07-Relational Model.md",
-    "CS Fundamentals/DBMS/06-ER Model of Facebook.md",
-    "CS Fundamentals/DBMS/05-ER Diagram.md",
     "CS Fundamentals/OOPS/Pasted image 20260531160658.png",
     "CS Fundamentals/OOPS/Untitled.base",
     "Untitled.canvas",
