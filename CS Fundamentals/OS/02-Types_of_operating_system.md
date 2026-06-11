@@ -12,7 +12,7 @@ Before jumping into the types, understand *why* these types evolved — they wer
 **Goal 2 — No Process Starvation**
 
 - Imagine P1, P2, P3 are waiting to run. The OS picks P1 first.
-- Now suppose P1 is a very heavy job — or worse, someone wrote a program with a `while(1)` loop and left it running infinitely.
+- Now suppose P1 is a very heavy job — or worse, someone wrote a program with a `while(true)` loop and left it running infinitely.
 - Because of P1 hogging the CPU, P2 and P3 never get a chance to run. They are starving.
 - *Process Starvation* = a process never gets CPU time because something else is always running.
 - This must not happen. Every process deserves a turn at the CPU.
@@ -41,7 +41,7 @@ There are **7 types**. The first two are historical; the next three are the most
 
 **Goal check:**
 - *Maximum CPU Utilization?* **No.** If P1 goes to do I/O, P2 cannot step in. The CPU just sits idle waiting for P1 to come back.
-- *No Process Starvation?* **Fails.** If P1 is a massive job (the `while(1)` case), P2 and P3 never get a turn. Ever.
+- *No Process Starvation?* **Fails.** If P1 is a massive job (the `while(true)` case), P2 and P3 never get a turn. Ever.
 - *High Priority Execution?* **No.** P1 is running, a high-priority job arrives — it doesn't matter, P1 will keep running. No preemption possible.
 
 **Example:** MS-DOS [1981]
@@ -62,9 +62,9 @@ There are **7 types**. The first two are historical; the next three are the most
 1. Many users walk in, each carrying their punch card (job).
 2. An **Operator** (a software component) collects all the jobs.
 3. The Operator cannot look *inside* each job to know how long it will take. It can only look at surface-level information — what resources each job requires.
-4. Based on that surface-level view, it sorts the jobs in a brute-force way.
+4. Based on that surface-level view, it *sorts* the jobs in a brute-force way.
 5. After sorting, the Operator groups similar jobs into **batches**.
-6. Each batch is submitted sequentially to the CPU.
+6. Each *batch* is submitted sequentially to the CPU.
 7. Within each batch, jobs execute sequentially — just like Single Process OS.
 
 ```css
@@ -76,9 +76,10 @@ Users submit jobs via punch cards
    Batch 2: [J2, J7]   → submitted to CPU → J2 runs, then J7 runs
    ...
 ```
+![[Pasted image 20260611015631.png]]
 
 **Goal check:**
-- *Maximum CPU Utilization?* **No.** Within each batch, execution is still sequential. If J1 goes to I/O, J4 just waits — CPU idles.
+- *Maximum CPU Utilization?* **No.** Within each batch, execution is ***still sequential***. If J1 goes to I/O, J4 just waits — CPU idles.
 - *No Process Starvation?* **Fails.** If J1 within Batch 1 takes very long, J4 starves inside that batch. Additionally, if Batch 1 takes a very long time, Batch 4 may starve waiting for its turn.
 - *High Priority Execution?* **No.** A batch must fully complete before the next batch runs. A high-priority job arriving mid-batch cannot interrupt.
 
@@ -213,7 +214,7 @@ OS decides which job goes to which CPU (via process scheduling algorithms).
 ```
 
 **Modern CPUs:**
-- When you hear "quad-core CPU" or "octa-core CPU", that means 4 or 8 logical processors.
+- When you hear "quad-core CPU" or "octa-core CPU", that means 4 or 8 *logical processors*.
 - Each core = an independent CPU for scheduling purposes.
 - 8 cores = 8 separate CPUs that the OS can schedule jobs on simultaneously.
 
@@ -222,13 +223,13 @@ OS decides which job goes to which CPU (via process scheduling algorithms).
 - **Better throughput** — more jobs complete per unit time due to true parallel execution.
 - **Lesser process starvation** — if 1 CPU is busy with a process, others can be executed on another CPU.
 
-**Example:** Windows NT
+**Example:** Windows NT(new tech aka modern)
 
 ---
 
 ### 6. Distributed OS
 
-- Also called: **Loosely Coupled OS**
+- Also called: *Loosely Coupled OS*
 
 **Contrast with everything above:**
 - Everything so far: one OS, one box (machine), one or more CPUs inside that box — all physically connected together inside the same computer.
@@ -267,7 +268,7 @@ OS decides which job goes to which CPU (via process scheduling algorithms).
 ### 7. Real-Time OS (RTOS)
 
 **Where is RTOS needed?**
-- Any environment where: (1) there must be **zero or near-zero errors**, (2) execution must happen **within a strict time deadline**, and (3) computation must be extremely fast.
+- Any environment where: (1) there must be *zero or near-zero errors*, (2) execution must happen **within a strict time deadline**, and (3) computation must be extremely fast.
 - *Real-time* = the system must execute within guaranteed time limits.
 
 **Examples of where RTOS is used:**

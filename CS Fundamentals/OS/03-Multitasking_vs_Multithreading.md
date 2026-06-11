@@ -1,7 +1,3 @@
-# Multitasking vs Multithreading
-
----
-
 ## What is a Program?
 
 - A **program** is an executable file which contains a certain set of instructions written to complete a specific job or operation on your computer.

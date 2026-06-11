@@ -117,7 +117,113 @@ The key difference: in Wait-Die the older transaction is passive (waits); in Wou
 
 ---
 
-## 5. Quick Revision
+## 5. Isolation Levels
+
+Locks and 2PL guarantee full isolation (serializability), but **full isolation is expensive** — it means transactions often block each other waiting for locks. In practice, applications choose a **weaker isolation level** that allows some anomalies in exchange for higher concurrency and throughput.
+
+SQL defines four standard isolation levels, each allowing a different set of anomalies.
+
+### The Three Anomalies (recap)
+
+| Anomaly | What happens |
+|---|---|
+| **Dirty Read** | Read uncommitted data from another transaction that may roll back |
+| **Non-Repeatable Read** | Read the same row twice, get different values (another transaction updated it in between) |
+| **Phantom Read** | Run the same range query twice, get different rows (another transaction inserted/deleted in between) |
+
+### The Four Isolation Levels
+
+| Isolation Level | Dirty Read | Non-Repeatable Read | Phantom Read | How it works |
+|---|---|---|---|---|
+| **READ UNCOMMITTED** | ✅ Possible | ✅ Possible | ✅ Possible | No read locks at all — reads never block |
+| **READ COMMITTED** | ❌ Prevented | ✅ Possible | ✅ Possible | S-locks acquired and **immediately released** after each read |
+| **REPEATABLE READ** | ❌ Prevented | ❌ Prevented | ✅ Possible | S-locks held until end of transaction |
+| **SERIALIZABLE** | ❌ Prevented | ❌ Prevented | ❌ Prevented | Full 2PL + range locks (or snapshot isolation) |
+
+> **Default in most databases:** MySQL InnoDB uses **REPEATABLE READ**; PostgreSQL uses **READ COMMITTED**.
+
+### Level-by-Level Explanation
+
+#### READ UNCOMMITTED
+- A transaction can read rows that another transaction has modified **but not yet committed**.
+- If T2 rolls back after T1 read its dirty write → T1 made a decision based on data that never existed.
+- Practically never used except in scenarios where absolute maximum throughput matters and stale reads are acceptable (e.g., approximate analytics dashboards).
+
+```css
+READ UNCOMMITTED — dirty read scenario:
+
+  T1: BEGIN                             T2: BEGIN
+                                        T2: UPDATE users SET bal=0 WHERE id=1
+  T1: SELECT bal FROM users WHERE id=1
+      → reads 0 (T2's uncommitted write!)
+                                        T2: ROLLBACK  (bal is actually still 1000)
+  T1: sees 0, acts on wrong data ❌
+```
+
+#### READ COMMITTED
+- T1 can only read rows that T2 has **already committed**.
+- Dirty reads are prevented. But if T1 reads the same row twice and T2 commits an update in between, T1 gets two different values → **non-repeatable read** still possible.
+- S-locks are taken and dropped immediately after each read statement (not held for the transaction duration).
+
+```css
+READ COMMITTED — non-repeatable read still possible:
+
+  T1: SELECT bal → 1000         (T2 hasn't touched it yet)
+                                T2: UPDATE bal = 500; COMMIT
+  T1: SELECT bal → 500          (same query, different result)
+  T1: confused — within one transaction, balance changed ❌
+```
+
+#### REPEATABLE READ
+- S-locks are held for the **entire duration** of the transaction. Once T1 reads a row, no other transaction can update that row until T1 commits.
+- Non-repeatable reads are prevented. But a range query (`WHERE age > 25`) can still return different *sets* of rows if another transaction inserts a new row that matches — **phantom read** still possible.
+
+```css
+REPEATABLE READ — phantom read still possible:
+
+  T1: SELECT * FROM orders WHERE amount > 100  → returns 5 rows
+                                T2: INSERT INTO orders (amount=200); COMMIT
+  T1: SELECT * FROM orders WHERE amount > 100  → returns 6 rows ❌
+  (same query, same transaction, different row count)
+```
+
+#### SERIALIZABLE
+- The highest level. Transactions execute as if they were **fully serial** — one at a time.
+- Implemented via **range locks** (lock the entire range of the query, not just the rows that currently exist) or **snapshot isolation with conflict detection**.
+- Prevents all three anomalies. Most expensive — maximum blocking.
+
+```css
+SERIALIZABLE — range lock prevents phantom:
+
+  T1: SELECT * FROM orders WHERE amount > 100
+      → DB places a range lock on "amount > 100"
+
+  T2: INSERT INTO orders (amount=200)
+      → T2 must wait — the range is locked by T1
+
+  T1 commits → range lock released → T2 proceeds.
+  T1 always sees a consistent snapshot. No phantoms.
+```
+
+### Choosing an Isolation Level
+
+- **Most web applications** use **READ COMMITTED** — it prevents the worst anomaly (dirty reads) while allowing high concurrency. Non-repeatable reads are usually acceptable because most requests are short-lived.
+- **Financial / inventory systems** that need to read-then-write based on a value (e.g., check balance, then debit) need at least **REPEATABLE READ** to avoid reading a stale balance.
+- **SERIALIZABLE** is used when correctness is critical and the operation genuinely depends on no other transaction interfering at all (e.g., booking the last seat on a flight).
+
+```css
+ISOLATION LEVEL TRADE-OFF:
+
+  READ UNCOMMITTED ─────────────────────────── SERIALIZABLE
+       ↑                                              ↑
+  Maximum throughput                        Maximum correctness
+  Maximum concurrency                       Maximum blocking
+  Minimum anomaly protection                Full anomaly protection
+```
+
+---
+
+## 6. Quick Revision
 
 | Concept | One-liner |
 |---|---|
@@ -127,4 +233,10 @@ The key difference: in Wait-Die the older transaction is passive (waits); in Wou
 | Strict 2PL | Hold X-locks until commit → no dirty reads |
 | Deadlock | Circular wait; resolved by aborting a victim transaction |
 | Dirty Read | Reading uncommitted data from another transaction |
+| Non-Repeatable Read | Same row read twice gives different values within one transaction |
+| Phantom Read | Same range query returns different row sets within one transaction |
 | Lost Update | Two transactions overwrite each other's changes |
+| READ UNCOMMITTED | No protection — allows dirty reads |
+| READ COMMITTED | Prevents dirty reads; default in PostgreSQL |
+| REPEATABLE READ | Prevents dirty + non-repeatable reads; default in MySQL |
+| SERIALIZABLE | Prevents all anomalies; most expensive |

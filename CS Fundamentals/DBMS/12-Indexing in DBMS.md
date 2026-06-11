@@ -392,3 +392,217 @@ SECONDARY INDEX — unsorted data file, indexing on "age":
 - **Primary index** requires the data file **sorted on a search key** (key→sparse, non-key→dense/clustering).
 - **Secondary index** is for **unsorted** files and is **always dense**; benefit = binary-searchable sorted index over an unsorted data file.
 - **Multi-level** indexing = index on an index, used when the index itself grows too large, Outer index often on RAM as it is tiny and can be easily cashed.
+
+---
+
+## B-Tree and B-Tree Indexing
+
+### Why B-Tree?
+
+All the indexing types above describe *what* to index and *how dense* the index is — but they don't describe the **data structure** used to store and search the index entries themselves. In real databases, the index is stored as a **B-Tree** (Balanced Tree).
+
+The binary search on a sorted index file (as described above) assumes the entire index fits in RAM or that you can jump directly to the middle. On disk, that's not how it works — you can only read one block at a time. B-Tree is designed specifically for **disk-based search**: it keeps the tree **short and wide** so only a few disk reads are needed to reach any record.
+
+### B-Tree Structure
+
+A B-Tree of **order `m`** (also called degree `m`) means each node can hold at most `m-1` keys and have at most `m` children.
+
+```css
+B-TREE OF ORDER 5 (each node: max 4 keys, max 5 children):
+
+                    [  30  |  70  ]
+                   /        |       \
+         [ 10 | 20 ]   [ 40 | 50 | 60 ]   [ 80 | 90 ]
+        /   |   |  \       ...              ...
+      [.] [.] [.] [.]
+   (leaf nodes — actual data pointers)
+```
+
+- Every node (except root) has **at least ⌈m/2⌉ children** — this prevents the tree from becoming too sparse and keeps it balanced.
+- All **leaf nodes are at the same depth** — the tree is always balanced → search time is always O(log n).
+- Each key in an internal node acts as a **separator**: keys to the left are smaller, keys to the right are larger.
+- Each node maps to **one disk block** — reading one node = one disk I/O.
+
+### How B-Tree Search Works
+
+To find a record with key = 45 in the tree above:
+1. Read root block → `[30 | 70]` → 45 is between 30 and 70 → go to middle child.
+2. Read middle child → `[40 | 50 | 60]` → 45 is between 40 and 50 → go to leaf.
+3. Read leaf → find 45's record pointer → **one more disk read** to get the actual data.
+
+Total: **3–4 disk reads** regardless of table size. For a B-Tree of order 100 (typical), a tree of height 3 covers 100³ = **1 million keys**. Height 4 covers 100 million. The tree stays extremely flat.
+
+```css
+HEIGHT vs RECORDS (order 100):
+
+  Height 1: root only               → up to 99 keys
+  Height 2: root + children         → up to ~10,000 keys
+  Height 3: root + 2 levels         → up to ~1,000,000 keys
+  Height 4: root + 3 levels         → up to ~100,000,000 keys
+
+  Finding any record in a 100M-row table = 4 disk reads.
+```
+
+### B-Tree vs B+ Tree
+
+Most real databases (MySQL InnoDB, PostgreSQL) actually use a **B+ Tree**, a variant:
+
+| | B-Tree | B+ Tree |
+|---|---|---|
+| **Data pointers** | In every node (internal + leaf) | **Only in leaf nodes** |
+| **Internal nodes** | Store keys + data pointers | Store keys only (more keys per node → shorter tree) |
+| **Leaf nodes** | No links between them | **Linked list** across all leaves |
+| **Range queries** | Expensive (tree traversal) | Fast — follow the leaf linked list |
+
+```css
+B+ TREE LEAF LINKED LIST (range query: keys 20 to 50):
+
+  Leaves: [10|15|20] → [25|30|35] → [40|45|50] → [55|60] → ...
+                          ↑ start here              ↑ stop here
+  
+  Just scan the linked list — no need to traverse the tree again.
+  Perfect for: WHERE age BETWEEN 20 AND 50, ORDER BY, range scans.
+```
+
+> **Rule of thumb:** When someone says "B-Tree index" in a DB context (MySQL, Postgres, etc.), they almost always mean **B+ Tree**.
+
+### B-Tree Index Formation
+
+When you run `CREATE INDEX idx_name ON table(column)`:
+1. The DB **sorts** all values of that column.
+2. It builds the B+ Tree bottom-up: fills leaf nodes with (key, row_pointer) pairs, then builds internal nodes as separators.
+3. The tree is written to disk as a separate index file (same block structure as the data file).
+4. On `INSERT` / `UPDATE` / `DELETE`, the DB **updates the tree** — splits nodes if a leaf overflows, merges if it underflows. This is why writes are slower with indexes.
+
+### When to Use an Index (and When Not To)
+
+**Use an index when:**
+- The column appears frequently in `WHERE`, `JOIN ON`, `ORDER BY`, or `GROUP BY`.
+- The table is large (thousands+ of rows) and queries are selective (returning a small fraction of rows).
+- The column has high **cardinality** (many distinct values — e.g., user_id, email). Low-cardinality columns (e.g., gender with 2 values) make the index nearly useless — the DB would still scan half the table.
+
+**Avoid an index when:**
+- The table is small — a full table scan is faster than the overhead of index lookup.
+- The column is updated very frequently — every write must also update the B-Tree.
+- The query returns a large fraction of rows — the DB may ignore the index anyway and do a full scan (cheaper than random I/O for each indexed row).
+- Heavy write workload (bulk inserts, ETL pipelines) — indexes slow down every write.
+
+```css
+INDEX SELECTIVITY — why cardinality matters:
+
+  Table: 1,000,000 users
+
+  Index on email (cardinality ~1,000,000):
+    WHERE email = 'x@y.com' → index finds 1 row → 2 disk reads. GREAT.
+
+  Index on gender (cardinality = 2):
+    WHERE gender = 'M' → index finds 500,000 rows → 500,000 random disk reads.
+    Full table scan would read ~100,000 blocks sequentially → FASTER.
+    DB optimizer will skip the index.
+```
+
+---
+
+## Composite Index
+
+### What Is a Composite Index?
+
+An index on **more than one column**. Instead of one search key, the index is built on an ordered tuple of columns.
+
+```sql
+CREATE INDEX idx_name_age ON users(last_name, first_name, age);
+```
+
+The B+ Tree is built by sorting rows **first by last_name, then by first_name within the same last_name, then by age within the same last_name + first_name**. The sort order is lexicographic — exactly like how a phone book is sorted.
+
+```css
+COMPOSITE INDEX ON (last_name, first_name, age):
+
+  Index entries (sorted lexicographically):
+  ┌───────────┬────────────┬─────┬────────────┐
+  │ last_name │ first_name │ age │ row_ptr    │
+  ├───────────┼────────────┼─────┼────────────┤
+  │ Sharma    │ Anil       │  22 │ ──► row 45 │
+  │ Sharma    │ Anil       │  28 │ ──► row 12 │
+  │ Sharma    │ Raj        │  25 │ ──► row 87 │
+  │ Singh     │ Arjun      │  30 │ ──► row 3  │
+  │ Singh     │ Priya      │  19 │ ──► row 61 │
+  └───────────┴────────────┴─────┴────────────┘
+```
+
+### The Left-Prefix Rule
+
+This is the most important rule for composite indexes. **The index can only be used if the query filters on a prefix of the indexed columns, starting from the leftmost column.**
+
+```css
+Index: (last_name, first_name, age)
+
+  ✅  WHERE last_name = 'Sharma'
+        → leftmost column used → index scan works
+
+  ✅  WHERE last_name = 'Sharma' AND first_name = 'Anil'
+        → first two columns used → index scan works
+
+  ✅  WHERE last_name = 'Sharma' AND first_name = 'Anil' AND age = 22
+        → all three columns used → index scan works (most selective)
+
+  ❌  WHERE first_name = 'Anil'
+        → skips last_name → index cannot be used, full table scan
+
+  ❌  WHERE age = 22
+        → skips both → index cannot be used
+
+  ⚠️  WHERE last_name = 'Sharma' AND age = 22
+        → last_name is used, but age skips first_name → index used only
+          for last_name part; age filter applied in-memory after that
+```
+
+Why? Because the index is sorted by last_name first. If you don't filter on last_name, the relevant rows are **scattered across the entire index** — there's no contiguous range to scan.
+
+### Column Order Matters
+
+Put the **most selective column first** only if it's used in most queries. More practically: put the column that appears in the most `WHERE` clauses first, then the next most common, etc.
+
+```css
+Choosing column order for index (users table, common queries):
+
+  Query A: WHERE last_name = ?               (very common)
+  Query B: WHERE last_name = ? AND age = ?   (common)
+  Query C: WHERE age = ?                     (rare)
+
+  Best index: (last_name, age)
+    → Query A uses left prefix ✅
+    → Query B uses both columns ✅
+    → Query C cannot use index ❌ (but it's rare, acceptable)
+
+  If you had indexed (age, last_name):
+    → Query A cannot use index ❌
+    → Query B uses both columns ✅
+    → Query C uses left prefix ✅
+    → Worse overall because Query A is the most common.
+```
+
+### Composite Index vs Multiple Single-Column Indexes
+
+A composite index `(a, b)` is **not** the same as two separate indexes on `a` and `b`.
+
+- `(a, b)` — one index, sorted by a then b. Directly handles `WHERE a = ? AND b = ?` in one B-Tree lookup.
+- Separate indexes on `a` and `b` — the DB has to look up both separately, collect two sets of row pointers, and **intersect** them. Slower.
+
+> For queries that always filter on both columns together, a composite index is better. For queries that filter on either column independently, separate indexes may be better.
+
+### When to Use a Composite Index
+
+- Multiple columns are consistently used together in `WHERE` clauses.
+- You want a **covering index** — the index contains all columns the query needs, so the DB never touches the actual table (the index itself answers the query).
+
+```css
+COVERING INDEX example:
+
+  Query:  SELECT first_name, age FROM users WHERE last_name = 'Sharma'
+  Index:  (last_name, first_name, age)
+
+  The index already contains last_name (filter), first_name, and age (selected).
+  The DB reads only the index — never touches the main table rows.
+  This is called an "index-only scan" — fastest possible read path.
+```
